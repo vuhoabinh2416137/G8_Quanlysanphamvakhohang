@@ -1,0 +1,145 @@
+@startuml use-case-diagram
+!theme plain
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecase {
+    BackgroundColor #F5F5DC
+    BorderColor #2F4F4F
+    ArrowColor #2F4F4F
+}
+skinparam actor {
+    BackgroundColor #87CEEB
+}
+
+title Biểu đồ Ca sử dụng Tổng quan\nHệ thống Quản lý Sản phẩm và Kho hàng
+
+' ===== ACTORS =====
+actor "Quản trị viên\n(Admin)" as Admin
+actor "Quản lý kho\n(Warehouse Manager)" as WM
+actor "Nhân viên\nbán hàng\n(Sales Staff)" as SS
+actor "Nhân viên\nmua hàng\n(Purchasing Staff)" as PS
+actor "Nhân viên kho\n(Warehouse Staff)" as WS
+
+actor "Hệ thống\nthanh toán" as PaySys <<System>>
+actor "Hệ thống\nemail" as EmailSys <<System>>
+
+' ===== Generalization giữa các tác nhân =====
+Admin --|> WM : <<quản lý>>
+
+' ===== SYSTEM BOUNDARY =====
+rectangle "Hệ thống Quản lý Sản phẩm và Kho hàng" {
+
+    ' --- Nhóm 1: Xác thực & Phân quyền ---
+    package "Xác thực & Phân quyền" {
+        usecase "UC01: Đăng nhập /\nĐăng xuất" as UC01
+        usecase "UC02: Phân quyền\nngười dùng" as UC02
+    }
+
+    ' --- Nhóm 2: Quản lý sản phẩm ---
+    package "Quản lý Sản phẩm" {
+        usecase "UC03: Quản lý\nsản phẩm" as UC03
+        usecase "UC04: Quản lý\ndanh mục sản phẩm" as UC04
+        usecase "UC05: Tìm kiếm\nsản phẩm" as UC05
+    }
+
+    ' --- Nhóm 3: Quản lý Kho hàng ---
+    package "Quản lý Kho hàng" {
+        usecase "UC06: Tạo phiếu\nnhập kho" as UC06
+        usecase "UC07: Tạo phiếu\nxuất kho" as UC07
+        usecase "UC08: Chuyển kho" as UC08
+        usecase "UC09: Kiểm kê kho" as UC09
+        usecase "UC10: Xem tồn kho" as UC10
+        usecase "UC11: Cảnh báo\ntồn kho thấp" as UC11
+    }
+
+    ' --- Nhóm 4: Quản lý Mua hàng ---
+    package "Quản lý Mua hàng" {
+        usecase "UC12: Quản lý\nnhà cung cấp" as UC12
+        usecase "UC13: Tạo đơn\nmua hàng" as UC13
+        usecase "UC14: Duyệt đơn\nmua hàng" as UC14
+        usecase "UC15: Nhận hàng từ\nnhà cung cấp" as UC15
+    }
+
+    ' --- Nhóm 5: Quản lý Bán hàng ---
+    package "Quản lý Bán hàng" {
+        usecase "UC16: Quản lý\nkhách hàng" as UC16
+        usecase "UC17: Tạo đơn\nbán hàng" as UC17
+        usecase "UC18: Xử lý\ngiao hàng" as UC18
+    }
+
+    ' --- Nhóm 6: Quản lý nhân viên ---
+    package "Quản lý Nhân viên" {
+        usecase "UC19: Quản lý\nnhân viên" as UC19
+    }
+
+    ' --- Nhóm 7: Báo cáo ---
+    package "Báo cáo Thống kê" {
+        usecase "UC20: Xem báo cáo\ntồn kho" as UC20
+        usecase "UC21: Xem báo cáo\ndoanh thu" as UC21
+        usecase "UC22: Xem báo cáo\nmua hàng" as UC22
+    }
+}
+
+' ===== ASSOCIATIONS =====
+' --- UC01: Tất cả đăng nhập ---
+Admin -- UC01
+WM -- UC01
+SS -- UC01
+PS -- UC01
+WS -- UC01
+
+' --- UC02: Phân quyền ---
+Admin -- UC02
+
+' --- Quản lý sản phẩm ---
+WM -- UC03
+WM -- UC04
+WM -- UC05
+SS -- UC05
+PS -- UC05
+WS -- UC05
+
+' --- Quản lý kho ---
+WS -- UC06
+WS -- UC07
+WM -- UC08
+WM -- UC09
+WS -- UC09
+WM -- UC10
+WS -- UC10
+UC11 -- EmailSys
+
+' --- Quản lý mua hàng ---
+PS -- UC12
+PS -- UC13
+WM -- UC14
+WS -- UC15
+
+' --- Quản lý bán hàng ---
+SS -- UC16
+SS -- UC17
+WS -- UC18
+UC17 -- PaySys
+
+' --- Quản lý nhân viên ---
+Admin -- UC19
+
+' --- Báo cáo ---
+WM -- UC20
+Admin -- UC21
+Admin -- UC22
+
+' ===== RELATIONSHIPS =====
+' Include relationships
+UC06 ..> UC10 : <<include>>
+UC07 ..> UC10 : <<include>>
+UC15 ..> UC06 : <<include>>
+UC18 ..> UC07 : <<include>>
+UC13 ..> UC12 : <<include>>
+UC17 ..> UC16 : <<include>>
+
+' Extend relationships
+UC11 ..> UC10 : <<extend>>\n[tồn kho < ngưỡng]
+UC08 ..> UC07 : <<extend>>\n[chuyển giữa các kho]
+
+@enduml

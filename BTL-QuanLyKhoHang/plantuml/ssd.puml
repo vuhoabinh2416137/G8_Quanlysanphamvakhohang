@@ -1,0 +1,192 @@
+@startuml ssd-nhap-kho
+!theme plain
+autonumber
+skinparam responseMessageBelowArrow true
+
+title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC06: Tạo Phiếu Nhập Kho
+
+actor "Nhân viên kho" as NV
+participant ":Hệ thống" as Sys
+
+NV -> Sys: yeuCauTaoPhieuNhap()
+activate Sys
+Sys --> NV: hienThiFormNhapKho(danhSachKho, danhSachDonMua)
+deactivate Sys
+
+NV -> Sys: chonDonMuaHang(maDonMua, maKho)
+activate Sys
+Sys --> NV: hienThiChiTietDonMua(dsSanPham, soLuongDat, giaNhap)
+deactivate Sys
+
+loop Với mỗi sản phẩm thực nhận
+    NV -> Sys: nhapMucHang(maSP, soLuongThucNhan, viTriKe)
+    activate Sys
+    Sys --> NV: capNhatDanhSachMucNhap(thanhTien, tongTamTinh)
+    deactivate Sys
+end
+
+NV -> Sys: xacNhanHoanTatPhieuNhap(ghiChu)
+activate Sys
+alt Hợp lệ
+    Sys --> NV: thongBaoThanhCong(maPhieuNhap, tongGiaTri, capNhatTonKho)
+else Lỗi dữ liệu
+    Sys --> NV: thongBaoLoi(lyDo)
+end
+deactivate Sys
+@enduml
+
+@startuml ssd-xuat-kho
+!theme plain
+autonumber
+skinparam responseMessageBelowArrow true
+
+title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC07: Tạo Phiếu Xuất Kho
+
+actor "Nhân viên kho" as NV
+participant ":Hệ thống" as Sys
+
+NV -> Sys: yeuCauTaoPhieuXuat()
+activate Sys
+Sys --> NV: hienThiFormXuatKho(danhSachDonBanChoXuat)
+deactivate Sys
+
+NV -> Sys: chonDonBanHang(maDonBan)
+activate Sys
+Sys --> NV: hienThiChiTietXuat(dsSanPham, soLuongYeuCau, viTriLayHang)
+deactivate Sys
+
+loop Với mỗi mặt hàng xuất
+    NV -> Sys: xacNhanQuetMaVach(maSP, maVach, soLuongXuat)
+    activate Sys
+    Sys --> NV: xacNhanKhopHang()
+    deactivate Sys
+end
+
+NV -> Sys: xacNhanXuatKho()
+activate Sys
+alt Tồn kho đủ
+    Sys --> NV: inPhieuXuatKho(maPXK, tongGiaTri, giamTonKho)
+    opt Tồn kho chạm ngưỡng cảnh báo
+        Sys -> Sys: guiCanhBaoTonKhoThap()
+    end
+else Thiếu hàng
+    Sys --> NV: thongBaoLoiTonKhoKhongDu()
+end
+deactivate Sys
+@enduml
+
+@startuml ssd-ban-hang
+!theme plain
+autonumber
+skinparam responseMessageBelowArrow true
+
+title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC17: Tạo Đơn Bán Hàng
+
+actor "Nhân viên bán hàng" as NVBH
+participant ":Hệ thống" as Sys
+actor "Hệ thống thanh toán" as Payment
+
+NVBH -> Sys: moGiaoDienBanHang()
+activate Sys
+Sys --> NVBH: hienThiGiaoDienBanHang()
+deactivate Sys
+
+NVBH -> Sys: timKiemKhachHang(sdt_hoac_maKH)
+activate Sys
+Sys --> NVBH: thongTinKhachHang(tenKH, loaiKH, congNo)
+deactivate Sys
+
+loop Thêm sản phẩm vào đơn
+    NVBH -> Sys: themSanPham(maSP, soLuong, maKho)
+    activate Sys
+    alt Tồn kho đủ
+        Sys --> NVBH: themVaoGioHang(tenSP, donGia, thanhTien, tongDon)
+    else Tồn kho không đủ
+        Sys --> NVBH: baoLoiTonKho(soLuongConLai)
+    end
+    deactivate Sys
+end
+
+NVBH -> Sys: chonPhuongThucThanhToan(phuongThuc, soTien)
+activate Sys
+opt Thanh toán trực tuyến qua cổng
+    Sys -> Payment: guiYeuCauThanhToan(maDon, soTien)
+    activate Payment
+    Payment --> Sys: xacNhanGiaoDichThanhCong(maGiaoDich)
+    deactivate Payment
+end
+Sys --> NVBH: hienThiTrangThaiThanhToan(DA_THANH_TOAN)
+deactivate Sys
+
+NVBH -> Sys: xacNhanDonHang()
+activate Sys
+Sys --> NVBH: hoaDonBanHang(maDonBan, maXacNhan, trangThai)
+deactivate Sys
+@enduml
+
+@startuml ssd-mua-hang
+!theme plain
+autonumber
+skinparam responseMessageBelowArrow true
+
+title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC13: Tạo Đơn Mua Hàng
+
+actor "Nhân viên mua hàng" as NVMH
+participant ":Hệ thống" as Sys
+
+NVMH -> Sys: moFormTaoDonMua()
+activate Sys
+Sys --> NVMH: hienThiDanhSachNCC_VaKho()
+deactivate Sys
+
+NVMH -> Sys: chonNCCVaKhoNhan(maNCC, maKho, ngayHenGiao)
+activate Sys
+Sys --> NVMH: thongTinNCC_VaBaoGia(dsSP_CungCap)
+deactivate Sys
+
+loop Thêm từng mặt hàng mua
+    NVMH -> Sys: themMatHangMua(maSP, soLuong, donGiaDeXuat)
+    activate Sys
+    Sys --> NVMH: tinhThanhTienTamTinh(tongTienPO)
+    deactivate Sys
+end
+
+NVMH -> Sys: guiDonMuaHang(ghiChu)
+activate Sys
+Sys --> NVMH: xacNhanGuiDonThanhCong(maPO, trangThai: CHO_DUYET)
+deactivate Sys
+@enduml
+
+@startuml ssd-kiem-ke
+!theme plain
+autonumber
+skinparam responseMessageBelowArrow true
+
+title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC09: Kiểm Kê Kho
+
+actor "Quản lý kho" as QLK
+actor "Nhân viên kho" as NVK
+participant ":Hệ thống" as Sys
+
+QLK -> Sys: taoPhienKiemKe(maKho, danhMuc)
+activate Sys
+Sys --> QLK: phienKiemKeKho(maPhien, danhSachSanPham, trangThai: KHOA_GD)
+deactivate Sys
+
+loop Kiểm đếm thực tế
+    NVK -> Sys: nhapSoLuongKiemDem(maPhien, maSP, soLuongThucTe)
+    activate Sys
+    Sys --> NVK: xacNhanGhiNhan()
+    deactivate Sys
+end
+
+QLK -> Sys: yeuCauBaoCaoChenhLech(maPhien)
+activate Sys
+Sys --> QLK: bangSoSanhSoSach_ThucTe(soThua, soThieu)
+deactivate Sys
+
+QLK -> Sys: xacNhanDieuChinhKho(maPhien, lyDo)
+activate Sys
+Sys --> QLK: hoanTatKiemKe(tuDongSinhPhieuDieuChinh, capNhatTonKho, MO_KHOA_GD)
+deactivate Sys
+@enduml

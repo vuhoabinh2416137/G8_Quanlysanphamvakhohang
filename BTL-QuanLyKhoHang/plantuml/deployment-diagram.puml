@@ -1,0 +1,84 @@
+@startuml deployment-diagram
+!theme plain
+skinparam nodeFontSize 12
+skinparam artifactFontSize 11
+
+title Sơ đồ Triển khai (Deployment Diagram) - Hệ thống Quản lý Sản phẩm và Kho hàng
+
+' =======================================================
+' CLIENT TIER
+' =======================================================
+node "Thiết bị Client (Người dùng)" as ClientDevice <<device>> {
+    node "Web Browser" <<execution environment>> {
+        artifact "Single Page App (SPA)\n(HTML5/CSS3/JavaScript)" as WebApp <<artifact>>
+    }
+}
+
+node "Thiết bị PDA Kiểm kho" as PDADevice <<device>> {
+    node "Mobile Web Browser" <<execution environment>> {
+        artifact "Giao diện Barcode Scanner\n(Responsive Web)" as PDAApp <<artifact>>
+    }
+}
+
+' =======================================================
+' APPLICATION SERVER TIER
+' =======================================================
+node "Máy chủ Ứng dụng (Application Server)" as AppServer <<device>> {
+    node "Reverse Proxy & Web Server (Nginx)" as Nginx <<execution environment>> {
+        artifact "SSL Termination & Load Balancer" as NginxConf <<artifact>>
+    }
+
+    node "Java Virtual Machine (OpenJDK 17)" as JVM <<execution environment>> {
+        node "Spring Boot Framework Container" as SpringContainer <<execution environment>> {
+            artifact "warehouse-app.jar\n(Core Application Archive)" as BackendJar <<artifact>> {
+                component "REST Controllers" as REST
+                component "Business Services" as Services
+                component "Data Access Objects (DAO)" as DAOs
+                component "Security & Auth (JWT)" as Sec
+            }
+        }
+    }
+}
+
+' =======================================================
+' DATABASE SERVER TIER
+' =======================================================
+node "Máy chủ Cơ sở Dữ liệu (Database Server)" as DBServer <<device>> {
+    node "RDBMS Engine (PostgreSQL / MySQL)" as DBMS <<execution environment>> {
+        database "warehouse_db\n(Lưu trữ dữ liệu quan hệ)" as DB <<database>> {
+            frame "Bảng Sản phẩm, Kho, Đơn hàng,\nPhiếu kho, Người dùng" as Tables
+        }
+    }
+    node "Hệ thống Lưu trữ Sao lưu (Backup Storage)" as BackupStorage {
+        artifact "Daily Backup Dump (.sql.gz)" as BackupFile <<artifact>>
+    }
+}
+
+' =======================================================
+' EXTERNAL INTEGRATIONS
+' =======================================================
+cloud "Hạ tầng Dịch vụ Bên ngoài (Cloud Services)" as CloudServices {
+    node "Máy chủ Thư điện tử (SMTP Mail Server)" as MailServer <<device>> {
+        component "Email Notification Service" as SMTP
+    }
+    
+    node "Cổng Thanh toán Trực tuyến (Payment Gateway)" as PaymentGateway <<device>> {
+        component "VNPay / MoMo API" as PayAPI
+    }
+}
+
+' =======================================================
+' GIAO THỨC VÀ ĐƯỜNG TRUYỀN DỮ LIỆU
+' =======================================================
+ClientDevice -- Nginx : HTTPS / WSS (Port 443)\n[TLS 1.3]
+PDADevice -- Nginx : HTTPS (Port 443)\n[TLS 1.3]
+
+Nginx -- JVM : HTTP Reverse Proxy\n(Port 8080 / Local Socket)
+
+SpringContainer -- DBMS : JDBC / TCP-IP (Port 5432)\n[HikariCP Connection Pool]
+DBMS ..> BackupStorage : Cron Job Snapshot\n(Hàng ngày 02:00 AM)
+
+SpringContainer -- MailServer : SMTP over TLS (Port 587)
+SpringContainer -- PaymentGateway : HTTPS RESTful API / JSON
+
+@enduml

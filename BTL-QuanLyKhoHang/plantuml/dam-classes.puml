@@ -1,0 +1,120 @@
+@startuml dam-classes
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam classFontSize 11
+
+title Thiết kế Các Lớp Quản lý Truy cập Dữ liệu (Data Access Management - DAM / DAO)\nTheo chuẩn mẫu mã nguồn IT3120 HUST
+
+package "Tầng Quản trị Kết nối (Connection Management)" #ECEFF1 {
+    interface DataSource {
+        + getConnection(): Connection
+    }
+
+    class DatabaseConfig {
+        - jdbcUrl: String
+        - username: String
+        - passwordHash: String
+        - maxPoolSize: Integer
+        + getDataSource(): DataSource
+    }
+}
+
+package "Các Lớp Data Access Management (DAM)" #E0F7FA {
+    abstract class AbstractDAM<T, ID> {
+        # dataSource: DataSource
+        + AbstractDAM(dataSource: DataSource)
+        # getConnection(): Connection
+        # mutedClose(c: Connection, s: Statement, r: ResultSet): void
+        + {abstract} getAll(): Stream<T>
+        + {abstract} getById(id: ID): Optional<T>
+        + {abstract} add(entity: T): Boolean
+        + {abstract} update(entity: T): Boolean
+        + {abstract} delete(entity: T): Boolean
+        # {abstract} createEntity(rs: ResultSet): T
+    }
+
+    class SanPhamDAM extends AbstractDAM {
+        + getAll(): Stream<SanPham>
+        + getById(maSP: String): Optional<SanPham>
+        + getByDanhMuc(maDanhMuc: String): Stream<SanPham>
+        + getSanPhamCanhBaoTonThap(): Stream<SanPham>
+        + add(sp: SanPham): Boolean
+        + update(sp: SanPham): Boolean
+        + delete(sp: SanPham): Boolean
+        # createEntity(rs: ResultSet): SanPham
+    }
+
+    class TonKhoDAM extends AbstractDAM {
+        + getAll(): Stream<TonKho>
+        + getById(maKho_maSP: CompositeKey): Optional<TonKho>
+        + getTonKhoByKho(maKho: String): Stream<TonKho>
+        + tangSoLuong(maKho: String, maSP: String, delta: Integer): Boolean
+        + giamSoLuong(maKho: String, maSP: String, delta: Integer): Boolean
+        + add(tk: TonKho): Boolean
+        + update(tk: TonKho): Boolean
+        + delete(tk: TonKho): Boolean
+        # createEntity(rs: ResultSet): TonKho
+    }
+
+    class PhieuNhapKhoDAM extends AbstractDAM {
+        + getAll(): Stream<PhieuNhapKho>
+        + getById(maPhieu: String): Optional<PhieuNhapKho>
+        + getByKho(maKho: String): Stream<PhieuNhapKho>
+        + getByDonMua(maDonMua: String): Optional<PhieuNhapKho>
+        + add(pnk: PhieuNhapKho): Boolean
+        + update(pnk: PhieuNhapKho): Boolean
+        + delete(pnk: PhieuNhapKho): Boolean
+        - loadMucNhap(maPhieu: String): List<MucNhap>
+        - saveMucNhap(maPhieu: String, mucNhap: MucNhap, conn: Connection): void
+        # createEntity(rs: ResultSet): PhieuNhapKho
+    }
+
+    class PhieuXuatKhoDAM extends AbstractDAM {
+        + getAll(): Stream<PhieuXuatKho>
+        + getById(maPhieu: String): Optional<PhieuXuatKho>
+        + getByKho(maKho: String): Stream<PhieuXuatKho>
+        + getByDonBan(maDonBan: String): Optional<PhieuXuatKho>
+        + add(pxk: PhieuXuatKho): Boolean
+        + update(pxk: PhieuXuatKho): Boolean
+        + delete(pxk: PhieuXuatKho): Boolean
+        - loadMucXuat(maPhieu: String): List<MucXuat>
+        - saveMucXuat(maPhieu: String, mucXuat: MucXuat, conn: Connection): void
+        # createEntity(rs: ResultSet): PhieuXuatKho
+    }
+
+    class DonMuaHangDAM extends AbstractDAM {
+        + getAll(): Stream<DonMuaHang>
+        + getById(maDon: String): Optional<DonMuaHang>
+        + getByTrangThai(trangThai: TrangThaiDonMua): Stream<DonMuaHang>
+        + getByNCC(maNCC: String): Stream<DonMuaHang>
+        + add(po: DonMuaHang): Boolean
+        + update(po: DonMuaHang): Boolean
+        + delete(po: DonMuaHang): Boolean
+        # createEntity(rs: ResultSet): DonMuaHang
+    }
+
+    class DonBanHangDAM extends AbstractDAM {
+        + getAll(): Stream<DonBanHang>
+        + getById(maDon: String): Optional<DonBanHang>
+        + getByKhachHang(maKH: String): Stream<DonBanHang>
+        + getByTrangThai(trangThai: TrangThaiDonBan): Stream<DonBanHang>
+        + add(so: DonBanHang): Boolean
+        + update(so: DonBanHang): Boolean
+        + delete(so: DonBanHang): Boolean
+        # createEntity(rs: ResultSet): DonBanHang
+    }
+
+    class PhienKiemKeDAM extends AbstractDAM {
+        + getAll(): Stream<PhienKiemKe>
+        + getById(maPhien: String): Optional<PhienKiemKe>
+        + getPhienDangThucHien(maKho: String): Optional<PhienKiemKe>
+        + add(pkk: PhienKiemKe): Boolean
+        + update(pkk: PhienKiemKe): Boolean
+        + delete(pkk: PhienKiemKe): Boolean
+        # createEntity(rs: ResultSet): PhienKiemKe
+    }
+}
+
+AbstractDAM o-- DataSource
+DatabaseConfig ..> DataSource : <<creates>>
+@enduml

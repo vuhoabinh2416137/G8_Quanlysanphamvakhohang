@@ -1,0 +1,135 @@
+@startuml state-don-mua-hang
+!theme plain
+title Sơ đồ Máy Trạng thái: Vòng đời Đơn Mua Hàng (DonMuaHang)
+
+[*] --> MOI_TAO : taoDonMua()
+
+state MOI_TAO {
+    MOI_TAO : entry / khoiTaoDonMua
+    MOI_TAO : do / choNVMH_ChinhSua
+}
+
+MOI_TAO --> CHO_DUYET : guiYeuCauDuyet()
+MOI_TAO --> DA_HUY : huyDon()
+
+state CHO_DUYET {
+    CHO_DUYET : entry / guiThongBaoDuyetChoQLK
+}
+
+CHO_DUYET --> DA_DUYET : duyetDon() [NganSachDu & KhoConCho] / guiPO_ChoNCC()
+CHO_DUYET --> TU_CHOI : tuChoi(lyDo) / thongBaoTuChoiChoNVMH()
+
+TU_CHOI --> CHO_DUYET : suaVaGuiLai()
+TU_CHOI --> DA_HUY : dongDon()
+
+state DA_DUYET {
+    DA_DUYET : do / choNCC_XacNhanVaGiaoHang
+}
+
+DA_DUYET --> DANG_GIAO : nccXacNhanGiaoHang()
+
+state DANG_GIAO {
+    DANG_GIAO : do / theoDoiVanChuyen
+}
+
+DANG_GIAO --> NHAN_MOT_PHAN : nhanHangThucTe() [soLuongNhan < soLuongDat] / taoPhieuNhapKho()
+DANG_GIAO --> DA_NHAN_HANG : nhanDuHang() [soLuongNhan == soLuongDat] / taoPhieuNhapKho()
+
+NHAN_MOT_PHAN --> DA_NHAN_HANG : nhanTiepDotSau() [duSoLuong] / taoPhieuNhapKho()
+NHAN_MOT_PHAN --> HOAN_THANH : chapNhanGiaoThieu()
+
+DA_NHAN_HANG --> HOAN_THANH : doiSoatVaThanhToan() / capNhatSoCai()
+
+HOAN_THANH --> [*]
+DA_HUY --> [*]
+@enduml
+
+@startuml state-don-ban-hang
+!theme plain
+title Sơ đồ Máy Trạng thái: Vòng đời Đơn Bán Hàng (DonBanHang)
+
+[*] --> MOI_TAO : taoDonBan()
+
+state MOI_TAO {
+    MOI_TAO : entry / chonKhachHang_ThemSanPham
+}
+
+MOI_TAO --> DA_HUY : huyDon()
+MOI_TAO --> CHO_THANH_TOAN : xacNhanGioHang() [phuongThuc == ONLINE]
+MOI_TAO --> DA_XAC_NHAN : xacNhanDonHang() [phuongThuc == TIEN_MAT || CONG_NO] / tamGiuTonKho()
+
+state CHO_THANH_TOAN {
+    CHO_THANH_TOAN : do / choPhanHoiCongThanhToan
+}
+
+CHO_THANH_TOAN --> DA_XAC_NHAN : thanhToanThanhCong() / tamGiuTonKho()
+CHO_THANH_TOAN --> CHO_THANH_TOAN : thanhToanThatBai() / thuLai()
+CHO_THANH_TOAN --> DA_HUY : hetHanThanhToan() / huyGiuCho()
+
+state DA_XAC_NHAN {
+    DA_XAC_NHAN : entry / taoLenhXuatKho
+}
+
+DA_XAC_NHAN --> DANG_XU_LY : khoBatDauNhatHang()
+
+state DANG_XU_LY {
+    DANG_XU_LY : do / nhapHangTheoPickList
+    DANG_XU_LY : exit / dongGoiKiemTra
+}
+
+DANG_XU_LY --> DA_XUAT_KHO : hoanTatXuatKho() / truTonKhoVatLy()
+
+state DA_XUAT_KHO {
+    DA_XUAT_KHO : entry / banGiaoDonViVanChuyen
+}
+
+DA_XUAT_KHO --> DANG_GIAO : batDauGiaoHang()
+
+state DANG_GIAO {
+    DANG_GIAO : do / theoDoiLoTrinh
+}
+
+DANG_GIAO --> DA_GIAO : khachNhanHang() / kyBienBanBanGiao()
+DANG_GIAO --> GIAO_THAT_BAI : giaoKhongThanhCong()
+
+GIAO_THAT_BAI --> DANG_GIAO : henGiaoLai() [soLanThu < 3]
+GIAO_THAT_BAI --> TRA_HANG : huyGiaoHang() / lapPhieuNhapTraHang()
+
+DA_GIAO --> HOAN_THANH : doiSoatDoanhThu()
+TRA_HANG --> DA_HUY : nhapHangVeKho() / hoanTonKho()
+
+HOAN_THANH --> [*]
+DA_HUY --> [*]
+@enduml
+
+@startuml state-san-pham
+!theme plain
+title Sơ đồ Máy Trạng thái: Vòng đời Sản phẩm (SanPham)
+
+[*] --> DU_THAO : taoSanPhamMoi()
+
+DU_THAO --> DANG_KINH_DOANH : pheDuyetKinhDoanh()
+
+state DANG_KINH_DOANH {
+    SAN_HANG : Sẵn hàng trong kho
+    TON_THAP : Cảnh báo tồn thấp
+    HET_HANG : Hết hàng
+
+    [*] --> SAN_HANG : nhapKhoLanDau() [soLuong > nguong]
+    
+    SAN_HANG --> TON_THAP : xuatKho() [soLuong <= nguong && soLuong > 0] / guiCanhBao()
+    TON_THAP --> SAN_HANG : nhapKho() [soLuong > nguong]
+    
+    TON_THAP --> HET_HANG : xuatKho() [soLuong == 0] / thongBaoHetHang()
+    HET_HANG --> SAN_HANG : nhapKho() [soLuong > nguong]
+    HET_HANG --> TON_THAP : nhapKho() [soLuong <= nguong && soLuong > 0]
+}
+
+DANG_KINH_DOANH --> TAM_NGUNG : tamDungKinhDoanh()
+TAM_NGUNG --> DANG_KINH_DOANH : moBanLai()
+
+DANG_KINH_DOANH --> NGUNG_KINH_DOANH : khaiTuSanPham() [tonKho == 0]
+TAM_NGUNG --> NGUNG_KINH_DOANH : xacNhanNgung()
+
+NGUNG_KINH_DOANH --> [*]
+@enduml

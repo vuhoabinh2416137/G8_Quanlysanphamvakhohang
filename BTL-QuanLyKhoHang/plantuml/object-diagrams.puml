@@ -1,0 +1,194 @@
+@startuml object-diagram-phieu-nhap
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam defaultTextAlignment left
+
+title Biểu đồ Đối tượng: Thể hiện Cụ thể Phiếu Nhập Kho (Instance Snapshot)
+
+object "khoHN : Kho" as khoHN {
+    maKho = "KHO-HN-01"
+    tenKho = "Kho Tổng Hà Nội"
+    diaChi = "Số 1 Đại Cồ Việt, Hai Bà Trưng, HN"
+    dienThoai = "024-3869-1234"
+}
+
+object "nvLinh : NhanVien" as nvLinh {
+    maNV = "NV002"
+    hoTen = "Trần Thị Khánh Linh"
+    chucVu = "Thủ kho"
+    dienThoai = "0988776655"
+}
+
+object "nccSamsung : NhaCungCap" as nccSamsung {
+    maNCC = "NCC-SS-01"
+    tenNCC = "Công ty TNHH Samsung Electronics VN"
+    diaChi = "KCN Yên Phong, Bắc Ninh"
+    email = "contact@samsung.com.vn"
+    trangThai = HOAT_DONG
+}
+
+object "po2026_001 : DonMuaHang" as po2026 {
+    maDon = "PO-2026-001"
+    ngayTao = 2026-09-10
+    ngayGiaoDuKien = 2026-09-14
+    tongGiaTri = 750000000.0
+    trangThai = DA_DUYET
+}
+
+object "pnk2026_101 : PhieuNhapKho" as pnk2026 {
+    maPhieu = "PNK-2026-101"
+    ngayNhap = 2026-09-14
+    lyDoNhap = TU_NHA_CUNG_CAP
+    tongGiaTri = 750000000.0
+    trangThai = DA_XAC_NHAN
+    ghiChu = "Nhập đủ hàng theo PO-2026-001 nguyên đai nguyên kiện"
+}
+
+object "mn01 : MucNhap" as mn01 {
+    soLuong = 20
+    donGiaNhap = 25000000.0
+    thanhTien = 500000000.0
+}
+
+object "mn02 : MucNhap" as mn02 {
+    soLuong = 50
+    donGiaNhap = 5000000.0
+    thanhTien = 250000000.0
+}
+
+object "spS24 : SanPham" as spS24 {
+    maSP = "SP-SAM-S24U"
+    tenSP = "Samsung Galaxy S24 Ultra 512GB"
+    donViTinh = "Chiếc"
+    giaNhap = 25000000.0
+    giaBan = 31990000.0
+    nguongTonKho = 5
+    trangThai = DANG_KINH_DOANH
+}
+
+object "spBuds : SanPham" as spBuds {
+    maSP = "SP-SAM-BUDS3"
+    tenSP = "Tai nghe Galaxy Buds 3 Pro"
+    donViTinh = "Bộ"
+    giaNhap = 5000000.0
+    giaBan = 6490000.0
+    nguongTonKho = 10
+    trangThai = DANG_KINH_DOANH
+}
+
+object "tonKhoS24 : TonKho" as tonKhoS24 {
+    soLuong = 35
+    ngayCapNhat = 2026-09-14
+}
+
+object "tonKhoBuds : TonKho" as tonKhoBuds {
+    soLuong = 80
+    ngayCapNhat = 2026-09-14
+}
+
+' Links
+pnk2026 ..> po2026 : theo đơn
+pnk2026 -- khoHN : nhập vào
+pnk2026 -- nvLinh : lập bởi
+pnk2026 *-- mn01
+pnk2026 *-- mn02
+
+mn01 -- spS24 : nhập hàng
+mn02 -- spBuds : nhập hàng
+
+po2026 -- nccSamsung : đặt từ
+
+spS24 -- tonKhoS24
+tonKhoS24 -- khoHN
+
+spBuds -- tonKhoBuds
+tonKhoBuds -- khoHN
+@enduml
+
+@startuml object-diagram-don-ban-hang
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam defaultTextAlignment left
+
+title Biểu đồ Đối tượng: Thể hiện Cụ thể Đơn Bán Hàng và Xuất Kho
+
+object "khViettel : KhachHang" as khViettel {
+    maKH = "KH-DN-088"
+    tenKH = "Tập đoàn Công nghiệp - Viễn thông Quân đội (Viettel)"
+    diaChi = "Lô D26 Khu đô thị mới Cầu Giấy, Hà Nội"
+    dienThoai = "024-6255-6789"
+    email = "procurement@viettel.com.vn"
+    loaiKH = DOANH_NGHIEP
+}
+
+object "nvBinh : NhanVien" as nvBinh {
+    maNV = "NV005"
+    hoTen = "Nguyễn Văn Bình"
+    chucVu = "Nhân viên Kinh doanh"
+    dienThoai = "0912345678"
+}
+
+object "nvLinh : NhanVien" as nvLinh {
+    maNV = "NV002"
+    hoTen = "Trần Thị Khánh Linh"
+    chucVu = "Thủ kho"
+}
+
+object "khoHN : Kho" as khoHN {
+    maKho = "KHO-HN-01"
+    tenKho = "Kho Tổng Hà Nội"
+}
+
+object "so2026_555 : DonBanHang" as so2026 {
+    maDon = "SO-2026-555"
+    ngayTao = 2026-09-14
+    tongTien = 191940000.0
+    thue = 19194000.0
+    giamGia = 5000000.0
+    thanhToan = 206134000.0
+    phuongThucThanhToan = "CHUYEN_KHOAN_NGAN_HANG"
+    trangThai = DA_XAC_NHAN
+    ghiChu = "Giao hàng giờ hành chính kèm biên bản bàn giao và VAT"
+}
+
+object "mb01 : MucBan" as mb01 {
+    soLuong = 6
+    donGiaBan = 31990000.0
+    thanhTien = 191940000.0
+}
+
+object "spS24 : SanPham" as spS24 {
+    maSP = "SP-SAM-S24U"
+    tenSP = "Samsung Galaxy S24 Ultra 512GB"
+    giaBan = 31990000.0
+}
+
+object "pxk2026_303 : PhieuXuatKho" as pxk2026 {
+    maPhieu = "PXK-2026-303"
+    ngayXuat = 2026-09-14
+    lyDoXuat = BAN_HANG
+    tongGiaTri = 191940000.0
+    trangThai = DA_XAC_NHAN
+    ghiChu = "Xuất hàng bàn giao Viettel theo SO-2026-555"
+}
+
+object "mx01 : MucXuat" as mx01 {
+    soLuongYeuCau = 6
+    soLuongThucXuat = 6
+    donGiaXuat = 31990000.0
+    thanhTien = 191940000.0
+}
+
+' Links
+so2026 -- khViettel : đặt bởi
+so2026 -- nvBinh : tạo bởi
+so2026 -- khoHN : xuất từ
+so2026 *-- mb01
+mb01 -- spS24 : mặt hàng
+
+pxk2026 ..> so2026 : căn cứ theo
+pxk2026 -- khoHN : từ kho
+pxk2026 -- nvLinh : xuất bởi
+pxk2026 *-- mx01
+mx01 -- spS24 : xuất mặt hàng
+@enduml

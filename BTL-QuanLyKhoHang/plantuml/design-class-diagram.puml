@@ -1,0 +1,256 @@
+@startuml design-class-diagram
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam classFontSize 11
+
+title Biểu đồ Lớp Thiết kế Chi tiết (Design Class Diagram)\nHệ thống Quản lý Sản phẩm và Kho hàng (Áp dụng SOLID & Design Patterns)
+
+' ========================================================
+' DESIGN PATTERN 1: FACTORY PATTERN (Tạo Phiếu Kho)
+' ========================================================
+package "Mẫu Tạo Lập (Factory Pattern)" #FFF9C4 {
+    abstract class PhieuKhoFactory {
+        + {abstract} createPhieuKho(loai: LoaiPhieuKho): PhieuKho
+    }
+
+    class ConcretePhieuKhoFactory {
+        + createPhieuKho(loai: LoaiPhieuKho): PhieuKho
+    }
+    
+    PhieuKhoFactory <|-- ConcretePhieuKhoFactory
+}
+
+' ========================================================
+' DESIGN PATTERN 2: OBSERVER PATTERN (Cảnh báo tồn kho)
+' ========================================================
+package "Mẫu Hành Vi (Observer Pattern)" #E1F5FE {
+    interface TonKhoObserver {
+        + onStockChanged(khoId: String, spId: String, soLuongMoi: Integer, nguong: Integer): void
+    }
+
+    class LowStockAlertObserver implements TonKhoObserver {
+        - emailService: EmailService
+        + onStockChanged(khoId: String, spId: String, soLuongMoi: Integer, nguong: Integer): void
+    }
+
+    class AuditLogObserver implements TonKhoObserver {
+        + onStockChanged(khoId: String, spId: String, soLuongMoi: Integer, nguong: Integer): void
+    }
+
+    class TonKhoSubject {
+        - observers: List<TonKhoObserver>
+        + attach(observer: TonKhoObserver): void
+        + detach(observer: TonKhoObserver): void
+        + notifyObservers(khoId: String, spId: String, soLuongMoi: Integer, nguong: Integer): void
+    }
+    
+    TonKhoSubject o-- TonKhoObserver
+}
+
+' ========================================================
+' DESIGN PATTERN 3: STRATEGY PATTERN (Chính sách giá bán & chiết khấu)
+' ========================================================
+package "Mẫu Chiến Lược (Strategy Pattern)" #FCE4EC {
+    interface PricingStrategy {
+        + calculatePrice(sp: SanPham, soLuong: Integer, kh: KhachHang): Double
+    }
+
+    class StandardRetailPricingStrategy implements PricingStrategy {
+        + calculatePrice(sp: SanPham, soLuong: Integer, kh: KhachHang): Double
+    }
+
+    class WholesalePricingStrategy implements PricingStrategy {
+        - chietKhauDoanhNghiep: Double
+        + calculatePrice(sp: SanPham, soLuong: Integer, kh: KhachHang): Double
+    }
+}
+
+' ========================================================
+' TẦNG GIAO DIỆN & ĐIỀU KHIỂN (CONTROLLERS)
+' ========================================================
+package "Tầng Điều Khiển (Controllers)" #EDE7F6 {
+    class NhapKhoController {
+        - nhapKhoService: NhapKhoService
+        + taoPhieuNhap(request: PhieuNhapRequestDTO): ResponseEntity<PhieuNhapResponseDTO>
+        + layChiTietPhieu(maPhieu: String): ResponseEntity<PhieuNhapResponseDTO>
+    }
+
+    class BanHangController {
+        - banHangService: BanHangService
+        + datHang(request: OrderRequestDTO): ResponseEntity<OrderResponseDTO>
+        + xacNhanThanhToan(maDon: String): ResponseEntity<Boolean>
+    }
+
+    class KiemKeController {
+        - kiemKeService: KiemKeService
+        + taoPhien(request: KiemKeRequestDTO): ResponseEntity<String>
+        + ghiNhanKetQua(maPhien: String, data: List<MucKiemKeDTO>): ResponseEntity<Void>
+        + pheDuyet(maPhien: String): ResponseEntity<BaoCaoChenhLechDTO>
+    }
+}
+
+' ========================================================
+' TẦNG DỊCH VỤ NGHIỆP VỤ (SERVICES)
+' ========================================================
+package "Tầng Dịch Vụ (Services)" #E8F5E9 {
+    interface NhapKhoService {
+        + taoPhieuNhapKho(dto: PhieuNhapRequestDTO): PhieuNhapResponseDTO
+        + xacNhanNhapKho(maPhieu: String): Boolean
+    }
+
+    class NhapKhoServiceImpl implements NhapKhoService {
+        - phieuKhoFactory: PhieuKhoFactory
+        - phieuNhapDAO: PhieuNhapDAO
+        - tonKhoService: TonKhoService
+        - donMuaDAO: DonMuaDAO
+        + taoPhieuNhapKho(dto: PhieuNhapRequestDTO): PhieuNhapResponseDTO
+        + xacNhanNhapKho(maPhieu: String): Boolean
+    }
+
+    interface TonKhoService {
+        + congTonKho(maKho: String, maSP: String, soLuong: Integer): Boolean
+        + truTonKho(maKho: String, maSP: String, soLuong: Integer): Boolean
+        + kiemTraTonKhaDung(maKho: String, maSP: String, soLuong: Integer): Boolean
+    }
+
+    class TonKhoServiceImpl extends TonKhoSubject implements TonKhoService {
+        - tonKhoDAO: TonKhoDAO
+        + congTonKho(maKho: String, maSP: String, soLuong: Integer): Boolean
+        + truTonKho(maKho: String, maSP: String, soLuong: Integer): Boolean
+        + kiemTraTonKhaDung(maKho: String, maSP: String, soLuong: Integer): Boolean
+    }
+
+    interface BanHangService {
+        + taoDonBanHang(dto: OrderRequestDTO): OrderResponseDTO
+        + setPricingStrategy(strategy: PricingStrategy): void
+    }
+
+    class BanHangServiceImpl implements BanHangService {
+        - banHangDAO: DonBanDAO
+        - tonKhoService: TonKhoService
+        - pricingStrategy: PricingStrategy
+        + taoDonBanHang(dto: OrderRequestDTO): OrderResponseDTO
+        + setPricingStrategy(strategy: PricingStrategy): void
+    }
+}
+
+' ========================================================
+' TẦNG THỰC THỂ MIỀN (DOMAIN ENTITIES)
+' ========================================================
+package "Tầng Thực Thể (Entities)" #FFF3E0 {
+    abstract class PhieuKho {
+        # maPhieu: String
+        # ngayLap: LocalDateTime
+        # maKho: String
+        # maNhanVien: String
+        # tongGiaTri: Double
+        # ghiChu: String
+        + {abstract} tinhTongGiaTri(): Double
+    }
+
+    class PhieuNhapKho extends PhieuKho {
+        - lyDoNhap: LyDoNhap
+        - maDonMua: String
+        - dsMucNhap: List<MucNhap>
+        + tinhTongGiaTri(): Double
+        + themMucNhap(maSP: String, sl: Integer, gia: Double): void
+    }
+
+    class MucNhap {
+        - maSP: String
+        - soLuong: Integer
+        - donGiaNhap: Double
+        - thanhTien: Double
+        + tinhThanhTien(): Double
+    }
+
+    class PhieuXuatKho extends PhieuKho {
+        - lyDoXuat: LyDoXuat
+        - maDonBan: String
+        - dsMucXuat: List<MucXuat>
+        + tinhTongGiaTri(): Double
+        + themMucXuat(maSP: String, sl: Integer, gia: Double): void
+    }
+
+    class MucXuat {
+        - maSP: String
+        - soLuongYeuCau: Integer
+        - soLuongThucXuat: Integer
+        - donGiaXuat: Double
+        - thanhTien: Double
+        + tinhThanhTien(): Double
+    }
+
+    class SanPham {
+        - maSP: String
+        - tenSP: String
+        - donViTinh: String
+        - giaNhap: Double
+        - giaBan: Double
+        - nguongTonKho: Integer
+        - trangThai: TrangThaiSP
+    }
+
+    class TonKho {
+        - maKho: String
+        - maSP: String
+        - soLuong: Integer
+        - ngayCapNhat: LocalDateTime
+        + tang(sl: Integer): void
+        + giam(sl: Integer): void
+        + kiemTraNguong(nguong: Integer): Boolean
+    }
+
+    PhieuNhapKho *-- MucNhap
+    PhieuXuatKho *-- MucXuat
+}
+
+' ========================================================
+' TẦNG TRUY CẬP DỮ LIỆU (DATA ACCESS OBJECTS - DAO)
+' ========================================================
+package "Tầng Truy Cập Dữ Liệu (DAO / DAM)" #E0F2F1 {
+    interface GenericDAO<T, ID> {
+        + findById(id: ID): Optional<T>
+        + findAll(): List<T>
+        + save(entity: T): T
+        + update(entity: T): Boolean
+        + deleteById(id: ID): Boolean
+    }
+
+    interface PhieuNhapDAO extends GenericDAO {
+        + findByDonMua(maDonMua: String): List<PhieuNhapKho>
+    }
+
+    interface TonKhoDAO extends GenericDAO {
+        + findByKhoAndSanPham(maKho: String, maSP: String): Optional<TonKho>
+        + updateSoLuong(maKho: String, maSP: String, delta: Integer): Boolean
+    }
+
+    interface DonBanDAO extends GenericDAO {
+        + findByKhachHang(maKH: String): List<DonBanHang>
+    }
+
+    interface DonMuaDAO extends GenericDAO {
+        + findByNCC(maNCC: String): List<DonMuaHang>
+    }
+}
+
+' Liên kết giữa các tầng
+NhapKhoController --> NhapKhoService
+BanHangController --> BanHangService
+
+NhapKhoServiceImpl --> PhieuKhoFactory
+NhapKhoServiceImpl --> PhieuNhapDAO
+NhapKhoServiceImpl --> TonKhoService
+NhapKhoServiceImpl --> DonMuaDAO
+
+BanHangServiceImpl --> DonBanDAO
+BanHangServiceImpl --> TonKhoService
+BanHangServiceImpl o-- PricingStrategy
+
+TonKhoServiceImpl --> TonKhoDAO
+
+ConcretePhieuKhoFactory ..> PhieuNhapKho : <<instantiate>>
+ConcretePhieuKhoFactory ..> PhieuXuatKho : <<instantiate>>
+
+@enduml

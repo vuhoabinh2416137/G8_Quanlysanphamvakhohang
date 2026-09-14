@@ -1,0 +1,278 @@
+@startuml activity-quy-trinh-tong-hop
+!theme plain
+title Biểu đồ Hoạt động Tổng hợp - Hệ thống Quản lý Sản phẩm và Kho hàng
+
+' ==============================================================================
+' 1. QUY TRÌNH NHẬP KHO TỪ ĐƠN MUA HÀNG (UC06 + UC15)
+' ==============================================================================
+|Nhà cung cấp|
+start
+:Giao hàng đến kho theo Đơn mua hàng;
+
+|Nhân viên kho|
+:Tiếp nhận hàng hóa và hóa đơn/phiếu giao;
+:Tra cứu đơn mua hàng trên hệ thống;
+
+|Hệ thống|
+:Hiển thị chi tiết đơn mua hàng (sản phẩm, số lượng đặt);
+
+|Nhân viên kho|
+:Kiểm đếm thực tế số lượng và quy cách sản phẩm;
+
+if (Hàng đúng quy cách và số lượng?) then (Khớp hoàn toàn)
+    :Xác nhận nhận đủ hàng;
+else (Có sai lệch / hư hỏng)
+    :Lập biên bản sai lệch;
+    if (Chấp nhận nhận một phần?) then (Đồng ý)
+        :Ghi nhận số lượng thực nhận;
+    else (Từ chối)
+        :Từ chối toàn bộ lô hàng;
+        |Nhà cung cấp|
+        :Thu hồi hàng về;
+        stop
+    endif
+endif
+
+|Nhân viên kho|
+:Chọn chức năng "Tạo phiếu nhập kho";
+
+|Hệ thống|
+:Khởi tạo phiếu nhập với mã tự sinh;
+:Điền thông tin NCC và danh sách mặt hàng;
+
+|Nhân viên kho|
+:Nhập số lượng thực nhận, đơn giá và vị trí lưu kho (kệ, tầng);
+:Xác nhận hoàn tất phiếu nhập;
+
+|Hệ thống|
+:Lưu phiếu nhập kho vào CSDL;
+fork
+    :Tăng số lượng tồn kho (TonKho += soLuongThucNhan);
+fork again
+    :Cập nhật trạng thái Đơn mua hàng\n(DA_NHAN hoặc NHAN_MOT_PHAN);
+fork again
+    :Ghi log lịch sử giao dịch kho;
+end fork
+
+:Xuất phiếu nhập kho điện tử;
+|Nhân viên kho|
+:In phiếu nhập kho và lưu trữ;
+stop
+
+' ==============================================================================
+' 2. QUY TRÌNH BÁN HÀNG VÀ XUẤT KHO (UC17 + UC18 + UC07)
+' ==============================================================================
+@enduml
+
+@startuml activity-ban-hang-xuat-kho
+!theme plain
+title Biểu đồ Hoạt động: Quy trình Bán hàng và Xuất kho (UC17 + UC18 + UC07)
+
+|Nhân viên bán hàng|
+start
+:Tiếp nhận đơn đặt hàng từ khách;
+:Mở giao diện "Tạo đơn bán hàng";
+
+|Hệ thống|
+:Hiển thị form lập đơn bán;
+
+|Nhân viên bán hàng|
+:Tìm kiếm và chọn khách hàng;
+if (Khách hàng tồn tại?) then (Có)
+    |Hệ thống|
+    :Tải thông tin và lịch sử tín dụng;
+else (Chưa có)
+    |Nhân viên bán hàng|
+    :Nhập thông tin tạo hồ sơ khách hàng mới;
+    |Hệ thống|
+    :Lưu hồ sơ khách hàng;
+endif
+
+|Nhân viên bán hàng|
+:Chọn kho xuất hàng;
+repeat
+    :Thêm sản phẩm vào đơn hàng;
+    :Nhập số lượng cần bán;
+    |Hệ thống|
+    :Kiểm tra số lượng tồn khả dụng;
+    if (Tồn khả dụng đủ?) then (Đủ)
+        :Áp dụng chính sách giá & chiết khấu;
+        :Tạm giữ hàng trong kho (reserve);
+    else (Không đủ)
+        :Thông báo thiếu hàng;
+        |Nhân viên bán hàng|
+        :Đề xuất kho khác hoặc đổi mặt hàng;
+    endif
+    |Nhân viên bán hàng|
+repeat while (Còn sản phẩm tiếp theo?) is (Có)
+-> Hết;
+
+|Hệ thống|
+:Tính tổng tiền hàng, thuế VAT, giảm giá;
+
+|Nhân viên bán hàng|
+:Chọn phương thức thanh toán;
+if (Thanh toán điện tử / Thẻ?) then (Có)
+    |Hệ thống thanh toán|
+    :Xác thực và xử lý thanh toán online;
+    if (Giao dịch thành công?) then (Thành công)
+        :Trả mã chuẩn chi giao dịch;
+    else (Thất bại)
+        |Nhân viên bán hàng|
+        :Yêu cầu phương thức khác / Ghi nợ;
+    endif
+else (Tiền mặt / Chuyển khoản trực tiếp)
+    |Nhân viên bán hàng|
+    :Thu tiền hoặc xác nhận công nợ;
+endif
+
+|Nhân viên bán hàng|
+:Xác nhận duyệt đơn bán hàng;
+
+|Hệ thống|
+:Lưu đơn bán hàng với trạng thái "CHO_XUAT_KHO";
+:Tự động tạo lệnh xuất kho gửi Bộ phận Kho;
+
+' ===== PHÂN ĐOẠN XUẤT KHO =====
+|Nhân viên kho|
+:Xem danh sách đơn chờ xuất kho;
+:Nhận lệnh xuất kho và danh sách nhặt hàng (Pick-list);
+:Lấy hàng tại các vị trí kệ kho;
+:Kiểm tra chất lượng và quét mã vạch kiểm tra;
+:Tạo "Phiếu xuất kho" trên hệ thống;
+
+|Hệ thống|
+:Xác nhận phiếu xuất kho;
+fork
+    :Giảm số lượng tồn kho vật lý;
+fork again
+    :Cập nhật trạng thái đơn bán thành "DA_XUAT_KHO";
+fork again
+    if (Tồn kho sau xuất < Ngưỡng an toàn?) then (Cảnh báo)
+        :Gửi cảnh báo tồn kho thấp đến Quản lý kho;
+    else (An toàn)
+    endif
+end fork
+
+|Nhân viên kho|
+:Đóng gói và bàn giao hàng cho đơn vị vận chuyển/khách hàng;
+:Cập nhật trạng thái giao hàng thành "DANG_GIAO";
+
+|Khách hàng|
+:Nhận hàng và ký nhận bàn giao;
+
+|Hệ thống|
+:Cập nhật trạng thái đơn thành "HOAN_THANH";
+stop
+@enduml
+
+@startuml activity-kiem-ke-kho
+!theme plain
+title Biểu đồ Hoạt động: Quy trình Kiểm kê Kho hàng (UC09)
+
+|Quản lý kho|
+start
+:Lên kế hoạch kiểm kê định kỳ / đột xuất;
+:Chọn kho kiểm kê và phạm vi (Toàn bộ / Theo nhóm hàng / Vị trí);
+:Tạo "Phiếu kiểm kê kho" trên hệ thống;
+
+|Hệ thống|
+:Chốt số liệu sổ sách tại thời điểm lập phiếu (Snapshot tồn kho);
+:Khóa tạm thời các giao dịch nhập/xuất đối với sản phẩm kiểm kê;
+:Tạo danh sách kiểm đếm (Count sheet) không hiển thị số lượng tồn sổ sách;
+
+|Nhân viên kho|
+:Nhận danh sách kiểm đếm;
+:Tiến hành kiểm đếm thực tế hàng hóa tại từng vị trí ô/kệ;
+:Ghi chép số lượng thực tế kiểm đếm được;
+:Nhập số liệu kiểm kê thực tế vào hệ thống;
+
+|Hệ thống|
+:So sánh số lượng thực tế với số lượng sổ sách;
+:Tính toán chênh lệch (Thừa / Thiếu / Khớp);
+:Tổng hợp Báo cáo chênh lệch kiểm kê;
+
+|Quản lý kho|
+:Xem xét báo cáo chênh lệch;
+if (Chênh lệch vượt ngưỡng cho phép?) then (Có sai lệch lớn)
+    :Yêu cầu kiểm đếm lại lần 2;
+    |Nhân viên kho|
+    :Tổ chức kiểm đếm độc lập lại mặt hàng sai lệch;
+    :Cập nhật lại số liệu;
+else (Chấp nhận được hoặc giải trình hợp lý)
+endif
+
+|Quản lý kho|
+:Nhập nguyên nhân sai lệch (hỏng hóc, hao hụt, nhầm lẫn mã);
+:Phê duyệt kết quả kiểm kê;
+
+|Hệ thống|
+:Xác nhận hoàn tất phiên kiểm kê;
+fork
+    :Tự động tạo Phiếu điều chỉnh tăng (nếu thừa hàng);
+fork again
+    :Tự động tạo Phiếu điều chỉnh giảm (nếu thiếu/hỏng hàng);
+fork again
+    :Cập nhật lại số lượng tồn kho chính thức;
+fork again
+    :Mở khóa giao dịch nhập/xuất kho;
+end fork
+
+:Lưu trữ lịch sử và xuất biên bản kiểm kê;
+stop
+@enduml
+
+@startuml activity-mua-hang
+!theme plain
+title Biểu đồ Hoạt động: Quy trình Mua hàng từ Nhà Cung Cấp (UC13 + UC14)
+
+|Nhân viên mua hàng|
+start
+:Nhận cảnh báo tồn kho thấp hoặc đề xuất nhập hàng;
+:Phân tích nhu cầu hàng hóa và lịch sử tiêu thụ;
+:Mở chức năng "Tạo đơn mua hàng" (PO);
+
+|Hệ thống|
+:Khởi tạo form Đơn mua hàng với mã số tự sinh;
+
+|Nhân viên mua hàng|
+:Chọn Nhà cung cấp phù hợp (theo bảng giá, uy tín);
+:Chọn Kho nhận hàng dự kiến;
+repeat
+    :Chọn sản phẩm cần mua;
+    :Nhập số lượng đề xuất và đơn giá thương lượng;
+    |Hệ thống|
+    :Tính thành tiền từng mặt hàng;
+    |Nhân viên mua hàng|
+repeat while (Thêm sản phẩm khác?) is (Có)
+-> Hết;
+
+:Nhập ngày hẹn giao dự kiến và điều khoản thanh toán;
+:Gửi đơn mua hàng lên hệ thống với trạng thái "CHO_DUYET";
+
+|Quản lý kho|
+:Nhận thông báo có đơn mua hàng mới cần duyệt;
+:Mở chi tiết đơn mua hàng để xem xét;
+:Kiểm tra ngân sách, dung lượng kho và nhu cầu thực tế;
+
+if (Phê duyệt đơn mua?) then (Đồng ý duyệt)
+    :Nhấn "Phê duyệt";
+    |Hệ thống|
+    :Cập nhật trạng thái đơn mua thành "DA_DUYET";
+    :Tự động gửi email Đơn đặt hàng đến Nhà cung cấp;
+    :Thông báo cho NV mua hàng biết đơn đã duyệt;
+else (Từ chối)
+    :Nhập lý do từ chối (giá cao, kho đầy, sai chủng loại);
+    |Hệ thống|
+    :Cập nhật trạng thái đơn mua thành "TU_CHOI";
+    :Thông báo kết quả từ chối về NV mua hàng;
+    |Nhân viên mua hàng|
+    :Xem xét điều chỉnh hoặc hủy đơn;
+    stop
+endif
+
+|Nhà cung cấp|
+:Nhận email đơn đặt hàng và xác nhận giao dịch;
+:Chuẩn bị hàng và tiến hành giao hàng tới kho;
+stop
+@enduml

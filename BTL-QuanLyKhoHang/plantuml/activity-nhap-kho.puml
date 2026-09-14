@@ -1,0 +1,71 @@
+@startuml activity-nhap-kho
+!theme plain
+title Biểu đồ Hoạt động: Quy trình Nhập Kho\n(UC06 + UC15)
+
+|Nhà cung cấp|
+start
+:Giao hàng đến kho;
+
+|Nhân viên kho|
+:Tiếp nhận hàng hóa;
+:Kiểm tra hàng hóa\nvới đơn mua hàng;
+
+if (Hàng đúng với đơn mua?) then (Đúng)
+    :Xác nhận nhận hàng;
+else (Không đúng)
+    :Ghi nhận chênh lệch;
+    :Liên hệ NCC để xử lý;
+    if (Chấp nhận nhận hàng\ntheo thực tế?) then (Có)
+        :Xác nhận nhận hàng\nvới số lượng thực tế;
+    else (Không)
+        :Từ chối nhận hàng;
+        |Nhà cung cấp|
+        :Nhận hàng trả lại;
+        stop
+    endif
+endif
+
+|Nhân viên kho|
+:Chọn chức năng\n"Tạo phiếu nhập kho";
+
+|Hệ thống|
+:Hiển thị biểu mẫu\nphiếu nhập kho;
+
+|Nhân viên kho|
+:Chọn kho nhận hàng;
+:Chọn đơn mua hàng\nliên quan;
+
+|Hệ thống|
+:Hiển thị danh sách\nsản phẩm từ đơn mua;
+
+|Nhân viên kho|
+repeat
+    :Nhập số lượng thực nhận\ncho từng mục hàng;
+    |Hệ thống|
+    :Kiểm tra tính hợp lệ;
+    |Nhân viên kho|
+repeat while (Còn mục hàng?) is (Có)
+-> Không;
+
+:Nhập ghi chú\n(nếu có);
+:Xác nhận hoàn thành;
+
+|Hệ thống|
+:Tính tổng giá trị\nphiếu nhập;
+:Lưu phiếu nhập kho;
+
+fork
+    :Cập nhật tồn kho\n(tăng số lượng);
+fork again
+    :Cập nhật trạng thái\nđơn mua hàng;
+fork again
+    :Kiểm tra ngưỡng tồn kho;
+end fork
+
+:Hiển thị xác nhận\nthành công;
+
+|Nhân viên kho|
+:In phiếu nhập kho;
+
+stop
+@enduml

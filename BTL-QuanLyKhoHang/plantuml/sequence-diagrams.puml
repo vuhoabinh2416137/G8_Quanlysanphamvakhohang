@@ -1,0 +1,251 @@
+@startuml sequence-nhap-kho
+!theme plain
+autonumber
+skinparam responseMessageBelowArrow true
+
+title Sơ đồ Tuần tự Thiết kế: Tạo Phiếu Nhập Kho (UC06)
+
+actor "Nhân viên kho" as NV
+boundary "NhapKhoUI" as UI
+control "NhapKhoController" as Ctrl
+participant "NhapKhoService" as Service
+participant "TonKhoService" as TKKService
+entity "pnk : PhieuNhapKho" as PNK
+entity "mn : MucNhap" as MN
+entity "tk : TonKho" as TK
+database "PhieuNhapDAO" as PNDAO
+database "TonKhoDAO" as TKDAO
+database "DonMuaDAO" as PODAO
+
+NV -> UI: nhanNut "Lưu Phiếu Nhập"(dto)
+activate UI
+UI -> Ctrl: xuLyTaoPhieuNhap(phieuNhapDTO)
+activate Ctrl
+
+Ctrl -> Service: taoPhieuNhapKho(dto)
+activate Service
+
+Service -> PNK**: create(maPhieu, ngayNhap, lyDoNhap, maKho, maDonMua)
+
+loop voi moi muc hang trong dto.danhSachMucHang
+    Service -> PNK: themMucNhap(maSP, soLuong, donGia)
+    activate PNK
+    PNK -> MN**: create(maSP, soLuong, donGia)
+    PNK -> MN: tinhThanhTien()
+    activate MN
+    MN --> PNK: thanhTien
+    deactivate MN
+    deactivate PNK
+end
+
+Service -> PNK: tinhTongGiaTri()
+activate PNK
+PNK --> Service: tongGiaTri
+deactivate PNK
+
+Service -> PNDAO: save(pnk)
+activate PNDAO
+PNDAO --> Service: ketQuaLuu (true)
+deactivate PNDAO
+
+' Cập nhật tồn kho
+loop voi moi muc hang trong pnk.danhSachMucNhap
+    Service -> TKKService: congTonKho(pnk.maKho, mn.maSP, mn.soLuong)
+    activate TKKService
+    TKKService -> TKDAO: timTonKho(maKho, maSP)
+    activate TKDAO
+    TKDAO --> TKKService: tk
+    deactivate TKDAO
+    
+    TKKService -> TK: tang(mn.soLuong)
+    activate TK
+    deactivate TK
+    
+    TKKService -> TKDAO: update(tk)
+    activate TKDAO
+    TKDAO --> TKKService: thanhCong
+    deactivate TKDAO
+    deactivate TKKService
+end
+
+' Cập nhật đơn mua
+opt Co lien ket don mua
+    Service -> PODAO: capNhatTrangThai(pnk.maDonMua, "DA_NHAN_HANG")
+    activate PODAO
+    PODAO --> Service: thanhCong
+    deactivate PODAO
+end
+
+Service --> Ctrl: phieuNhapResponseDTO
+deactivate Service
+
+Ctrl --> UI: ketQuaThanhCong(maPhieu)
+deactivate Ctrl
+
+UI --> NV: hienThiThongBao("Nhập kho thành công!")
+deactivate UI
+@enduml
+
+@startuml sequence-ban-hang
+!theme plain
+autonumber
+skinparam responseMessageBelowArrow true
+
+title Sơ đồ Tuần tự Thiết kế: Xử lý Đơn Bán Hàng & Xuất Kho (UC17 + UC07)
+
+actor "Nhân viên bán hàng" as NVBH
+boundary "BanHangUI" as UI
+control "BanHangController" as Ctrl
+participant "BanHangService" as Service
+participant "TonKhoService" as TKService
+entity "dbh : DonBanHang" as DBH
+entity "mb : MucBan" as MB
+participant "PaymentService" as PayService
+database "DonBanDAO" as DBDAO
+participant "NotificationService" as NotifService
+
+NVBH -> UI: xacNhanThanhToanVaDatHang(orderDTO)
+activate UI
+
+UI -> Ctrl: datHang(orderDTO)
+activate Ctrl
+
+Ctrl -> Service: taoDonBanHang(orderDTO)
+activate Service
+
+Service -> DBH**: create(maDon, maKH, maKho, phuongThucTT)
+
+loop voi moi san pham
+    Service -> TKService: kiemTraTonKhaDung(maKho, maSP, soLuong)
+    activate TKService
+    TKService --> Service: duTon (true)
+    deactivate TKService
+    
+    Service -> DBH: themMucBan(maSP, soLuong, donGia)
+    activate DBH
+    DBH -> MB**: create(maSP, soLuong, donGia)
+    DBH -> MB: tinhThanhTien()
+    activate MB
+    MB --> DBH: thanhTien
+    deactivate MB
+    deactivate DBH
+end
+
+Service -> DBH: tinhTongTienVaThue()
+activate DBH
+DBH --> Service: tongThanhToan
+deactivate DBH
+
+opt Phuong thuc thanh toan truc tuyen
+    Service -> PayService: thanhToan(orderDTO.thongTinThanhToan, tongThanhToan)
+    activate PayService
+    PayService --> Service: transactionReceipt(status: SUCCESS)
+    deactivate PayService
+end
+
+Service -> DBDAO: save(dbh)
+activate DBDAO
+DBDAO --> Service: true
+deactivate DBDAO
+
+' Trừ tồn kho tạm thời (hoặc xuất kho)
+Service -> TKService: giamTonKho(dbh.maKho, dbh.danhSachMucBan)
+activate TKService
+opt Canh bao ton kho thap
+    TKService -> NotifService: guiCanhBaoTonThap(dsSanPham)
+    activate NotifService
+    NotifService --> TKService: sent
+    deactivate NotifService
+end
+TKService --> Service: thanhCong
+deactivate TKService
+
+Service --> Ctrl: orderResponseDTO
+deactivate Service
+
+Ctrl --> UI: hienThiXacNhanInHoaDon(orderResponseDTO)
+deactivate Ctrl
+
+UI --> NVBH: inHoaDon()
+deactivate UI
+@enduml
+
+@startuml sequence-kiem-ke
+!theme plain
+autonumber
+skinparam responseMessageBelowArrow true
+
+title Sơ đồ Tuần tự Thiết kế: Phê duyệt Kết quả Kiểm kê (UC09)
+
+actor "Quản lý kho" as QLK
+boundary "KiemKeUI" as UI
+control "KiemKeController" as Ctrl
+participant "KiemKeService" as Service
+entity "pkk : PhienKiemKe" as PKK
+entity "mkk : MucKiemKe" as MKK
+participant "TonKhoService" as TKService
+database "KiemKeDAO" as KKDAO
+database "PhieuNhapDAO" as PNDAO
+database "PhieuXuatDAO" as PXDAO
+
+QLK -> UI: duyetKetQuaKiemKe(maPhien, danhSachGiaiTrinh)
+activate UI
+UI -> Ctrl: duyetKiemKe(maPhien, danhSachGiaiTrinh)
+activate Ctrl
+
+Ctrl -> Service: xuLyDieuChinhKiemKe(maPhien, danhSachGiaiTrinh)
+activate Service
+
+Service -> KKDAO: timTheoMa(maPhien)
+activate KKDAO
+KKDAO --> Service: pkk
+deactivate KKDAO
+
+loop voi moi muc kiem ke trong pkk.danhSachMucKiemKe
+    Service -> PKK: capNhatGiaiTrinh(mkk.maSP, giaiTrinh)
+    activate PKK
+    PKK -> MKK: tinhChenhLech()
+    activate MKK
+    MKK --> PKK: chenhLech (soThucTe - soHeThong)
+    deactivate MKK
+    deactivate PKK
+    
+    alt chenhLech > 0 (Thừa hàng -> Tạo phiếu nhập điều chỉnh)
+        Service -> PNDAO: taoPhieuNhapDieuChinh(pkk.maKho, mkk.maSP, chenhLech)
+        activate PNDAO
+        PNDAO --> Service: true
+        deactivate PNDAO
+        Service -> TKService: congTonKho(pkk.maKho, mkk.maSP, chenhLech)
+        activate TKService
+        TKService --> Service: ok
+        deactivate TKService
+    else chenhLech < 0 (Thiếu hàng -> Tạo phiếu xuất điều chỉnh)
+        Service -> PXDAO: taoPhieuXuatDieuChinh(pkk.maKho, mkk.maSP, abs(chenhLech))
+        activate PXDAO
+        PXDAO --> Service: true
+        deactivate PXDAO
+        Service -> TKService: giamTonKho(pkk.maKho, mkk.maSP, abs(chenhLech))
+        activate TKService
+        TKService --> Service: ok
+        deactivate TKService
+    end
+end
+
+Service -> PKK: hoanTatPhienKiemKe()
+activate PKK
+deactivate PKK
+
+Service -> KKDAO: update(pkk)
+activate KKDAO
+KKDAO --> Service: true
+deactivate KKDAO
+
+Service --> Ctrl: ketQuaResponseDTO
+deactivate Service
+
+Ctrl --> UI: hienThiThanhCong("Đã hoàn tất điều chỉnh kho")
+deactivate Ctrl
+
+UI --> QLK: thongBao("Cập nhật kho thành công!")
+deactivate UI
+@enduml

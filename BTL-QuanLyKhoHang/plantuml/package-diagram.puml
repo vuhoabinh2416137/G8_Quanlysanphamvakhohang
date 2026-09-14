@@ -1,0 +1,133 @@
+@startuml package-diagram
+!theme plain
+skinparam packageStyle rectangle
+skinparam componentStyle uml2
+
+title Sơ đồ Gói (Package Diagram) - Kiến trúc Phân tầng Hệ thống Quản lý Kho hàng
+
+package "Tầng Giao diện Người dùng (HCI - Human-Computer Interaction)" #FFFDE7 {
+    package "com.warehouse.ui.web" {
+        class DashboardView
+        class SanPhamView
+        class NhapKhoView
+        class XuatKhoView
+        class BanHangView
+        class KiemKeView
+        class BaoCaoView
+    }
+    
+    package "com.warehouse.ui.controller" {
+        class SanPhamController
+        class NhapKhoController
+        class XuatKhoController
+        class BanHangController
+        class KiemKeController
+        class AuthController
+    }
+}
+
+package "Tầng Miền Nghiệp vụ (PD - Problem Domain)" #E8F5E9 {
+    package "com.warehouse.service" {
+        interface SanPhamService
+        interface NhapKhoService
+        interface XuatKhoService
+        interface BanHangService
+        interface KiemKeService
+        interface TonKhoService
+        interface AuthService
+    }
+
+    package "com.warehouse.domain.product" {
+        class SanPham
+        class DanhMuc
+    }
+
+    package "com.warehouse.domain.inventory" {
+        class Kho
+        class ViTriKho
+        class TonKho
+        class PhieuNhapKho
+        class MucNhap
+        class PhieuXuatKho
+        class MucXuat
+        class PhienKiemKe
+        class MucKiemKe
+    }
+
+    package "com.warehouse.domain.purchase" {
+        class DonMuaHang
+        class MucMua
+        class NhaCungCap
+    }
+
+    package "com.warehouse.domain.sales" {
+        class DonBanHang
+        class MucBan
+        class KhachHang
+    }
+
+    package "com.warehouse.domain.identity" {
+        class NhanVien
+        class TaiKhoan
+        class VaiTro
+        class Quyen
+    }
+}
+
+package "Tầng Quản lý Dữ liệu (DM - Data Management)" #E3F2FD {
+    package "com.warehouse.dam" {
+        interface GenericDAM<T, ID>
+        class SanPhamDAM
+        class TonKhoDAM
+        class PhieuNhapKhoDAM
+        class PhieuXuatKhoDAM
+        class DonMuaHangDAM
+        class DonBanHangDAM
+        class PhienKiemKeDAM
+        class TaiKhoanDAM
+    }
+
+    package "com.warehouse.db" {
+        class DatabaseConnectionPool
+        class TransactionManager
+    }
+}
+
+package "Tầng Hạ tầng & Tích hợp ngoài (PA - Physical Architecture)" #F3E5F5 {
+    package "com.warehouse.infrastructure.mail" {
+        class EmailService
+    }
+    
+    package "com.warehouse.infrastructure.payment" {
+        class VNPayGatewayAdapter
+    }
+    
+    package "com.warehouse.infrastructure.security" {
+        class JwtTokenProvider
+        class PasswordEncoder
+    }
+}
+
+package "Tầng Nền tảng (Foundation Layer)" #ECEFF1 {
+    package "com.warehouse.foundation.exception" {
+        class BusinessException
+        class EntityNotFoundException
+        class OutOfStockException
+    }
+    
+    package "com.warehouse.foundation.util" {
+        class DateUtils
+        class NumberFormatter
+        class Logger
+    }
+}
+
+' Phụ thuộc giữa các tầng (Layer Dependencies)
+"Tầng Giao diện Người dùng (HCI - Human-Computer Interaction)" ..> "Tầng Miền Nghiệp vụ (PD - Problem Domain)" : <<call>>
+"Tầng Miền Nghiệp vụ (PD - Problem Domain)" ..> "Tầng Quản lý Dữ liệu (DM - Data Management)" : <<use>>
+"Tầng Miền Nghiệp vụ (PD - Problem Domain)" ..> "Tầng Hạ tầng & Tích hợp ngoài (PA - Physical Architecture)" : <<delegate>>
+"Tầng Quản lý Dữ liệu (DM - Data Management)" ..> "Tầng Nền tảng (Foundation Layer)" : <<import>>
+"Tầng Miền Nghiệp vụ (PD - Problem Domain)" ..> "Tầng Nền tảng (Foundation Layer)" : <<import>>
+"Tầng Giao diện Người dùng (HCI - Human-Computer Interaction)" ..> "Tầng Nền tảng (Foundation Layer)" : <<import>>
+
+@enduml

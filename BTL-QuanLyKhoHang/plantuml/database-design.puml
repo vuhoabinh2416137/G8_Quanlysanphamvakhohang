@@ -1,0 +1,268 @@
+@startuml database-design
+!theme plain
+skinparam linetype ortho
+skinparam roundcorner 5
+
+title Lược đồ Cơ sở Dữ liệu Quan hệ (Physical Database ERD Schema) - warehouse_db
+
+entity "danh_muc" as tb_danhmuc {
+    * ma_danh_muc : VARCHAR(30) <<PK>>
+    --
+    ten_danh_muc : VARCHAR(150) NOT NULL
+    mo_ta : TEXT
+    ma_danh_muc_cha : VARCHAR(30) <<FK>>
+    ngay_tao : TIMESTAMP DEFAULT NOW()
+}
+
+entity "san_pham" as tb_sanpham {
+    * ma_sp : VARCHAR(30) <<PK>>
+    --
+    ten_sp : VARCHAR(255) NOT NULL
+    don_vi_tinh : VARCHAR(30) NOT NULL
+    gia_nhap_chuan : DECIMAL(15,2) NOT NULL
+    gia_ban_niem_yet : DECIMAL(15,2) NOT NULL
+    nguong_ton_kho : INT DEFAULT 10
+    hinh_anh_url : VARCHAR(500)
+    trang_thai : VARCHAR(30) NOT NULL
+    ma_danh_muc : VARCHAR(30) <<FK>>
+    ngay_tao : TIMESTAMP DEFAULT NOW()
+}
+
+entity "kho" as tb_kho {
+    * ma_kho : VARCHAR(30) <<PK>>
+    --
+    ten_kho : VARCHAR(150) NOT NULL
+    dia_chi : VARCHAR(255) NOT NULL
+    so_dien_thoai : VARCHAR(20)
+    ma_quan_ly : VARCHAR(30) <<FK>>
+    ngay_tao : TIMESTAMP DEFAULT NOW()
+}
+
+entity "vi_tri_kho" as tb_vitri {
+    * ma_vi_tri : VARCHAR(30) <<PK>>
+    --
+    ma_kho : VARCHAR(30) <<FK>>
+    khu_vuc : VARCHAR(50) NOT NULL
+    ke : VARCHAR(50) NOT NULL
+    tang : VARCHAR(50) NOT NULL
+}
+
+entity "ton_kho" as tb_tonkho {
+    * ma_kho : VARCHAR(30) <<PK, FK>>
+    * ma_sp : VARCHAR(30) <<PK, FK>>
+    --
+    so_luong : INT NOT NULL DEFAULT 0
+    ngay_cap_nhat : TIMESTAMP DEFAULT NOW()
+}
+
+entity "nha_cung_cap" as tb_ncc {
+    * ma_ncc : VARCHAR(30) <<PK>>
+    --
+    ten_ncc : VARCHAR(200) NOT NULL
+    dia_chi : VARCHAR(255) NOT NULL
+    dien_thoai : VARCHAR(20) NOT NULL
+    email : VARCHAR(100)
+    nguoi_dai_dien : VARCHAR(100)
+    trang_thai : VARCHAR(30) NOT NULL
+}
+
+entity "khach_hang" as tb_kh {
+    * ma_kh : VARCHAR(30) <<PK>>
+    --
+    ten_kh : VARCHAR(150) NOT NULL
+    loai_kh : VARCHAR(30) NOT NULL
+    dia_chi : VARCHAR(255)
+    dien_thoai : VARCHAR(20) NOT NULL
+    email : VARCHAR(100)
+    ma_so_thue : VARCHAR(30)
+}
+
+entity "nhan_vien" as tb_nv {
+    * ma_nv : VARCHAR(30) <<PK>>
+    --
+    ho_ten : VARCHAR(100) NOT NULL
+    ngay_sinh : DATE
+    gioi_tinh : VARCHAR(10)
+    dia_chi : VARCHAR(255)
+    dien_thoai : VARCHAR(20) NOT NULL
+    email : VARCHAR(100) NOT NULL
+    chuc_vu : VARCHAR(50) NOT NULL
+    trang_thai : VARCHAR(30) NOT NULL
+}
+
+entity "tai_khoan" as tb_tk {
+    * ten_dang_nhap : VARCHAR(50) <<PK>>
+    --
+    mat_khau_hash : VARCHAR(255) NOT NULL
+    ma_nv : VARCHAR(30) <<FK, UNIQUE>>
+    trang_thai : VARCHAR(30) NOT NULL
+    lan_dang_nhap_cuoi : TIMESTAMP
+}
+
+entity "vai_tro" as tb_vaitro {
+    * ma_vai_tro : VARCHAR(30) <<PK>>
+    --
+    ten_vai_tro : VARCHAR(100) NOT NULL
+    mo_ta : VARCHAR(255)
+}
+
+entity "tai_khoan_vai_tro" as tb_tk_vt {
+    * ten_dang_nhap : VARCHAR(50) <<PK, FK>>
+    * ma_vai_tro : VARCHAR(30) <<PK, FK>>
+}
+
+entity "don_mua_hang" as tb_po {
+    * ma_don_mua : VARCHAR(30) <<PK>>
+    --
+    ma_ncc : VARCHAR(30) <<FK>>
+    ma_kho_nhan : VARCHAR(30) <<FK>>
+    ma_nv_tao : VARCHAR(30) <<FK>>
+    ma_nv_duyet : VARCHAR(30) <<FK>>
+    ngay_tao : TIMESTAMP DEFAULT NOW()
+    ngay_giao_du_kien : DATE
+    tong_gia_tri : DECIMAL(15,2) NOT NULL
+    trang_thai : VARCHAR(30) NOT NULL
+    ghi_chu : TEXT
+}
+
+entity "muc_mua_hang" as tb_muc_po {
+    * id : BIGINT <<PK, AUTO>>
+    --
+    ma_don_mua : VARCHAR(30) <<FK>>
+    ma_sp : VARCHAR(30) <<FK>>
+    so_luong : INT NOT NULL
+    don_gia_mua : DECIMAL(15,2) NOT NULL
+    thanh_tien : DECIMAL(15,2) NOT NULL
+}
+
+entity "phieu_nhap_kho" as tb_pnk {
+    * ma_phieu_nhap : VARCHAR(30) <<PK>>
+    --
+    ma_kho : VARCHAR(30) <<FK>>
+    ma_nv_nhap : VARCHAR(30) <<FK>>
+    ma_don_mua : VARCHAR(30) <<FK>>
+    ly_do_nhap : VARCHAR(50) NOT NULL
+    ngay_nhap : TIMESTAMP DEFAULT NOW()
+    tong_gia_tri : DECIMAL(15,2) NOT NULL
+    ghi_chu : TEXT
+    trang_thai : VARCHAR(30) NOT NULL
+}
+
+entity "muc_nhap_kho" as tb_muc_pnk {
+    * id : BIGINT <<PK, AUTO>>
+    --
+    ma_phieu_nhap : VARCHAR(30) <<FK>>
+    ma_sp : VARCHAR(30) <<FK>>
+    so_luong : INT NOT NULL
+    don_gia_nhap : DECIMAL(15,2) NOT NULL
+    thanh_tien : DECIMAL(15,2) NOT NULL
+}
+
+entity "don_ban_hang" as tb_so {
+    * ma_don_ban : VARCHAR(30) <<PK>>
+    --
+    ma_kh : VARCHAR(30) <<FK>>
+    ma_kho_xuat : VARCHAR(30) <<FK>>
+    ma_nv_ban : VARCHAR(30) <<FK>>
+    ngay_tao : TIMESTAMP DEFAULT NOW()
+    tong_tien_hang : DECIMAL(15,2) NOT NULL
+    thue_vat : DECIMAL(15,2) DEFAULT 0
+    giam_gia : DECIMAL(15,2) DEFAULT 0
+    tong_thanh_toan : DECIMAL(15,2) NOT NULL
+    phuong_thuc_tt : VARCHAR(50) NOT NULL
+    trang_thai : VARCHAR(30) NOT NULL
+    ghi_chu : TEXT
+}
+
+entity "muc_ban_hang" as tb_muc_so {
+    * id : BIGINT <<PK, AUTO>>
+    --
+    ma_don_ban : VARCHAR(30) <<FK>>
+    ma_sp : VARCHAR(30) <<FK>>
+    so_luong : INT NOT NULL
+    don_gia_ban : DECIMAL(15,2) NOT NULL
+    thanh_tien : DECIMAL(15,2) NOT NULL
+}
+
+entity "phieu_xuat_kho" as tb_pxk {
+    * ma_phieu_xuat : VARCHAR(30) <<PK>>
+    --
+    ma_kho : VARCHAR(30) <<FK>>
+    ma_nv_xuat : VARCHAR(30) <<FK>>
+    ma_don_ban : VARCHAR(30) <<FK>>
+    ly_do_xuat : VARCHAR(50) NOT NULL
+    ngay_xuat : TIMESTAMP DEFAULT NOW()
+    tong_gia_tri : DECIMAL(15,2) NOT NULL
+    ghi_chu : TEXT
+    trang_thai : VARCHAR(30) NOT NULL
+}
+
+entity "muc_xuat_kho" as tb_muc_pxk {
+    * id : BIGINT <<PK, AUTO>>
+    --
+    ma_phieu_xuat : VARCHAR(30) <<FK>>
+    ma_sp : VARCHAR(30) <<FK>>
+    so_luong_yeu_cau : INT NOT NULL
+    so_luong_thuc_xuat : INT NOT NULL
+    don_gia_xuat : DECIMAL(15,2) NOT NULL
+    thanh_tien : DECIMAL(15,2) NOT NULL
+}
+
+entity "phien_kiem_ke" as tb_pkk {
+    * ma_phien : VARCHAR(30) <<PK>>
+    --
+    ma_kho : VARCHAR(30) <<FK>>
+    ma_nv_kiem_ke : VARCHAR(30) <<FK>>
+    ngay_bat_dau : TIMESTAMP DEFAULT NOW()
+    ngay_hoan_tat : TIMESTAMP
+    pham_vi : VARCHAR(100)
+    trang_thai : VARCHAR(30) NOT NULL
+    ghi_chu : TEXT
+}
+
+entity "muc_kiem_ke" as tb_muc_pkk {
+    * id : BIGINT <<PK, AUTO>>
+    --
+    ma_phien : VARCHAR(30) <<FK>>
+    ma_sp : VARCHAR(30) <<FK>>
+    so_luong_so_sach : INT NOT NULL
+    so_luong_thuc_te : INT NOT NULL
+    chenh_lech : INT NOT NULL
+    ly_do_chenh_lech : TEXT
+}
+
+' Foreign Key Links
+tb_danhmuc ||--o{ tb_danhmuc : "ma_danh_muc_cha"
+tb_danhmuc ||--o{ tb_sanpham : "ma_danh_muc"
+
+tb_kho ||--o{ tb_vitri : "ma_kho"
+tb_kho ||--o{ tb_tonkho : "ma_kho"
+tb_sanpham ||--o{ tb_tonkho : "ma_sp"
+
+tb_nv ||--o| tb_tk : "ma_nv"
+tb_tk ||--o{ tb_tk_vt : "ten_dang_nhap"
+tb_vaitro ||--o{ tb_tk_vt : "ma_vai_tro"
+
+tb_ncc ||--o{ tb_po : "ma_ncc"
+tb_po ||--|{ tb_muc_po : "ma_don_mua"
+tb_sanpham ||--o{ tb_muc_po : "ma_sp"
+
+tb_kho ||--o{ tb_pnk : "ma_kho"
+tb_po ||--o| tb_pnk : "ma_don_mua"
+tb_pnk ||--|{ tb_muc_pnk : "ma_phieu_nhap"
+tb_sanpham ||--o{ tb_muc_pnk : "ma_sp"
+
+tb_kh ||--o{ tb_so : "ma_kh"
+tb_so ||--|{ tb_muc_so : "ma_don_ban"
+tb_sanpham ||--o{ tb_muc_so : "ma_sp"
+
+tb_kho ||--o{ tb_pxk : "ma_kho"
+tb_so ||--o| tb_pxk : "ma_don_ban"
+tb_pxk ||--|{ tb_muc_pxk : "ma_phieu_xuat"
+tb_sanpham ||--o{ tb_muc_pxk : "ma_sp"
+
+tb_kho ||--o{ tb_pkk : "ma_kho"
+tb_pkk ||--|{ tb_muc_pkk : "ma_phien"
+tb_sanpham ||--o{ tb_muc_pkk : "ma_sp"
+
+@enduml

@@ -1,0 +1,271 @@
+- =============================================================================
+-- HỆ THỐNG QUẢN LÝ SẢN PHẨM VÀ KHO HÀNG (IT3120 - BTL OOSAD)
+-- Database: warehouse_db
+-- =============================================================================
+
+CREATE DATABASE warehouse_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE warehouse_db;
+
+-- 1. Bảng Danh mục sản phẩm (Hỗ trợ cấu trúc cây phân cấp)
+CREATE TABLE danh_muc (
+    ma_danh_muc VARCHAR(30) PRIMARY KEY,
+    ten_danh_muc VARCHAR(150) NOT NULL,
+    mo_ta TEXT,
+    ma_danh_muc_cha VARCHAR(30),
+    ngay_tao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_danhmuc_cha FOREIGN KEY (ma_danh_muc_cha) REFERENCES danh_muc(ma_danh_muc) ON DELETE SET NULL
+);
+
+-- 2. Bảng Sản phẩm
+CREATE TABLE san_pham (
+    ma_sp VARCHAR(30) PRIMARY KEY,
+    ten_sp VARCHAR(255) NOT NULL,
+    don_vi_tinh VARCHAR(30) NOT NULL,
+    gia_nhap_chuan DECIMAL(15,2) NOT NULL DEFAULT 0,
+    gia_ban_niem_yet DECIMAL(15,2) NOT NULL DEFAULT 0,
+    nguong_ton_kho INT DEFAULT 10,
+    hinh_anh_url VARCHAR(500),
+    trang_thai VARCHAR(30) NOT NULL DEFAULT 'DANG_KINH_DOANH',
+    ma_danh_muc VARCHAR(30),
+    ngay_tao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_sanpham_danhmuc FOREIGN KEY (ma_danh_muc) REFERENCES danh_muc(ma_danh_muc)
+);
+
+-- 3. Bảng Nhân viên
+CREATE TABLE nhan_vien (
+    ma_nv VARCHAR(30) PRIMARY KEY,
+    ho_ten VARCHAR(100) NOT NULL,
+    ngay_sinh DATE,
+    gioi_tinh VARCHAR(10),
+    dia_chi VARCHAR(255),
+    dien_thoai VARCHAR(20) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    chuc_vu VARCHAR(50) NOT NULL,
+    trang_thai VARCHAR(30) NOT NULL DEFAULT 'DANG_LAM_VIEC'
+);
+
+-- 4. Bảng Tài khoản & Phân quyền RBAC
+CREATE TABLE tai_khoan (
+    ten_dang_nhap VARCHAR(50) PRIMARY KEY,
+    mat_khau_hash VARCHAR(255) NOT NULL,
+    ma_nv VARCHAR(30) UNIQUE,
+    trang_thai VARCHAR(30) NOT NULL DEFAULT 'HOAT_DONG',
+    lan_dang_nhap_cuoi TIMESTAMP,
+    CONSTRAINT fk_taikhoan_nhanvien FOREIGN KEY (ma_nv) REFERENCES nhan_vien(ma_nv)
+);
+
+CREATE TABLE vai_tro (
+    ma_vai_tro VARCHAR(30) PRIMARY KEY,
+    ten_vai_tro VARCHAR(100) NOT NULL,
+    mo_ta VARCHAR(255)
+);
+
+CREATE TABLE tai_khoan_vai_tro (
+    ten_dang_nhap VARCHAR(50) NOT NULL,
+    ma_vai_tro VARCHAR(30) NOT NULL,
+    PRIMARY KEY (ten_dang_nhap, ma_vai_tro),
+    CONSTRAINT fk_tkvt_tk FOREIGN KEY (ten_dang_nhap) REFERENCES tai_khoan(ten_dang_nhap) ON DELETE CASCADE,
+    CONSTRAINT fk_tkvt_vt FOREIGN KEY (ma_vai_tro) REFERENCES vai_tro(ma_vai_tro) ON DELETE CASCADE
+);
+
+-- 5. Bảng Kho & Vị trí kho
+CREATE TABLE kho (
+    ma_kho VARCHAR(30) PRIMARY KEY,
+    ten_kho VARCHAR(150) NOT NULL,
+    dia_chi VARCHAR(255) NOT NULL,
+    so_dien_thoai VARCHAR(20),
+    ma_quan_ly VARCHAR(30),
+    ngay_tao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_kho_quanly FOREIGN KEY (ma_quan_ly) REFERENCES nhan_vien(ma_nv)
+);
+
+CREATE TABLE vi_tri_kho (
+    ma_vi_tri VARCHAR(30) PRIMARY KEY,
+    ma_kho VARCHAR(30) NOT NULL,
+    khu_vuc VARCHAR(50) NOT NULL,
+    ke VARCHAR(50) NOT NULL,
+    tang VARCHAR(50) NOT NULL,
+    CONSTRAINT fk_vitri_kho FOREIGN KEY (ma_kho) REFERENCES kho(ma_kho) ON DELETE CASCADE
+);
+
+-- 6. Bảng Tồn kho (Ánh xạ Nhiều-Nhiều giữa Kho và Sản phẩm)
+CREATE TABLE ton_kho (
+    ma_kho VARCHAR(30) NOT NULL,
+    ma_sp VARCHAR(30) NOT NULL,
+    so_luong INT NOT NULL DEFAULT 0,
+    ngay_cap_nhat TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (ma_kho, ma_sp),
+    CONSTRAINT fk_tonkho_kho FOREIGN KEY (ma_kho) REFERENCES kho(ma_kho),
+    CONSTRAINT fk_tonkho_sanpham FOREIGN KEY (ma_sp) REFERENCES san_pham(ma_sp)
+);
+
+-- 7. Bảng Nhà cung cấp & Đơn mua hàng (PO)
+CREATE TABLE nha_cung_cap (
+    ma_ncc VARCHAR(30) PRIMARY KEY,
+    ten_ncc VARCHAR(200) NOT NULL,
+    dia_chi VARCHAR(255) NOT NULL,
+    dien_thoai VARCHAR(20) NOT NULL,
+    email VARCHAR(100),
+    nguoi_dai_dien VARCHAR(100),
+    trang_thai VARCHAR(30) NOT NULL DEFAULT 'HOAT_DONG'
+);
+
+CREATE TABLE don_mua_hang (
+    ma_don_mua VARCHAR(30) PRIMARY KEY,
+    ma_ncc VARCHAR(30) NOT NULL,
+    ma_kho_nhan VARCHAR(30) NOT NULL,
+    ma_nv_tao VARCHAR(30) NOT NULL,
+    ma_nv_duyet VARCHAR(30),
+    ngay_tao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ngay_giao_du_kien DATE,
+    tong_gia_tri DECIMAL(15,2) NOT NULL DEFAULT 0,
+    trang_thai VARCHAR(30) NOT NULL DEFAULT 'MOI_TAO',
+    ghi_chu TEXT,
+    CONSTRAINT fk_po_ncc FOREIGN KEY (ma_ncc) REFERENCES nha_cung_cap(ma_ncc),
+    CONSTRAINT fk_po_kho FOREIGN KEY (ma_kho_nhan) REFERENCES kho(ma_kho),
+    CONSTRAINT fk_po_nvtao FOREIGN KEY (ma_nv_tao) REFERENCES nhan_vien(ma_nv),
+    CONSTRAINT fk_po_nvduyet FOREIGN KEY (ma_nv_duyet) REFERENCES nhan_vien(ma_nv)
+);
+
+CREATE TABLE muc_mua_hang (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    ma_don_mua VARCHAR(30) NOT NULL,
+    ma_sp VARCHAR(30) NOT NULL,
+    so_luong INT NOT NULL,
+    don_gia_mua DECIMAL(15,2) NOT NULL,
+    thanh_tien DECIMAL(15,2) NOT NULL,
+    CONSTRAINT fk_muc_po_don FOREIGN KEY (ma_don_mua) REFERENCES don_mua_hang(ma_don_mua) ON DELETE CASCADE,
+    CONSTRAINT fk_muc_po_sp FOREIGN KEY (ma_sp) REFERENCES san_pham(ma_sp)
+);
+
+-- 8. Bảng Phiếu nhập kho & Chi tiết
+CREATE TABLE phieu_nhap_kho (
+    ma_phieu_nhap VARCHAR(30) PRIMARY KEY,
+    ma_kho VARCHAR(30) NOT NULL,
+    ma_nv_nhap VARCHAR(30) NOT NULL,
+    ma_don_mua VARCHAR(30),
+    ly_do_nhap VARCHAR(50) NOT NULL,
+    ngay_nhap TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    tong_gia_tri DECIMAL(15,2) NOT NULL DEFAULT 0,
+    ghi_chu TEXT,
+    trang_thai VARCHAR(30) NOT NULL DEFAULT 'DA_XAC_NHAN',
+    CONSTRAINT fk_pnk_kho FOREIGN KEY (ma_kho) REFERENCES kho(ma_kho),
+    CONSTRAINT fk_pnk_nv FOREIGN KEY (ma_nv_nhap) REFERENCES nhan_vien(ma_nv),
+    CONSTRAINT fk_pnk_po FOREIGN KEY (ma_don_mua) REFERENCES don_mua_hang(ma_don_mua)
+);
+
+CREATE TABLE muc_nhap_kho (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    ma_phieu_nhap VARCHAR(30) NOT NULL,
+    ma_sp VARCHAR(30) NOT NULL,
+    so_luong INT NOT NULL,
+    don_gia_nhap DECIMAL(15,2) NOT NULL,
+    thanh_tien DECIMAL(15,2) NOT NULL,
+    CONSTRAINT fk_muc_pnk_phieu FOREIGN KEY (ma_phieu_nhap) REFERENCES phieu_nhap_kho(ma_phieu_nhap) ON DELETE CASCADE,
+    CONSTRAINT fk_muc_pnk_sp FOREIGN KEY (ma_sp) REFERENCES san_pham(ma_sp)
+);
+
+-- 9. Bảng Khách hàng & Đơn bán hàng (SO)
+CREATE TABLE khach_hang (
+    ma_kh VARCHAR(30) PRIMARY KEY,
+    ten_kh VARCHAR(150) NOT NULL,
+    loai_kh VARCHAR(30) NOT NULL DEFAULT 'CA_NHAN',
+    dia_chi VARCHAR(255),
+    dien_thoai VARCHAR(20) NOT NULL,
+    email VARCHAR(100),
+    ma_so_thue VARCHAR(30)
+);
+
+CREATE TABLE don_ban_hang (
+    ma_don_ban VARCHAR(30) PRIMARY KEY,
+    ma_kh VARCHAR(30) NOT NULL,
+    ma_kho_xuat VARCHAR(30) NOT NULL,
+    ma_nv_ban VARCHAR(30) NOT NULL,
+    ngay_tao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    tong_tien_hang DECIMAL(15,2) NOT NULL,
+    thue_vat DECIMAL(15,2) DEFAULT 0,
+    giam_gia DECIMAL(15,2) DEFAULT 0,
+    tong_thanh_toan DECIMAL(15,2) NOT NULL,
+    phuong_thuc_tt VARCHAR(50) NOT NULL,
+    trang_thai VARCHAR(30) NOT NULL DEFAULT 'MOI_TAO',
+    ghi_chu TEXT,
+    CONSTRAINT fk_so_kh FOREIGN KEY (ma_kh) REFERENCES khach_hang(ma_kh),
+    CONSTRAINT fk_so_kho FOREIGN KEY (ma_kho_xuat) REFERENCES kho(ma_kho),
+    CONSTRAINT fk_so_nv FOREIGN KEY (ma_nv_ban) REFERENCES nhan_vien(ma_nv)
+);
+
+CREATE TABLE muc_ban_hang (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    ma_don_ban VARCHAR(30) NOT NULL,
+    ma_sp VARCHAR(30) NOT NULL,
+    so_luong INT NOT NULL,
+    don_gia_ban DECIMAL(15,2) NOT NULL,
+    thanh_tien DECIMAL(15,2) NOT NULL,
+    CONSTRAINT fk_muc_so_don FOREIGN KEY (ma_don_ban) REFERENCES don_ban_hang(ma_don_ban) ON DELETE CASCADE,
+    CONSTRAINT fk_muc_so_sp FOREIGN KEY (ma_sp) REFERENCES san_pham(ma_sp)
+);
+
+-- 10. Bảng Phiếu xuất kho & Chi tiết
+CREATE TABLE phieu_xuat_kho (
+    ma_phieu_xuat VARCHAR(30) PRIMARY KEY,
+    ma_kho VARCHAR(30) NOT NULL,
+    ma_nv_xuat VARCHAR(30) NOT NULL,
+    ma_don_ban VARCHAR(30),
+    ly_do_xuat VARCHAR(50) NOT NULL,
+    ngay_xuat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    tong_gia_tri DECIMAL(15,2) NOT NULL DEFAULT 0,
+    ghi_chu TEXT,
+    trang_thai VARCHAR(30) NOT NULL DEFAULT 'DA_XAC_NHAN',
+    CONSTRAINT fk_pxk_kho FOREIGN KEY (ma_kho) REFERENCES kho(ma_kho),
+    CONSTRAINT fk_pxk_nv FOREIGN KEY (ma_nv_xuat) REFERENCES nhan_vien(ma_nv),
+    CONSTRAINT fk_pxk_so FOREIGN KEY (ma_don_ban) REFERENCES don_ban_hang(ma_don_ban)
+);
+
+CREATE TABLE muc_xuat_kho (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    ma_phieu_xuat VARCHAR(30) NOT NULL,
+    ma_sp VARCHAR(30) NOT NULL,
+    so_luong_yeu_cau INT NOT NULL,
+    so_luong_thuc_xuat INT NOT NULL,
+    don_gia_xuat DECIMAL(15,2) NOT NULL,
+    thanh_tien DECIMAL(15,2) NOT NULL,
+    CONSTRAINT fk_muc_pxk_phieu FOREIGN KEY (ma_phieu_xuat) REFERENCES phieu_xuat_kho(ma_phieu_xuat) ON DELETE CASCADE,
+    CONSTRAINT fk_muc_pxk_sp FOREIGN KEY (ma_sp) REFERENCES san_pham(ma_sp)
+);
+
+-- 11. Bảng Kiểm kê kho
+CREATE TABLE phien_kiem_ke (
+    ma_phien VARCHAR(30) PRIMARY KEY,
+    ma_kho VARCHAR(30) NOT NULL,
+    ma_nv_kiem_ke VARCHAR(30) NOT NULL,
+    ngay_bat_dau TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ngay_hoan_tat TIMESTAMP,
+    pham_vi VARCHAR(100),
+    trang_thai VARCHAR(30) NOT NULL DEFAULT 'DANG_THUC_HIEN',
+    ghi_chu TEXT,
+    CONSTRAINT fk_pkk_kho FOREIGN KEY (ma_kho) REFERENCES kho(ma_kho),
+    CONSTRAINT fk_pkk_nv FOREIGN KEY (ma_nv_kiem_ke) REFERENCES nhan_vien(ma_nv)
+);
+
+CREATE TABLE muc_kiem_ke (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    ma_phien VARCHAR(30) NOT NULL,
+    ma_sp VARCHAR(30) NOT NULL,
+    so_luong_so_sach INT NOT NULL,
+    so_luong_thuc_te INT NOT NULL,
+    chenh_lech INT NOT NULL,
+    ly_do_chenh_lech TEXT,
+    CONSTRAINT fk_muc_pkk_phien FOREIGN KEY (ma_phien) REFERENCES phien_kiem_ke(ma_phien) ON DELETE CASCADE,
+    CONSTRAINT fk_muc_pkk_sp FOREIGN KEY (ma_sp) REFERENCES san_pham(ma_sp)
+);
+
+-- =============================================================================
+-- CHỈ MỤC TỐI ƯU HÓA TRUY VẤN (INDEXES)
+-- =============================================================================
+CREATE INDEX idx_sanpham_danhmuc ON san_pham(ma_danh_muc);
+CREATE INDEX idx_sanpham_trangthai ON san_pham(trang_thai);
+CREATE INDEX idx_tonkho_soluong ON ton_kho(so_luong);
+CREATE INDEX idx_donmua_trangthai ON don_mua_hang(trang_thai);
+CREATE INDEX idx_donban_ngaytao ON don_ban_hang(ngay_tao);
+CREATE INDEX idx_pnk_ngaynhap ON phieu_nhap_kho(ngay_nhap);
+CREATE INDEX idx_pxk_ngayxuat ON phieu_xuat_kho(ngay_xuat);

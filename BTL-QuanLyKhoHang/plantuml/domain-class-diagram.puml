@@ -1,0 +1,378 @@
+@startuml domain-class-diagram
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+
+title Biểu đồ Lớp Mô hình Lĩnh vực (Domain Model)\nHệ thống Quản lý Sản phẩm và Kho hàng
+
+' ===== NHÓM SẢN PHẨM =====
+package "Quản lý Sản phẩm" #FFEFD5 {
+    class SanPham <<entity>> {
+        - maSP: String
+        - tenSP: String
+        - moTa: String
+        - donViTinh: String
+        - giaNhap: Double
+        - giaBan: Double
+        - ngưỡngTồnKho: Integer
+        - hinhAnh: String
+        - trangThai: TrangThaiSP
+        --
+        + layThongTin(): SanPham
+        + capNhat(): void
+        + kiemTraTonKho(kho: Kho): Integer
+    }
+
+    class DanhMuc <<entity>> {
+        - maDanhMuc: String
+        - tenDanhMuc: String
+        - moTa: String
+        - danhMucCha: DanhMuc
+        --
+        + layDanhSachSanPham(): List<SanPham>
+    }
+
+    enum TrangThaiSP {
+        DANG_KINH_DOANH
+        NGUNG_KINH_DOANH
+    }
+}
+
+' ===== NHÓM KHO HÀNG =====
+package "Quản lý Kho hàng" #E0F0FF {
+    class Kho <<entity>> {
+        - maKho: String
+        - tenKho: String
+        - diaChi: String
+        - dienThoai: String
+        - nguoiQuanLy: NhanVien
+        --
+        + layTonKho(): List<TonKho>
+        + kiemKe(): PhienKiemKe
+    }
+
+    class ViTriKho <<entity>> {
+        - maViTri: String
+        - khuVuc: String
+        - ke: String
+        - tang: String
+        --
+        + layTonKho(): Integer
+    }
+
+    class TonKho <<entity>> {
+        - soLuong: Integer
+        - ngayCapNhat: Date
+        --
+        + tang(soLuong: Integer): void
+        + giam(soLuong: Integer): void
+        + kiemTraNguong(): Boolean
+    }
+
+    class PhieuNhapKho <<entity>> {
+        - maPhieu: String
+        - ngayNhap: Date
+        - lyDoNhap: LyDoNhap
+        - tongGiaTri: Double
+        - ghiChu: String
+        - trangThai: TrangThaiPhieu
+        --
+        + tinhTongGiaTri(): Double
+        + xacNhan(): void
+    }
+
+    class MucNhap <<entity>> {
+        - soLuong: Integer
+        - donGiaNhap: Double
+        - thanhTien: Double
+        --
+        + tinhThanhTien(): Double
+    }
+
+    class PhieuXuatKho <<entity>> {
+        - maPhieu: String
+        - ngayXuat: Date
+        - lyDoXuat: LyDoXuat
+        - tongGiaTri: Double
+        - ghiChu: String
+        - trangThai: TrangThaiPhieu
+        --
+        + tinhTongGiaTri(): Double
+        + xacNhan(): void
+    }
+
+    class MucXuat <<entity>> {
+        - soLuongYeuCau: Integer
+        - soLuongThucXuat: Integer
+        - donGiaXuat: Double
+        - thanhTien: Double
+        --
+        + tinhThanhTien(): Double
+    }
+
+    class PhienKiemKe <<entity>> {
+        - maPhien: String
+        - ngayKiemKe: Date
+        - phamVi: String
+        - trangThai: TrangThaiKiemKe
+        - ghiChu: String
+        --
+        + taoPhieuDieuChinh(): void
+    }
+
+    class MucKiemKe <<entity>> {
+        - soLuongHeThong: Integer
+        - soLuongThucTe: Integer
+        - chenhLech: Integer
+        - lyDo: String
+        --
+        + tinhChenhLech(): Integer
+    }
+
+    enum LyDoNhap {
+        TU_NHA_CUNG_CAP
+        CHUYEN_KHO
+        KIEM_KE_DIEU_CHINH
+        TRA_HANG
+    }
+
+    enum LyDoXuat {
+        BAN_HANG
+        CHUYEN_KHO
+        KIEM_KE_DIEU_CHINH
+        HUY_HANG
+    }
+
+    enum TrangThaiPhieu {
+        MOI_TAO
+        DA_XAC_NHAN
+        DA_HUY
+    }
+
+    enum TrangThaiKiemKe {
+        DANG_THUC_HIEN
+        HOAN_THANH
+        DA_HUY
+    }
+}
+
+' ===== NHÓM MUA HÀNG =====
+package "Quản lý Mua hàng" #E8F5E9 {
+    class DonMuaHang <<entity>> {
+        - maDon: String
+        - ngayTao: Date
+        - ngayGiaoDuKien: Date
+        - tongGiaTri: Double
+        - ghiChu: String
+        - trangThai: TrangThaiDonMua
+        --
+        + tinhTongGiaTri(): Double
+        + duyet(): void
+        + tuChoi(lyDo: String): void
+    }
+
+    class MucMua <<entity>> {
+        - soLuong: Integer
+        - donGiaMua: Double
+        - thanhTien: Double
+        --
+        + tinhThanhTien(): Double
+    }
+
+    class NhaCungCap <<entity>> {
+        - maNCC: String
+        - tenNCC: String
+        - diaChi: String
+        - dienThoai: String
+        - email: String
+        - nguoiLienHe: String
+        - trangThai: TrangThaiNCC
+        --
+        + layDanhSachDonMua(): List<DonMuaHang>
+    }
+
+    enum TrangThaiDonMua {
+        MOI_TAO
+        DA_DUYET
+        TU_CHOI
+        DANG_GIAO
+        DA_NHAN_HANG
+        HOAN_THANH
+        DA_HUY
+    }
+
+    enum TrangThaiNCC {
+        HOAT_DONG
+        NGUNG_HOP_TAC
+    }
+}
+
+' ===== NHÓM BÁN HÀNG =====
+package "Quản lý Bán hàng" #FFF3E0 {
+    class DonBanHang <<entity>> {
+        - maDon: String
+        - ngayTao: Date
+        - tongTien: Double
+        - thue: Double
+        - giamGia: Double
+        - thanhToan: Double
+        - phuongThucThanhToan: String
+        - ghiChu: String
+        - trangThai: TrangThaiDonBan
+        --
+        + tinhTongTien(): Double
+        + xacNhan(): void
+        + huy(): void
+    }
+
+    class MucBan <<entity>> {
+        - soLuong: Integer
+        - donGiaBan: Double
+        - thanhTien: Double
+        --
+        + tinhThanhTien(): Double
+    }
+
+    class KhachHang <<entity>> {
+        - maKH: String
+        - tenKH: String
+        - diaChi: String
+        - dienThoai: String
+        - email: String
+        - loaiKH: LoaiKH
+        --
+        + layLichSuMua(): List<DonBanHang>
+    }
+
+    enum TrangThaiDonBan {
+        MOI_TAO
+        DA_XAC_NHAN
+        DANG_XU_LY
+        DANG_GIAO
+        DA_GIAO
+        HOAN_THANH
+        DA_HUY
+        TRA_HANG
+    }
+
+    enum LoaiKH {
+        CA_NHAN
+        DOANH_NGHIEP
+    }
+}
+
+' ===== NHÓM NHÂN VIÊN =====
+package "Quản lý Nhân viên & Phân quyền" #F3E5F5 {
+    class NhanVien <<entity>> {
+        - maNV: String
+        - hoTen: String
+        - ngaySinh: Date
+        - gioiTinh: String
+        - diaChi: String
+        - dienThoai: String
+        - email: String
+        - chucVu: String
+        - ngayVaoLam: Date
+        - trangThai: TrangThaiNV
+        --
+        + layThongTin(): NhanVien
+    }
+
+    class TaiKhoan <<entity>> {
+        - tenDangNhap: String
+        - matKhau: String
+        - trangThai: TrangThaiTK
+        - lanDangNhapCuoi: DateTime
+        --
+        + dangNhap(tenDN: String, mk: String): Boolean
+        + dangXuat(): void
+        + doiMatKhau(mkCu: String, mkMoi: String): Boolean
+    }
+
+    class VaiTro <<entity>> {
+        - maVaiTro: String
+        - tenVaiTro: String
+        - moTa: String
+        --
+        + layDanhSachQuyen(): List<Quyen>
+    }
+
+    class Quyen <<entity>> {
+        - maQuyen: String
+        - tenQuyen: String
+        - moTa: String
+    }
+
+    enum TrangThaiNV {
+        DANG_LAM_VIEC
+        DA_NGHI_VIEC
+    }
+
+    enum TrangThaiTK {
+        HOAT_DONG
+        BI_KHOA
+    }
+}
+
+' ============================
+' RELATIONSHIPS
+' ============================
+
+' --- Sản phẩm - Danh mục ---
+DanhMuc "1" -- "*" SanPham : phân loại >
+DanhMuc "0..1" -- "*" DanhMuc : danh mục cha >
+
+' --- Sản phẩm - Tồn kho ---
+SanPham "1" -- "*" TonKho : theo dõi >
+Kho "1" -- "*" TonKho : chứa >
+
+' --- Kho - Vị trí ---
+Kho "1" *-- "*" ViTriKho : bao gồm >
+
+' --- Phiếu nhập kho ---
+Kho "1" -- "*" PhieuNhapKho : nhập vào >
+PhieuNhapKho "1" *-- "1..*" MucNhap : chứa >
+MucNhap "*" -- "1" SanPham : cho >
+NhanVien "1" -- "*" PhieuNhapKho : tạo bởi >
+DonMuaHang "0..1" -- "0..1" PhieuNhapKho : liên quan >
+
+' --- Phiếu xuất kho ---
+Kho "1" -- "*" PhieuXuatKho : xuất từ >
+PhieuXuatKho "1" *-- "1..*" MucXuat : chứa >
+MucXuat "*" -- "1" SanPham : cho >
+NhanVien "1" -- "*" PhieuXuatKho : tạo bởi >
+DonBanHang "0..1" -- "0..1" PhieuXuatKho : liên quan >
+
+' --- Kiểm kê ---
+Kho "1" -- "*" PhienKiemKe : kiểm kê >
+PhienKiemKe "1" *-- "1..*" MucKiemKe : bao gồm >
+MucKiemKe "*" -- "1" SanPham : cho >
+NhanVien "1" -- "*" PhienKiemKe : thực hiện >
+
+' --- Đơn mua hàng ---
+NhaCungCap "1" -- "*" DonMuaHang : cung cấp cho >
+DonMuaHang "1" *-- "1..*" MucMua : bao gồm >
+MucMua "*" -- "1" SanPham : mua >
+NhanVien "1" -- "*" DonMuaHang : tạo bởi >
+NhanVien "0..1" -- "*" DonMuaHang : duyệt bởi >
+Kho "1" -- "*" DonMuaHang : nhận tại >
+
+' --- Đơn bán hàng ---
+KhachHang "1" -- "*" DonBanHang : đặt >
+DonBanHang "1" *-- "1..*" MucBan : bao gồm >
+MucBan "*" -- "1" SanPham : bán >
+NhanVien "1" -- "*" DonBanHang : tạo bởi >
+Kho "1" -- "*" DonBanHang : xuất từ >
+
+' --- Nhân viên - Tài khoản - Vai trò ---
+NhanVien "1" -- "0..1" TaiKhoan : có >
+TaiKhoan "*" -- "*" VaiTro : gán >
+VaiTro "*" -- "*" Quyen : bao gồm >
+
+' --- NCC - SP ---
+NhaCungCap "*" -- "*" SanPham : cung cấp >
+
+' --- Kho - NV ---
+Kho "*" -- "1" NhanVien : quản lý bởi >
+
+@enduml
