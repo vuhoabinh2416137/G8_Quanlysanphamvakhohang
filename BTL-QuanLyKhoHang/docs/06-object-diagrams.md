@@ -12,7 +12,7 @@ Theo giáo trình **IT3120 - Mô hình hóa Cấu trúc (Structural Modeling)**,
 ## 1. Biểu đồ Đối tượng: Phiếu Nhập Kho thực tế
 
 ### Bối cảnh nghiệp vụ
-Ngày 14/09/2026, Nhà cung cấp **Samsung Electronics Việt Nam** giao lô hàng theo đơn mua `PO-2026-001`. Thủ kho **Trần Thị Khánh Linh** tại **Kho Tổng Hà Nội** tiến hành lập phiếu nhập kho `PNK-2026-101` với 2 mặt hàng:
+Ngày 14/09/2026, Nhà cung cấp **Samsung Electronics Việt Nam** giao lô hàng theo đơn mua `PO-2026-001`. Quản lý kho **Trần Thị Khánh Linh** tại **Kho Tổng Hà Nội** tiến hành lập phiếu nhập kho `PNK-2026-101` với 2 mặt hàng:
 1. 20 chiếc *Samsung Galaxy S24 Ultra 512GB* với đơn giá nhập 25,000,000 VNĐ (Thành tiền: 500,000,000 VNĐ).
 2. 50 bộ *Tai nghe Galaxy Buds 3 Pro* với đơn giá nhập 5,000,000 VNĐ (Thành tiền: 250,000,000 VNĐ).
 
@@ -24,21 +24,23 @@ Tổng giá trị phiếu nhập: 750,000,000 VNĐ. Số lượng tồn kho tạ
 
 ---
 
-## 2. Biểu đồ Đối tượng: Đơn Bán Hàng và Phiếu Xuất Kho
+## 2. Biểu đồ Đối tượng: Phiếu Xuất Kho Điều chuyển Nội bộ
 
 ### Bối cảnh nghiệp vụ
-Khách hàng doanh nghiệp **Tập đoàn Viettel** đặt mua thiết bị. Nhân viên kinh doanh **Nguyễn Văn Bình** tạo đơn bán `SO-2026-555` bao gồm 6 chiếc *Samsung Galaxy S24 Ultra 512GB* với đơn giá 31,990,000 VNĐ.
-Sau khi xác nhận thanh toán chuyển khoản và chiết khấu, Thủ kho **Trần Thị Khánh Linh** phát hành Phiếu xuất kho `PXK-2026-303` với số lượng thực xuất là 6 chiếc để bàn giao cho đối tác.
+Ngày 15/09/2026, nhân viên kho **Lê Hoàng Long** thực hiện điều chuyển hàng từ **Kho Tổng Hà Nội** sang **Kho Chi nhánh TP.HCM**. Phiếu xuất kho `PXK-2026-301` được lập với 1 mặt hàng:
+- 5 chiếc *Samsung Galaxy S24 Ultra 512GB* với đơn giá 25,000,000 VNĐ (Thành tiền: 125,000,000 VNĐ).
 
-### Sơ đồ đối tượng Đơn Bán Hàng & Phiếu Xuất Kho
+Lý do xuất: `CHUYEN_KHO`. Sau khi xuất, tồn kho tại Kho HN giảm đi 5 chiếc, đồng thời hệ thống tự động tạo phiếu nhập tương ứng tại Kho SG.
 
-![Đơn Bán Hàng & Xuất Kho](../diagrams/object-diagram-don-ban-hang.png)
+### Sơ đồ đối tượng Phiếu Xuất Kho Điều chuyển
+
+![Phiếu Xuất Kho Điều chuyển](../diagrams/object-diagram-phieu-xuat-chuyen-kho.png)
 
 ---
 
 ## Kiểm tra Tính nhất quán với Biểu đồ Lớp (Model Balancing)
 - **Tên thuộc tính và kiểu dữ liệu**: Hoàn toàn trùng khớp với định nghĩa trong lớp [domain-class-diagram.puml](../plantuml/domain-class-diagram.puml).
 - **Cơ số (Multiplicity)**:
-  - `pnk2026_101` liên kết hợp thành đúng với 2 `MucNhap` (`1 *-- 1..*`).
+  - `pnk2026_101` liên kết hợp thành dòng với 2 `MucNhap` (`1 *-- 1..*`).
   - Mỗi `MucNhap` liên kết chính xác với một thể hiện `SanPham`.
   - `TonKho` phản ánh đúng quan hệ tam giác giữa `SanPham` và `Kho`.

@@ -1,20 +1,23 @@
 @startuml design-class-diagram
 !theme plain
 skinparam classAttributeIconSize 0
-skinparam classFontSize 11
+skinparam classFontSize 10
+skinparam defaultFontName "Arial"
 
-title Biểu đồ Lớp Thiết kế Chi tiết (Design Class Diagram)\nHệ thống Quản lý Sản phẩm và Kho hàng (Áp dụng SOLID & Design Patterns)
+title Biểu đồ Lớp Thiết kế Chi tiết (Design Class Diagram)\nHệ thống Quản lý Sản phẩm và Kho hàng
 
 ' ========================================================
-' DESIGN PATTERN 1: FACTORY PATTERN (Tạo Phiếu Kho)
+' DESIGN PATTERN 1: FACTORY PATTERN (Tạo phiếu kho)
 ' ========================================================
-package "Mẫu Tạo Lập (Factory Pattern)" #FFF9C4 {
+package "Mẫu Khởi tạo (Factory Pattern)" #FFF9C4 {
     abstract class PhieuKhoFactory {
-        + {abstract} createPhieuKho(loai: LoaiPhieuKho): PhieuKho
+        + {abstract} createPhieuNhap(dto: PhieuNhapRequestDTO): PhieuNhapKho
+        + {abstract} createPhieuXuat(dto: PhieuXuatRequestDTO): PhieuXuatKho
     }
-
-    class ConcretePhieuKhoFactory {
-        + createPhieuKho(loai: LoaiPhieuKho): PhieuKho
+    
+    class ConcretePhieuKhoFactory extends PhieuKhoFactory {
+        + createPhieuNhap(dto: PhieuNhapRequestDTO): PhieuNhapKho
+        + createPhieuXuat(dto: PhieuXuatRequestDTO): PhieuXuatKho
     }
     
     PhieuKhoFactory <|-- ConcretePhieuKhoFactory
@@ -48,24 +51,6 @@ package "Mẫu Hành Vi (Observer Pattern)" #E1F5FE {
 }
 
 ' ========================================================
-' DESIGN PATTERN 3: STRATEGY PATTERN (Chính sách giá bán & chiết khấu)
-' ========================================================
-package "Mẫu Chiến Lược (Strategy Pattern)" #FCE4EC {
-    interface PricingStrategy {
-        + calculatePrice(sp: SanPham, soLuong: Integer, kh: KhachHang): Double
-    }
-
-    class StandardRetailPricingStrategy implements PricingStrategy {
-        + calculatePrice(sp: SanPham, soLuong: Integer, kh: KhachHang): Double
-    }
-
-    class WholesalePricingStrategy implements PricingStrategy {
-        - chietKhauDoanhNghiep: Double
-        + calculatePrice(sp: SanPham, soLuong: Integer, kh: KhachHang): Double
-    }
-}
-
-' ========================================================
 ' TẦNG GIAO DIỆN & ĐIỀU KHIỂN (CONTROLLERS)
 ' ========================================================
 package "Tầng Điều Khiển (Controllers)" #EDE7F6 {
@@ -75,10 +60,10 @@ package "Tầng Điều Khiển (Controllers)" #EDE7F6 {
         + layChiTietPhieu(maPhieu: String): ResponseEntity<PhieuNhapResponseDTO>
     }
 
-    class BanHangController {
-        - banHangService: BanHangService
-        + datHang(request: OrderRequestDTO): ResponseEntity<OrderResponseDTO>
-        + xacNhanThanhToan(maDon: String): ResponseEntity<Boolean>
+    class XuatKhoController {
+        - xuatKhoService: XuatKhoService
+        + taoPhieuXuat(request: PhieuXuatRequestDTO): ResponseEntity<PhieuXuatResponseDTO>
+        + layChiTietPhieu(maPhieu: String): ResponseEntity<PhieuXuatResponseDTO>
     }
 
     class KiemKeController {
@@ -107,6 +92,19 @@ package "Tầng Dịch Vụ (Services)" #E8F5E9 {
         + xacNhanNhapKho(maPhieu: String): Boolean
     }
 
+    interface XuatKhoService {
+        + taoPhieuXuatKho(dto: PhieuXuatRequestDTO): PhieuXuatResponseDTO
+        + xacNhanXuatKho(maPhieu: String): Boolean
+    }
+
+    class XuatKhoServiceImpl implements XuatKhoService {
+        - phieuKhoFactory: PhieuKhoFactory
+        - phieuXuatDAO: PhieuXuatDAO
+        - tonKhoService: TonKhoService
+        + taoPhieuXuatKho(dto: PhieuXuatRequestDTO): PhieuXuatResponseDTO
+        + xacNhanXuatKho(maPhieu: String): Boolean
+    }
+
     interface TonKhoService {
         + congTonKho(maKho: String, maSP: String, soLuong: Integer): Boolean
         + truTonKho(maKho: String, maSP: String, soLuong: Integer): Boolean
@@ -118,19 +116,6 @@ package "Tầng Dịch Vụ (Services)" #E8F5E9 {
         + congTonKho(maKho: String, maSP: String, soLuong: Integer): Boolean
         + truTonKho(maKho: String, maSP: String, soLuong: Integer): Boolean
         + kiemTraTonKhaDung(maKho: String, maSP: String, soLuong: Integer): Boolean
-    }
-
-    interface BanHangService {
-        + taoDonBanHang(dto: OrderRequestDTO): OrderResponseDTO
-        + setPricingStrategy(strategy: PricingStrategy): void
-    }
-
-    class BanHangServiceImpl implements BanHangService {
-        - banHangDAO: DonBanDAO
-        - tonKhoService: TonKhoService
-        - pricingStrategy: PricingStrategy
-        + taoDonBanHang(dto: OrderRequestDTO): OrderResponseDTO
-        + setPricingStrategy(strategy: PricingStrategy): void
     }
 }
 
@@ -166,7 +151,6 @@ package "Tầng Thực Thể (Entities)" #FFF3E0 {
 
     class PhieuXuatKho extends PhieuKho {
         - lyDoXuat: LyDoXuat
-        - maDonBan: String
         - dsMucXuat: List<MucXuat>
         + tinhTongGiaTri(): Double
         + themMucXuat(maSP: String, sl: Integer, gia: Double): void
@@ -186,7 +170,6 @@ package "Tầng Thực Thể (Entities)" #FFF3E0 {
         - tenSP: String
         - donViTinh: String
         - giaNhap: Double
-        - giaBan: Double
         - nguongTonKho: Integer
         - trangThai: TrangThaiSP
     }
@@ -221,13 +204,13 @@ package "Tầng Truy Cập Dữ Liệu (DAO / DAM)" #E0F2F1 {
         + findByDonMua(maDonMua: String): List<PhieuNhapKho>
     }
 
+    interface PhieuXuatDAO extends GenericDAO {
+        + findByLyDoXuat(lyDo: LyDoXuat): List<PhieuXuatKho>
+    }
+
     interface TonKhoDAO extends GenericDAO {
         + findByKhoAndSanPham(maKho: String, maSP: String): Optional<TonKho>
         + updateSoLuong(maKho: String, maSP: String, delta: Integer): Boolean
-    }
-
-    interface DonBanDAO extends GenericDAO {
-        + findByKhachHang(maKH: String): List<DonBanHang>
     }
 
     interface DonMuaDAO extends GenericDAO {
@@ -237,16 +220,16 @@ package "Tầng Truy Cập Dữ Liệu (DAO / DAM)" #E0F2F1 {
 
 ' Liên kết giữa các tầng
 NhapKhoController --> NhapKhoService
-BanHangController --> BanHangService
+XuatKhoController --> XuatKhoService
 
 NhapKhoServiceImpl --> PhieuKhoFactory
 NhapKhoServiceImpl --> PhieuNhapDAO
 NhapKhoServiceImpl --> TonKhoService
 NhapKhoServiceImpl --> DonMuaDAO
 
-BanHangServiceImpl --> DonBanDAO
-BanHangServiceImpl --> TonKhoService
-BanHangServiceImpl o-- PricingStrategy
+XuatKhoServiceImpl --> PhieuKhoFactory
+XuatKhoServiceImpl --> PhieuXuatDAO
+XuatKhoServiceImpl --> TonKhoService
 
 TonKhoServiceImpl --> TonKhoDAO
 

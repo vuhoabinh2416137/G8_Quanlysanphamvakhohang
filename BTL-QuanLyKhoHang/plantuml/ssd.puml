@@ -2,6 +2,7 @@
 !theme plain
 autonumber
 skinparam responseMessageBelowArrow true
+skinparam defaultFontName "Arial"
 
 title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC06: Tạo Phiếu Nhập Kho
 
@@ -39,6 +40,7 @@ deactivate Sys
 !theme plain
 autonumber
 skinparam responseMessageBelowArrow true
+skinparam defaultFontName "Arial"
 
 title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC07: Tạo Phiếu Xuất Kho
 
@@ -47,80 +49,35 @@ participant ":Hệ thống" as Sys
 
 NV -> Sys: yeuCauTaoPhieuXuat()
 activate Sys
-Sys --> NV: hienThiFormXuatKho(danhSachDonBanChoXuat)
+Sys --> NV: hienThiFormXuatKho(danhSachKho, danhSachLyDoXuat)
 deactivate Sys
 
-NV -> Sys: chonDonBanHang(maDonBan)
+NV -> Sys: chonKhoVaLyDoXuat(maKho, lyDoXuat)
 activate Sys
-Sys --> NV: hienThiChiTietXuat(dsSanPham, soLuongYeuCau, viTriLayHang)
+Sys --> NV: hienThiDanhSachSanPhamTrongKho(dsSanPham, tonKho)
 deactivate Sys
 
 loop Với mỗi mặt hàng xuất
-    NV -> Sys: xacNhanQuetMaVach(maSP, maVach, soLuongXuat)
+    NV -> Sys: themMucXuat(maSP, soLuongXuat)
     activate Sys
-    Sys --> NV: xacNhanKhopHang()
+    alt Tồn kho đủ
+        Sys --> NV: xacNhanThemMucXuat(thanhTien, tongTamTinh)
+    else Tồn kho không đủ
+        Sys --> NV: thongBaoLoiTonKhoKhongDu(soLuongConLai)
+    end
     deactivate Sys
 end
 
-NV -> Sys: xacNhanXuatKho()
+NV -> Sys: xacNhanXuatKho(ghiChu)
 activate Sys
-alt Tồn kho đủ
+alt Hợp lệ
     Sys --> NV: inPhieuXuatKho(maPXK, tongGiaTri, giamTonKho)
     opt Tồn kho chạm ngưỡng cảnh báo
         Sys -> Sys: guiCanhBaoTonKhoThap()
     end
-else Thiếu hàng
-    Sys --> NV: thongBaoLoiTonKhoKhongDu()
+else Lỗi
+    Sys --> NV: thongBaoLoi(lyDo)
 end
-deactivate Sys
-@enduml
-
-@startuml ssd-ban-hang
-!theme plain
-autonumber
-skinparam responseMessageBelowArrow true
-
-title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC17: Tạo Đơn Bán Hàng
-
-actor "Nhân viên bán hàng" as NVBH
-participant ":Hệ thống" as Sys
-actor "Hệ thống thanh toán" as Payment
-
-NVBH -> Sys: moGiaoDienBanHang()
-activate Sys
-Sys --> NVBH: hienThiGiaoDienBanHang()
-deactivate Sys
-
-NVBH -> Sys: timKiemKhachHang(sdt_hoac_maKH)
-activate Sys
-Sys --> NVBH: thongTinKhachHang(tenKH, loaiKH, congNo)
-deactivate Sys
-
-loop Thêm sản phẩm vào đơn
-    NVBH -> Sys: themSanPham(maSP, soLuong, maKho)
-    activate Sys
-    alt Tồn kho đủ
-        Sys --> NVBH: themVaoGioHang(tenSP, donGia, thanhTien, tongDon)
-    else Tồn kho không đủ
-        Sys --> NVBH: baoLoiTonKho(soLuongConLai)
-    end
-    deactivate Sys
-end
-
-NVBH -> Sys: chonPhuongThucThanhToan(phuongThuc, soTien)
-activate Sys
-opt Thanh toán trực tuyến qua cổng
-    Sys -> Payment: guiYeuCauThanhToan(maDon, soTien)
-    activate Payment
-    Payment --> Sys: xacNhanGiaoDichThanhCong(maGiaoDich)
-    deactivate Payment
-end
-Sys --> NVBH: hienThiTrangThaiThanhToan(DA_THANH_TOAN)
-deactivate Sys
-
-NVBH -> Sys: xacNhanDonHang()
-activate Sys
-Sys --> NVBH: hoaDonBanHang(maDonBan, maXacNhan, trangThai)
 deactivate Sys
 @enduml
 
@@ -128,6 +85,7 @@ deactivate Sys
 !theme plain
 autonumber
 skinparam responseMessageBelowArrow true
+skinparam defaultFontName "Arial"
 
 title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC13: Tạo Đơn Mua Hàng
 
@@ -161,6 +119,7 @@ deactivate Sys
 !theme plain
 autonumber
 skinparam responseMessageBelowArrow true
+skinparam defaultFontName "Arial"
 
 title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC09: Kiểm Kê Kho
 

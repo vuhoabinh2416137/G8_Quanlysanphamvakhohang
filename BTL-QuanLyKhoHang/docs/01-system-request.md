@@ -1,13 +1,13 @@
 # 01 - Yêu cầu Hệ thống (System Request)
 
-## System Request — Hệ thống Quản lý Sản phẩm và Kho hàng
+## System Request - Hệ thống Quản lý Sản phẩm và Kho hàng
 
 | Mục | Nội dung |
 |-----|---------|
 | **Project Sponsor** | Ban Giám đốc Công ty Thương mại ABC |
-| **Business Need** | Công ty cần một hệ thống thông tin để quản lý sản phẩm, kho hàng, đơn mua/bán hàng, nhà cung cấp, khách hàng và nhân viên. Hiện tại việc quản lý bằng sổ sách và bảng tính Excel gây ra nhiều sai sót, thiếu kiểm soát tồn kho, và khó khăn trong báo cáo thống kê. |
-| **Business Requirements** | 1. Quản lý danh mục sản phẩm với phân loại theo danh mục<br>2. Quản lý nhập/xuất kho hàng hóa tại nhiều kho<br>3. Quản lý đơn đặt hàng mua từ nhà cung cấp<br>4. Quản lý đơn bán hàng cho khách hàng<br>5. Kiểm kê và theo dõi tồn kho theo thời gian thực<br>6. Cảnh báo tự động khi tồn kho giảm dưới ngưỡng<br>7. Báo cáo thống kê: tồn kho, doanh thu, mua hàng<br>8. Quản lý nhân viên và phân quyền truy cập |
-| **Business Value** | - Giảm 80% sai sót trong quản lý kho<br>- Tăng 50% hiệu quả xử lý đơn hàng<br>- Báo cáo tức thời thay vì mất vài ngày tổng hợp<br>- Kiểm soát tồn kho chính xác, tránh thất thoát<br>- Hỗ trợ ra quyết định mua hàng dựa trên dữ liệu |
+| **Business Need** | Công ty cần một hệ thống thông tin để quản lý sản phẩm, kho hàng, đơn mua hàng, nhà cung cấp và nhân viên. Hiện tại việc quản lý bằng sổ sách và bảng tính Excel gây ra nhiều sai sót, thiếu kiểm soát tồn kho, và khó khăn trong báo cáo thống kê. |
+| **Business Requirements** | 1. Quản lý danh mục sản phẩm với phân loại theo danh mục<br>2. Quản lý nhập/xuất kho hàng hóa tại nhiều kho<br>3. Quản lý đơn đặt hàng mua từ nhà cung cấp<br>4. Kiểm kê và theo dõi tồn kho theo thời gian thực<br>5. Cảnh báo tự động khi tồn kho giảm dưới ngưỡng<br>6. Báo cáo thống kê: tồn kho, mua hàng<br>7. Quản lý nhân viên và phân quyền truy cập |
+| **Business Value** | - Giảm 80% sai sót trong quản lý kho<br>- Tăng 50% hiệu quả xử lý nhập/xuất kho<br>- Báo cáo tức thời thay vì mất vài ngày tổng hợp<br>- Kiểm soát tồn kho chính xác, tránh thất thoát<br>- Hỗ trợ ra quyết định mua hàng dựa trên dữ liệu |
 | **Special Issues or Constraints** | - Hệ thống Web, truy cập qua trình duyệt<br>- Hỗ trợ nhiều kho hàng<br>- Phân quyền theo vai trò<br>- Tích hợp hệ thống email để gửi thông báo<br>- Thời gian phát triển: 6 tháng |
 
 ---
@@ -20,7 +20,7 @@ Công ty Thương mại ABC là doanh nghiệp kinh doanh thương mại tổng 
 
 1. **Quy trình mua hàng**: Nhân viên mua hàng tạo đơn mua → Quản lý kho duyệt → Nhà cung cấp giao hàng → Nhân viên kho nhận hàng và tạo phiếu nhập kho → Cập nhật tồn kho.
 
-2. **Quy trình bán hàng**: Nhân viên bán hàng tạo đơn bán → Nhân viên kho kiểm tra tồn và tạo phiếu xuất kho → Giao hàng cho khách → Cập nhật tồn kho.
+2. **Quy trình xuất kho**: Nhân viên kho nhận yêu cầu xuất (chuyển kho, trả NCC, hủy hàng) → Kiểm tra tồn kho → Tạo phiếu xuất kho → Cập nhật tồn kho.
 
 3. **Quy trình kiểm kê**: Quản lý kho lên kế hoạch kiểm kê → Nhân viên kho thực hiện kiểm kê → So sánh thực tế với hệ thống → Điều chỉnh chênh lệch.
 
@@ -33,21 +33,18 @@ Công ty Thương mại ABC là doanh nghiệp kinh doanh thương mại tổng 
 | FR01 | Quản lý thông tin sản phẩm (thêm, sửa, xóa, tìm kiếm) | Cao |
 | FR02 | Quản lý danh mục sản phẩm (phân loại theo nhóm/danh mục) | Cao |
 | FR03 | Quản lý thông tin nhà cung cấp | Cao |
-| FR04 | Quản lý thông tin khách hàng | Cao |
-| FR05 | Tạo và quản lý đơn mua hàng | Cao |
-| FR06 | Duyệt đơn mua hàng | Cao |
-| FR07 | Tạo phiếu nhập kho khi nhận hàng | Cao |
-| FR08 | Tạo và quản lý đơn bán hàng | Cao |
-| FR09 | Tạo phiếu xuất kho khi giao hàng | Cao |
-| FR10 | Theo dõi tồn kho theo thời gian thực | Cao |
-| FR11 | Kiểm kê kho hàng | Trung bình |
-| FR12 | Chuyển kho giữa các kho hàng | Trung bình |
-| FR13 | Cảnh báo tồn kho dưới ngưỡng | Cao |
-| FR14 | Báo cáo tồn kho | Cao |
-| FR15 | Báo cáo doanh thu bán hàng | Trung bình |
-| FR16 | Báo cáo mua hàng | Trung bình |
-| FR17 | Quản lý nhân viên | Trung bình |
-| FR18 | Đăng nhập/Đăng xuất và phân quyền | Cao |
+| FR04 | Tạo và quản lý đơn mua hàng | Cao |
+| FR05 | Duyệt đơn mua hàng | Cao |
+| FR06 | Tạo phiếu nhập kho khi nhận hàng | Cao |
+| FR07 | Tạo phiếu xuất kho (chuyển kho, trả NCC, hủy hàng, điều chỉnh) | Cao |
+| FR08 | Theo dõi tồn kho theo thời gian thực | Cao |
+| FR09 | Kiểm kê kho hàng | Trung bình |
+| FR10 | Chuyển kho giữa các kho hàng | Trung bình |
+| FR11 | Cảnh báo tồn kho dưới ngưỡng | Cao |
+| FR12 | Báo cáo tồn kho | Cao |
+| FR13 | Báo cáo mua hàng | Trung bình |
+| FR14 | Quản lý nhân viên | Trung bình |
+| FR15 | Đăng nhập/Đăng xuất và phân quyền | Cao |
 
 ### Các yêu cầu phi chức năng
 

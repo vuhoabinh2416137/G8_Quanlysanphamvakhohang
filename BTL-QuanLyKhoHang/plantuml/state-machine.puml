@@ -1,5 +1,6 @@
 @startuml state-don-mua-hang
 !theme plain
+skinparam defaultFontName "Arial"
 title Sơ đồ Máy Trạng thái: Vòng đời Đơn Mua Hàng (DonMuaHang)
 
 [*] --> MOI_TAO : taoDonMua()
@@ -44,59 +45,36 @@ HOAN_THANH --> [*]
 DA_HUY --> [*]
 @enduml
 
-@startuml state-don-ban-hang
+@startuml state-phieu-xuat-kho
 !theme plain
-title Sơ đồ Máy Trạng thái: Vòng đời Đơn Bán Hàng (DonBanHang)
+skinparam defaultFontName "Arial"
+title Sơ đồ Máy Trạng thái: Vòng đời Phiếu Xuất Kho (PhieuXuatKho)
 
-[*] --> MOI_TAO : taoDonBan()
+[*] --> MOI_TAO : taoPhieuXuat()
 
 state MOI_TAO {
-    MOI_TAO : entry / chonKhachHang_ThemSanPham
+    MOI_TAO : entry / khoiTaoPhieuXuat
+    MOI_TAO : do / choNVKho_NhapChiTiet
 }
 
-MOI_TAO --> DA_HUY : huyDon()
-MOI_TAO --> CHO_THANH_TOAN : xacNhanGioHang() [phuongThuc == ONLINE]
-MOI_TAO --> DA_XAC_NHAN : xacNhanDonHang() [phuongThuc == TIEN_MAT || CONG_NO] / tamGiuTonKho()
+MOI_TAO --> DA_HUY : huyPhieu()
+MOI_TAO --> CHO_DUYET : guiDuyet() [coItNhat1MucXuat]
 
-state CHO_THANH_TOAN {
-    CHO_THANH_TOAN : do / choPhanHoiCongThanhToan
+state CHO_DUYET {
+    CHO_DUYET : entry / guiThongBaoDenQLK
 }
 
-CHO_THANH_TOAN --> DA_XAC_NHAN : thanhToanThanhCong() / tamGiuTonKho()
-CHO_THANH_TOAN --> CHO_THANH_TOAN : thanhToanThatBai() / thuLai()
-CHO_THANH_TOAN --> DA_HUY : hetHanThanhToan() / huyGiuCho()
+CHO_DUYET --> DA_XAC_NHAN : duyetXuatKho() / truTonKho()
+CHO_DUYET --> TU_CHOI : tuChoi(lyDo) / thongBaoNVKho()
+
+TU_CHOI --> MOI_TAO : suaLai()
+TU_CHOI --> DA_HUY : dongPhieu()
 
 state DA_XAC_NHAN {
-    DA_XAC_NHAN : entry / taoLenhXuatKho
+    DA_XAC_NHAN : entry / capNhatTonKho_GhiLog
 }
 
-DA_XAC_NHAN --> DANG_XU_LY : khoBatDauNhatHang()
-
-state DANG_XU_LY {
-    DANG_XU_LY : do / nhapHangTheoPickList
-    DANG_XU_LY : exit / dongGoiKiemTra
-}
-
-DANG_XU_LY --> DA_XUAT_KHO : hoanTatXuatKho() / truTonKhoVatLy()
-
-state DA_XUAT_KHO {
-    DA_XUAT_KHO : entry / banGiaoDonViVanChuyen
-}
-
-DA_XUAT_KHO --> DANG_GIAO : batDauGiaoHang()
-
-state DANG_GIAO {
-    DANG_GIAO : do / theoDoiLoTrinh
-}
-
-DANG_GIAO --> DA_GIAO : khachNhanHang() / kyBienBanBanGiao()
-DANG_GIAO --> GIAO_THAT_BAI : giaoKhongThanhCong()
-
-GIAO_THAT_BAI --> DANG_GIAO : henGiaoLai() [soLanThu < 3]
-GIAO_THAT_BAI --> TRA_HANG : huyGiaoHang() / lapPhieuNhapTraHang()
-
-DA_GIAO --> HOAN_THANH : doiSoatDoanhThu()
-TRA_HANG --> DA_HUY : nhapHangVeKho() / hoanTonKho()
+DA_XAC_NHAN --> HOAN_THANH : xacNhanGiaoNhan() / kyBienBan()
 
 HOAN_THANH --> [*]
 DA_HUY --> [*]
@@ -104,6 +82,7 @@ DA_HUY --> [*]
 
 @startuml state-san-pham
 !theme plain
+skinparam defaultFontName "Arial"
 title Sơ đồ Máy Trạng thái: Vòng đời Sản phẩm (SanPham)
 
 [*] --> DU_THAO : taoSanPhamMoi()
@@ -116,17 +95,17 @@ state DANG_KINH_DOANH {
     HET_HANG : Hết hàng
 
     [*] --> SAN_HANG : nhapKhoLanDau() [soLuong > nguong]
-    
+
     SAN_HANG --> TON_THAP : xuatKho() [soLuong <= nguong && soLuong > 0] / guiCanhBao()
     TON_THAP --> SAN_HANG : nhapKho() [soLuong > nguong]
-    
+
     TON_THAP --> HET_HANG : xuatKho() [soLuong == 0] / thongBaoHetHang()
     HET_HANG --> SAN_HANG : nhapKho() [soLuong > nguong]
     HET_HANG --> TON_THAP : nhapKho() [soLuong <= nguong && soLuong > 0]
 }
 
 DANG_KINH_DOANH --> TAM_NGUNG : tamDungKinhDoanh()
-TAM_NGUNG --> DANG_KINH_DOANH : moBanLai()
+TAM_NGUNG --> DANG_KINH_DOANH : moLai()
 
 DANG_KINH_DOANH --> NGUNG_KINH_DOANH : khaiTuSanPham() [tonKho == 0]
 TAM_NGUNG --> NGUNG_KINH_DOANH : xacNhanNgung()

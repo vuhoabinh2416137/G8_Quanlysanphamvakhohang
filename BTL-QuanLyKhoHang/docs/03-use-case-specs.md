@@ -75,11 +75,11 @@
 | **Tên ca sử dụng** | Tạo Phiếu Xuất Kho |
 | **ID** | UC07 |
 | **Tác nhân chính** | Nhân viên kho (Warehouse Staff) |
-| **Các bên liên quan** | Quản lý kho, Nhân viên bán hàng, Khách hàng |
-| **Mô tả** | Nhân viên kho tạo phiếu xuất kho khi cần xuất hàng hóa ra khỏi kho (bán hàng, chuyển kho, hoặc điều chỉnh) |
+| **Các bên liên quan** | Quản lý kho, Nhân viên kho, Nhà cung cấp (nếu xuất trả) |
+| **Mô tả** | Nhân viên kho tạo phiếu xuất kho khi cần xuất hàng hóa ra khỏi kho (chuyển kho nội bộ, trả hàng nhà cung cấp, xuất hủy hàng hỏng/hết hạn, hoặc điều chỉnh kiểm kê) |
 | **Loại** | Complex |
 | **Tiền điều kiện** | - Nhân viên kho đã đăng nhập<br>- Hàng hóa cần xuất có sẵn trong kho |
-| **Hậu điều kiện** | - Phiếu xuất kho được lưu<br>- Tồn kho được cập nhật (giảm)<br>- Nếu xuất cho đơn bán: trạng thái đơn bán được cập nhật |
+| **Hậu điều kiện** | - Phiếu xuất kho được lưu vào hệ thống<br>- Tồn kho được cập nhật (giảm)<br>- Cảnh báo tồn kho thấp được kích hoạt nếu chạm ngưỡng |
 
 ### Luồng sự kiện chính (Main Flow)
 
@@ -88,9 +88,9 @@
 | 1 | NV kho chọn chức năng "Tạo phiếu xuất kho" | |
 | 2 | | Hệ thống hiển thị biểu mẫu tạo phiếu xuất kho, tự sinh mã phiếu |
 | 3 | NV kho chọn kho xuất hàng | |
-| 4 | NV kho chọn lý do xuất kho (bán hàng, chuyển kho, hủy hàng, điều chỉnh) | |
-| 5 | NV kho chọn người nhận (khách hàng hoặc kho đích) | |
-| 6 | | Nếu xuất theo đơn bán, hệ thống hiển thị danh sách đơn bán đã xác nhận |
+| 4 | NV kho chọn lý do xuất kho (chuyển kho nội bộ, xuất trả nhà cung cấp, xuất hủy, điều chỉnh kiểm kê) | |
+| 5 | NV kho chọn địa điểm/đối tác tiếp nhận (kho đích, nhà cung cấp, hoặc bộ phận hủy hàng) | |
+| 6 | | Nếu xuất chuyển kho, hệ thống kiểm tra và hiển thị danh mục kho nhận hợp lệ |
 | 7 | NV kho thêm từng mục hàng: chọn sản phẩm, nhập số lượng xuất | |
 | 8 | | Hệ thống kiểm tra tồn kho: Số lượng xuất ≤ Tồn kho hiện có |
 | 9 | | Hệ thống tính đơn giá xuất và tổng giá trị |
@@ -156,60 +156,6 @@
 - 3a. NV mua hàng chọn "Thêm nhà cung cấp mới"
 - 3b. Kích hoạt UC12: Quản lý nhà cung cấp
 - 3c. Sau khi thêm NCC, quay lại bước 3
-
----
-
-## UC17: Tạo Đơn Bán Hàng
-
-### Thông tin tổng quan
-
-| Mục | Nội dung |
-|-----|---------|
-| **Tên ca sử dụng** | Tạo Đơn Bán Hàng |
-| **ID** | UC17 |
-| **Tác nhân chính** | Nhân viên bán hàng (Sales Staff) |
-| **Các bên liên quan** | Khách hàng, NV Kho (xuất hàng), Hệ thống thanh toán |
-| **Mô tả** | NV bán hàng tạo đơn bán hàng cho khách hàng, bao gồm chọn sản phẩm, số lượng, và xử lý thanh toán |
-| **Loại** | Complex |
-| **Tiền điều kiện** | - NV bán hàng đã đăng nhập<br>- Có sản phẩm trong kho |
-| **Hậu điều kiện** | - Đơn bán hàng được lưu<br>- Trạng thái đơn: "Đã xác nhận" hoặc "Chờ thanh toán" |
-
-### Luồng sự kiện chính
-
-| Bước | Tác nhân | Hệ thống |
-|------|---------|---------|
-| 1 | NV bán hàng chọn "Tạo đơn bán hàng" | |
-| 2 | | Hệ thống hiển thị biểu mẫu, tự sinh mã đơn bán |
-| 3 | NV bán hàng chọn khách hàng (tìm kiếm hoặc tạo mới) | |
-| 4 | | Hệ thống hiển thị thông tin khách hàng, lịch sử mua hàng |
-| 5 | NV bán hàng chọn kho xuất hàng | |
-| 6 | NV bán hàng tìm kiếm và thêm sản phẩm vào đơn: nhập số lượng, đơn giá bán | |
-| 7 | | Hệ thống kiểm tra tồn kho và hiển thị trạng thái |
-| 8 | | Hệ thống tính thành tiền = số lượng × đơn giá |
-| 9 | NV bán hàng lặp lại bước 6-8 cho từng sản phẩm | |
-| 10 | | Hệ thống tính tổng tiền, thuế, giảm giá (nếu có) |
-| 11 | NV bán hàng chọn phương thức thanh toán | |
-| 12 | | Nếu thanh toán online, hệ thống kết nối Hệ thống thanh toán |
-| 13 | | Hệ thống lưu đơn bán hàng với trạng thái "Đã xác nhận" |
-| 14 | | Hệ thống gửi thông báo cho NV kho để chuẩn bị xuất hàng |
-| 15 | | Hệ thống hiển thị xác nhận thành công, in hóa đơn |
-
-### Luồng thay thế
-
-**A1: Khách hàng mới (Bước 3)**
-- 3a. NV bán hàng chọn "Thêm khách hàng mới"
-- 3b. Kích hoạt UC16: Quản lý khách hàng
-- 3c. Quay lại bước 3
-
-**A2: Tồn kho không đủ (Bước 7)**
-- 7a. Tồn kho < số lượng yêu cầu
-- 7b. Hệ thống hiển thị "Không đủ hàng. Tồn kho: X. Có Y ở kho khác."
-- 7c. NV bán hàng giảm số lượng, chọn kho khác, hoặc đặt hàng trước (backorder)
-
-**A3: Thanh toán thất bại (Bước 12)**
-- 12a. Hệ thống thanh toán từ chối giao dịch
-- 12b. Hệ thống thông báo lỗi thanh toán
-- 12c. NV bán hàng chọn phương thức khác hoặc ghi nhận công nợ
 
 ---
 

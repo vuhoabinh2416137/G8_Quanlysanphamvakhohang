@@ -2,6 +2,7 @@
 !theme plain
 skinparam classAttributeIconSize 0
 skinparam defaultTextAlignment left
+skinparam defaultFontName "Arial"
 
 title Biểu đồ Đối tượng: Thể hiện Cụ thể Phiếu Nhập Kho (Instance Snapshot)
 
@@ -15,7 +16,7 @@ object "khoHN : Kho" as khoHN {
 object "nvLinh : NhanVien" as nvLinh {
     maNV = "NV002"
     hoTen = "Trần Thị Khánh Linh"
-    chucVu = "Thủ kho"
+    chucVu = "Quản lý kho"
     dienThoai = "0988776655"
 }
 
@@ -41,7 +42,7 @@ object "pnk2026_101 : PhieuNhapKho" as pnk2026 {
     lyDoNhap = TU_NHA_CUNG_CAP
     tongGiaTri = 750000000.0
     trangThai = DA_XAC_NHAN
-    ghiChu = "Nhập đủ hàng theo PO-2026-001 nguyên đai nguyên kiện"
+    ghiChu = "Nhập đủ hàng theo PO-2026-001"
 }
 
 object "mn01 : MucNhap" as mn01 {
@@ -61,7 +62,6 @@ object "spS24 : SanPham" as spS24 {
     tenSP = "Samsung Galaxy S24 Ultra 512GB"
     donViTinh = "Chiếc"
     giaNhap = 25000000.0
-    giaBan = 31990000.0
     nguongTonKho = 5
     trangThai = DANG_KINH_DOANH
 }
@@ -71,7 +71,6 @@ object "spBuds : SanPham" as spBuds {
     tenSP = "Tai nghe Galaxy Buds 3 Pro"
     donViTinh = "Bộ"
     giaNhap = 5000000.0
-    giaBan = 6490000.0
     nguongTonKho = 10
     trangThai = DANG_KINH_DOANH
 }
@@ -105,33 +104,18 @@ spBuds -- tonKhoBuds
 tonKhoBuds -- khoHN
 @enduml
 
-@startuml object-diagram-don-ban-hang
+@startuml object-diagram-phieu-xuat-chuyen-kho
 !theme plain
 skinparam classAttributeIconSize 0
 skinparam defaultTextAlignment left
+skinparam defaultFontName "Arial"
 
-title Biểu đồ Đối tượng: Thể hiện Cụ thể Đơn Bán Hàng và Xuất Kho
+title Biểu đồ Đối tượng: Phiếu Xuất Kho Điều chuyển Nội bộ
 
-object "khViettel : KhachHang" as khViettel {
-    maKH = "KH-DN-088"
-    tenKH = "Tập đoàn Công nghiệp - Viễn thông Quân đội (Viettel)"
-    diaChi = "Lô D26 Khu đô thị mới Cầu Giấy, Hà Nội"
-    dienThoai = "024-6255-6789"
-    email = "procurement@viettel.com.vn"
-    loaiKH = DOANH_NGHIEP
-}
-
-object "nvBinh : NhanVien" as nvBinh {
-    maNV = "NV005"
-    hoTen = "Nguyễn Văn Bình"
-    chucVu = "Nhân viên Kinh doanh"
-    dienThoai = "0912345678"
-}
-
-object "nvLinh : NhanVien" as nvLinh {
-    maNV = "NV002"
-    hoTen = "Trần Thị Khánh Linh"
-    chucVu = "Thủ kho"
+object "nvLong : NhanVien" as nvLong {
+    maNV = "NV003"
+    hoTen = "Lê Hoàng Long"
+    chucVu = "Nhân viên kho"
 }
 
 object "khoHN : Kho" as khoHN {
@@ -139,56 +123,44 @@ object "khoHN : Kho" as khoHN {
     tenKho = "Kho Tổng Hà Nội"
 }
 
-object "so2026_555 : DonBanHang" as so2026 {
-    maDon = "SO-2026-555"
-    ngayTao = 2026-09-14
-    tongTien = 191940000.0
-    thue = 19194000.0
-    giamGia = 5000000.0
-    thanhToan = 206134000.0
-    phuongThucThanhToan = "CHUYEN_KHOAN_NGAN_HANG"
-    trangThai = DA_XAC_NHAN
-    ghiChu = "Giao hàng giờ hành chính kèm biên bản bàn giao và VAT"
+object "khoSG : Kho" as khoSG {
+    maKho = "KHO-SG-01"
+    tenKho = "Kho Chi nhánh TP.HCM"
 }
 
-object "mb01 : MucBan" as mb01 {
-    soLuong = 6
-    donGiaBan = 31990000.0
-    thanhTien = 191940000.0
+object "pxk2026_301 : PhieuXuatKho" as pxk2026 {
+    maPhieu = "PXK-2026-301"
+    ngayXuat = 2026-09-15
+    lyDoXuat = CHUYEN_KHO
+    tongGiaTri = 125000000.0
+    trangThai = DA_XAC_NHAN
+    ghiChu = "Điều chuyển hàng từ Kho HN sang Kho SG"
+}
+
+object "mx01 : MucXuat" as mx01 {
+    soLuongYeuCau = 5
+    soLuongThucXuat = 5
+    donGiaXuat = 25000000.0
+    thanhTien = 125000000.0
 }
 
 object "spS24 : SanPham" as spS24 {
     maSP = "SP-SAM-S24U"
     tenSP = "Samsung Galaxy S24 Ultra 512GB"
-    giaBan = 31990000.0
-}
-
-object "pxk2026_303 : PhieuXuatKho" as pxk2026 {
-    maPhieu = "PXK-2026-303"
-    ngayXuat = 2026-09-14
-    lyDoXuat = BAN_HANG
-    tongGiaTri = 191940000.0
-    trangThai = DA_XAC_NHAN
-    ghiChu = "Xuất hàng bàn giao Viettel theo SO-2026-555"
-}
-
-object "mx01 : MucXuat" as mx01 {
-    soLuongYeuCau = 6
-    soLuongThucXuat = 6
-    donGiaXuat = 31990000.0
-    thanhTien = 191940000.0
+    giaNhap = 25000000.0
 }
 
 ' Links
-so2026 -- khViettel : đặt bởi
-so2026 -- nvBinh : tạo bởi
-so2026 -- khoHN : xuất từ
-so2026 *-- mb01
-mb01 -- spS24 : mặt hàng
-
-pxk2026 ..> so2026 : căn cứ theo
-pxk2026 -- khoHN : từ kho
-pxk2026 -- nvLinh : xuất bởi
+pxk2026 -- khoHN : xuất từ
+pxk2026 -- nvLong : xuất bởi
 pxk2026 *-- mx01
-mx01 -- spS24 : xuất mặt hàng
+mx01 -- spS24 : mặt hàng
+
+note right of pxk2026
+    Phiếu xuất kho này dùng cho
+    điều chuyển nội bộ giữa 2 kho.
+    Kho SG sẽ nhận phiếu nhập tương ứng.
+end note
+
+pxk2026 ..> khoSG : kho đích nhận
 @enduml

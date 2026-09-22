@@ -2,6 +2,7 @@
 !theme plain
 skinparam packageStyle rectangle
 skinparam componentStyle uml2
+skinparam defaultFontName "Arial"
 
 title Sơ đồ Gói (Package Diagram) - Kiến trúc Phân tầng Hệ thống Quản lý Kho hàng
 
@@ -11,7 +12,6 @@ package "Tầng Giao diện Người dùng (HCI - Human-Computer Interaction)" #
         class SanPhamView
         class NhapKhoView
         class XuatKhoView
-        class BanHangView
         class KiemKeView
         class BaoCaoView
     }
@@ -20,7 +20,6 @@ package "Tầng Giao diện Người dùng (HCI - Human-Computer Interaction)" #
         class SanPhamController
         class NhapKhoController
         class XuatKhoController
-        class BanHangController
         class KiemKeController
         class AuthController
     }
@@ -31,7 +30,6 @@ package "Tầng Miền Nghiệp vụ (PD - Problem Domain)" #E8F5E9 {
         interface SanPhamService
         interface NhapKhoService
         interface XuatKhoService
-        interface BanHangService
         interface KiemKeService
         interface TonKhoService
         interface AuthService
@@ -60,12 +58,6 @@ package "Tầng Miền Nghiệp vụ (PD - Problem Domain)" #E8F5E9 {
         class NhaCungCap
     }
 
-    package "com.warehouse.domain.sales" {
-        class DonBanHang
-        class MucBan
-        class KhachHang
-    }
-
     package "com.warehouse.domain.identity" {
         class NhanVien
         class TaiKhoan
@@ -82,7 +74,6 @@ package "Tầng Quản lý Dữ liệu (DM - Data Management)" #E3F2FD {
         class PhieuNhapKhoDAM
         class PhieuXuatKhoDAM
         class DonMuaHangDAM
-        class DonBanHangDAM
         class PhienKiemKeDAM
         class TaiKhoanDAM
     }
@@ -96,10 +87,6 @@ package "Tầng Quản lý Dữ liệu (DM - Data Management)" #E3F2FD {
 package "Tầng Hạ tầng & Tích hợp ngoài (PA - Physical Architecture)" #F3E5F5 {
     package "com.warehouse.infrastructure.mail" {
         class EmailService
-    }
-    
-    package "com.warehouse.infrastructure.payment" {
-        class VNPayGatewayAdapter
     }
     
     package "com.warehouse.infrastructure.security" {

@@ -2,6 +2,7 @@
 !theme plain
 skinparam linetype ortho
 skinparam roundcorner 5
+skinparam defaultFontName "Arial"
 
 title Lược đồ Cơ sở Dữ liệu Quan hệ (Physical Database ERD Schema) - warehouse_db
 
@@ -20,7 +21,6 @@ entity "san_pham" as tb_sanpham {
     ten_sp : VARCHAR(255) NOT NULL
     don_vi_tinh : VARCHAR(30) NOT NULL
     gia_nhap_chuan : DECIMAL(15,2) NOT NULL
-    gia_ban_niem_yet : DECIMAL(15,2) NOT NULL
     nguong_ton_kho : INT DEFAULT 10
     hinh_anh_url : VARCHAR(500)
     trang_thai : VARCHAR(30) NOT NULL
@@ -64,17 +64,6 @@ entity "nha_cung_cap" as tb_ncc {
     email : VARCHAR(100)
     nguoi_dai_dien : VARCHAR(100)
     trang_thai : VARCHAR(30) NOT NULL
-}
-
-entity "khach_hang" as tb_kh {
-    * ma_kh : VARCHAR(30) <<PK>>
-    --
-    ten_kh : VARCHAR(150) NOT NULL
-    loai_kh : VARCHAR(30) NOT NULL
-    dia_chi : VARCHAR(255)
-    dien_thoai : VARCHAR(20) NOT NULL
-    email : VARCHAR(100)
-    ma_so_thue : VARCHAR(30)
 }
 
 entity "nhan_vien" as tb_nv {
@@ -158,38 +147,11 @@ entity "muc_nhap_kho" as tb_muc_pnk {
     thanh_tien : DECIMAL(15,2) NOT NULL
 }
 
-entity "don_ban_hang" as tb_so {
-    * ma_don_ban : VARCHAR(30) <<PK>>
-    --
-    ma_kh : VARCHAR(30) <<FK>>
-    ma_kho_xuat : VARCHAR(30) <<FK>>
-    ma_nv_ban : VARCHAR(30) <<FK>>
-    ngay_tao : TIMESTAMP DEFAULT NOW()
-    tong_tien_hang : DECIMAL(15,2) NOT NULL
-    thue_vat : DECIMAL(15,2) DEFAULT 0
-    giam_gia : DECIMAL(15,2) DEFAULT 0
-    tong_thanh_toan : DECIMAL(15,2) NOT NULL
-    phuong_thuc_tt : VARCHAR(50) NOT NULL
-    trang_thai : VARCHAR(30) NOT NULL
-    ghi_chu : TEXT
-}
-
-entity "muc_ban_hang" as tb_muc_so {
-    * id : BIGINT <<PK, AUTO>>
-    --
-    ma_don_ban : VARCHAR(30) <<FK>>
-    ma_sp : VARCHAR(30) <<FK>>
-    so_luong : INT NOT NULL
-    don_gia_ban : DECIMAL(15,2) NOT NULL
-    thanh_tien : DECIMAL(15,2) NOT NULL
-}
-
 entity "phieu_xuat_kho" as tb_pxk {
     * ma_phieu_xuat : VARCHAR(30) <<PK>>
     --
     ma_kho : VARCHAR(30) <<FK>>
     ma_nv_xuat : VARCHAR(30) <<FK>>
-    ma_don_ban : VARCHAR(30) <<FK>>
     ly_do_xuat : VARCHAR(50) NOT NULL
     ngay_xuat : TIMESTAMP DEFAULT NOW()
     tong_gia_tri : DECIMAL(15,2) NOT NULL
@@ -252,12 +214,7 @@ tb_po ||--o| tb_pnk : "ma_don_mua"
 tb_pnk ||--|{ tb_muc_pnk : "ma_phieu_nhap"
 tb_sanpham ||--o{ tb_muc_pnk : "ma_sp"
 
-tb_kh ||--o{ tb_so : "ma_kh"
-tb_so ||--|{ tb_muc_so : "ma_don_ban"
-tb_sanpham ||--o{ tb_muc_so : "ma_sp"
-
 tb_kho ||--o{ tb_pxk : "ma_kho"
-tb_so ||--o| tb_pxk : "ma_don_ban"
 tb_pxk ||--|{ tb_muc_pxk : "ma_phieu_xuat"
 tb_sanpham ||--o{ tb_muc_pxk : "ma_sp"
 

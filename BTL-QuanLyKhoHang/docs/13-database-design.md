@@ -11,13 +11,13 @@ Mô hình đối tượng được ánh xạ sang mô hình quan hệ theo các 
 | **Rule 2 (R2)** | Thuộc tính đơn trị ánh xạ thành Cột (Column). Thuộc tính định danh ánh xạ thành Khóa chính (Primary Key - PK). | `maSP` → `ma_sp VARCHAR(30) PRIMARY KEY`. |
 | **Rule 3 (R3)** | Quan hệ 1 - Nhiều (1 - *) ánh xạ bằng cách đưa Khóa chính của phía "1" làm Khóa ngoại (Foreign Key - FK) ở phía "Nhiều". | `DanhMuc (1) -- (*) SanPham`: thêm cột `ma_danh_muc` trong bảng `san_pham`. |
 | **Rule 4 (R4)** | Quan hệ Nhiều - Nhiều (* - *) ánh xạ thành Bảng liên kết (Junction Table) chứa 2 FK trỏ về 2 bảng gốc. | `TaiKhoan (*) -- (*) VaiTro` → Bảng `tai_khoan_vai_tro(ten_dang_nhap, ma_vai_tro)`. |
-| **Rule 5-8 (R5-R8)** | Xử lý kế thừa `PhieuKho` có 2 lớp con `PhieuNhapKho` và `PhieuXuatKho`. | Áp dụng phương pháp tách bảng cụ thể (Table per Concrete Class) `phieu_nhap_kho` và `phieu_xuat_kho` để tối ưu hiệu năng truy vấn và ràng buộc toàn vẹn riêng biệt cho từng nghiệp vụ. |
+| **Rule 5-8 (R5-R8)** | Xử lý kế thừa `PhieuKho` có 2 lớp con `PhieuNhapKho` và `PhieuXuatKho`. | Áp dụng phương pháp tách bảng cụ thể (Table per Concrete Class) `phieu_nhap_kho` và `phieu_xuat_kho` để tối ưu hiệu năng truy vấn và ràng buộc toàn vẹn riêng biệt cho từng nghiệp vụ kho. |
 
 ---
 
 ## Chuẩn hóa Dữ liệu (Normalization)
 Mọi bảng trong lược đồ đều đạt **Chuẩn 3NF (Third Normal Form)**:
-1. **1NF**: Mọi thuộc tính đều là nguyên tố (Atomic), không chứa mảng lặp (các dòng mặt hàng được tách ra bảng riêng `muc_nhap_kho`, `muc_xuat_kho`, `muc_ban_hang`).
+1. **1NF**: Mọi thuộc tính đều là nguyên tố (Atomic), không chứa mảng lặp (các dòng mặt hàng được tách ra bảng chi tiết riêng `muc_nhap_kho`, `muc_xuat_kho`, `muc_mua_hang`, `muc_kiem_ke`).
 2. **2NF**: Đạt 1NF và mọi thuộc tính không khóa đều phụ thuộc hàm toàn phần vào Khóa chính (đặc biệt trong các bảng có khóa phức hợp như `ton_kho(ma_kho, ma_sp)`).
 3. **3NF**: Đạt 2NF và không có thuộc tính không khóa nào phụ thuộc bắc cầu vào Khóa chính.
 
@@ -25,23 +25,28 @@ Mọi bảng trong lược đồ đều đạt **Chuẩn 3NF (Third Normal Form)
 
 ## Kịch bản DDL SQL Tạo Cơ sở Dữ liệu (PostgreSQL / MySQL)
 
+Toàn bộ 18 bảng chuẩn hóa của Hệ thống Quản lý Sản phẩm và Kho hàng:
+
 ```sql
--- =============================================================================
--- HỆ THỐNG QUẢN LÝ SẢN PHẨM VÀ KHO HÀNG (IT3120 - BTL OOSAD)
--- Database: warehouse_db
+﻿-- =============================================================================
+-- SCHEMA CSDL (DDL) - warehouse_db
+-- Hệ thống Quản lý Sản phẩm và Kho hàng (IT3120 - BTL OOSAD)
+-- Phạm vi: Quản lý sản phẩm, Nhập/Xuất kho, Kiểm kê, Mua hàng từ NCC
 -- =============================================================================
 
+-- Xoá cơ sở dữ liệu cũ (nếu có) và khởi tạo
+DROP DATABASE IF EXISTS warehouse_db;
 CREATE DATABASE warehouse_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE warehouse_db;
 
--- 1. Bảng Danh mục sản phẩm (Hỗ trợ cấu trúc cây phân cấp)
+-- 1. Bảng Danh mục sản phẩm (Phân cấp đệ quy)
 CREATE TABLE danh_muc (
     ma_danh_muc VARCHAR(30) PRIMARY KEY,
     ten_danh_muc VARCHAR(150) NOT NULL,
     mo_ta TEXT,
     ma_danh_muc_cha VARCHAR(30),
     ngay_tao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_danhmuc_cha FOREIGN KEY (ma_danh_muc_cha) REFERENCES danh_muc(ma_danh_muc) ON DELETE SET NULL
+    CONSTRAINT fk_danhmuc_cha FOREIGN KEY (ma_danh_muc_cha) REFERENCES danh_muc(ma_danh_muc)
 );
 
 -- 2. Bảng Sản phẩm
@@ -49,14 +54,13 @@ CREATE TABLE san_pham (
     ma_sp VARCHAR(30) PRIMARY KEY,
     ten_sp VARCHAR(255) NOT NULL,
     don_vi_tinh VARCHAR(30) NOT NULL,
-    gia_nhap_chuan DECIMAL(15,2) NOT NULL DEFAULT 0,
-    gia_ban_niem_yet DECIMAL(15,2) NOT NULL DEFAULT 0,
-    nguong_ton_kho INT DEFAULT 10,
+    gia_nhap_chuan DECIMAL(15,2) NOT NULL,
+    nguong_ton_kho INT NOT NULL DEFAULT 10,
     hinh_anh_url VARCHAR(500),
     trang_thai VARCHAR(30) NOT NULL DEFAULT 'DANG_KINH_DOANH',
     ma_danh_muc VARCHAR(30),
     ngay_tao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_sanpham_danhmuc FOREIGN KEY (ma_danh_muc) REFERENCES danh_muc(ma_danh_muc)
+    CONSTRAINT fk_sp_danhmuc FOREIGN KEY (ma_danh_muc) REFERENCES danh_muc(ma_danh_muc)
 );
 
 -- 3. Bảng Nhân viên
@@ -67,19 +71,20 @@ CREATE TABLE nhan_vien (
     gioi_tinh VARCHAR(10),
     dia_chi VARCHAR(255),
     dien_thoai VARCHAR(20) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL,
     chuc_vu VARCHAR(50) NOT NULL,
-    trang_thai VARCHAR(30) NOT NULL DEFAULT 'DANG_LAM_VIEC'
+    trang_thai VARCHAR(30) NOT NULL DEFAULT 'DANG_LAM_VIEC',
+    ngay_vao_lam TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 4. Bảng Tài khoản & Phân quyền RBAC
+-- 4. Bảng Tài khoản, Vai trò, Quyền (RBAC)
 CREATE TABLE tai_khoan (
     ten_dang_nhap VARCHAR(50) PRIMARY KEY,
     mat_khau_hash VARCHAR(255) NOT NULL,
-    ma_nv VARCHAR(30) UNIQUE,
+    ma_nv VARCHAR(30) NOT NULL UNIQUE,
     trang_thai VARCHAR(30) NOT NULL DEFAULT 'HOAT_DONG',
     lan_dang_nhap_cuoi TIMESTAMP,
-    CONSTRAINT fk_taikhoan_nhanvien FOREIGN KEY (ma_nv) REFERENCES nhan_vien(ma_nv)
+    CONSTRAINT fk_tk_nv FOREIGN KEY (ma_nv) REFERENCES nhan_vien(ma_nv)
 );
 
 CREATE TABLE vai_tro (
@@ -92,8 +97,8 @@ CREATE TABLE tai_khoan_vai_tro (
     ten_dang_nhap VARCHAR(50) NOT NULL,
     ma_vai_tro VARCHAR(30) NOT NULL,
     PRIMARY KEY (ten_dang_nhap, ma_vai_tro),
-    CONSTRAINT fk_tkvt_tk FOREIGN KEY (ten_dang_nhap) REFERENCES tai_khoan(ten_dang_nhap) ON DELETE CASCADE,
-    CONSTRAINT fk_tkvt_vt FOREIGN KEY (ma_vai_tro) REFERENCES vai_tro(ma_vai_tro) ON DELETE CASCADE
+    CONSTRAINT fk_tkvt_tk FOREIGN KEY (ten_dang_nhap) REFERENCES tai_khoan(ten_dang_nhap),
+    CONSTRAINT fk_tkvt_vt FOREIGN KEY (ma_vai_tro) REFERENCES vai_tro(ma_vai_tro)
 );
 
 -- 5. Bảng Kho & Vị trí kho
@@ -193,60 +198,18 @@ CREATE TABLE muc_nhap_kho (
     CONSTRAINT fk_muc_pnk_sp FOREIGN KEY (ma_sp) REFERENCES san_pham(ma_sp)
 );
 
--- 9. Bảng Khách hàng & Đơn bán hàng (SO)
-CREATE TABLE khach_hang (
-    ma_kh VARCHAR(30) PRIMARY KEY,
-    ten_kh VARCHAR(150) NOT NULL,
-    loai_kh VARCHAR(30) NOT NULL DEFAULT 'CA_NHAN',
-    dia_chi VARCHAR(255),
-    dien_thoai VARCHAR(20) NOT NULL,
-    email VARCHAR(100),
-    ma_so_thue VARCHAR(30)
-);
-
-CREATE TABLE don_ban_hang (
-    ma_don_ban VARCHAR(30) PRIMARY KEY,
-    ma_kh VARCHAR(30) NOT NULL,
-    ma_kho_xuat VARCHAR(30) NOT NULL,
-    ma_nv_ban VARCHAR(30) NOT NULL,
-    ngay_tao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    tong_tien_hang DECIMAL(15,2) NOT NULL,
-    thue_vat DECIMAL(15,2) DEFAULT 0,
-    giam_gia DECIMAL(15,2) DEFAULT 0,
-    tong_thanh_toan DECIMAL(15,2) NOT NULL,
-    phuong_thuc_tt VARCHAR(50) NOT NULL,
-    trang_thai VARCHAR(30) NOT NULL DEFAULT 'MOI_TAO',
-    ghi_chu TEXT,
-    CONSTRAINT fk_so_kh FOREIGN KEY (ma_kh) REFERENCES khach_hang(ma_kh),
-    CONSTRAINT fk_so_kho FOREIGN KEY (ma_kho_xuat) REFERENCES kho(ma_kho),
-    CONSTRAINT fk_so_nv FOREIGN KEY (ma_nv_ban) REFERENCES nhan_vien(ma_nv)
-);
-
-CREATE TABLE muc_ban_hang (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    ma_don_ban VARCHAR(30) NOT NULL,
-    ma_sp VARCHAR(30) NOT NULL,
-    so_luong INT NOT NULL,
-    don_gia_ban DECIMAL(15,2) NOT NULL,
-    thanh_tien DECIMAL(15,2) NOT NULL,
-    CONSTRAINT fk_muc_so_don FOREIGN KEY (ma_don_ban) REFERENCES don_ban_hang(ma_don_ban) ON DELETE CASCADE,
-    CONSTRAINT fk_muc_so_sp FOREIGN KEY (ma_sp) REFERENCES san_pham(ma_sp)
-);
-
--- 10. Bảng Phiếu xuất kho & Chi tiết
+-- 9. Bảng Phiếu xuất kho & Chi tiết (Xuất chuyển kho, trả NCC, hủy, cân đối kiểm kê)
 CREATE TABLE phieu_xuat_kho (
     ma_phieu_xuat VARCHAR(30) PRIMARY KEY,
     ma_kho VARCHAR(30) NOT NULL,
     ma_nv_xuat VARCHAR(30) NOT NULL,
-    ma_don_ban VARCHAR(30),
     ly_do_xuat VARCHAR(50) NOT NULL,
     ngay_xuat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     tong_gia_tri DECIMAL(15,2) NOT NULL DEFAULT 0,
     ghi_chu TEXT,
     trang_thai VARCHAR(30) NOT NULL DEFAULT 'DA_XAC_NHAN',
     CONSTRAINT fk_pxk_kho FOREIGN KEY (ma_kho) REFERENCES kho(ma_kho),
-    CONSTRAINT fk_pxk_nv FOREIGN KEY (ma_nv_xuat) REFERENCES nhan_vien(ma_nv),
-    CONSTRAINT fk_pxk_so FOREIGN KEY (ma_don_ban) REFERENCES don_ban_hang(ma_don_ban)
+    CONSTRAINT fk_pxk_nv FOREIGN KEY (ma_nv_xuat) REFERENCES nhan_vien(ma_nv)
 );
 
 CREATE TABLE muc_xuat_kho (
@@ -261,7 +224,7 @@ CREATE TABLE muc_xuat_kho (
     CONSTRAINT fk_muc_pxk_sp FOREIGN KEY (ma_sp) REFERENCES san_pham(ma_sp)
 );
 
--- 11. Bảng Kiểm kê kho
+-- 10. Bảng Kiểm kê kho
 CREATE TABLE phien_kiem_ke (
     ma_phien VARCHAR(30) PRIMARY KEY,
     ma_kho VARCHAR(30) NOT NULL,
@@ -288,21 +251,24 @@ CREATE TABLE muc_kiem_ke (
 );
 
 -- =============================================================================
--- CHỈ MỤC TỐI ƯU HÓA TRUY VẤN (INDEXES)
+-- CHỈ MỤC TỐI ƯU HOÁ TRUY VẤN (INDEXES)
 -- =============================================================================
 CREATE INDEX idx_sanpham_danhmuc ON san_pham(ma_danh_muc);
 CREATE INDEX idx_sanpham_trangthai ON san_pham(trang_thai);
 CREATE INDEX idx_tonkho_soluong ON ton_kho(so_luong);
 CREATE INDEX idx_donmua_trangthai ON don_mua_hang(trang_thai);
-CREATE INDEX idx_donban_ngaytao ON don_ban_hang(ngay_tao);
 CREATE INDEX idx_pnk_ngaynhap ON phieu_nhap_kho(ngay_nhap);
 CREATE INDEX idx_pxk_ngayxuat ON phieu_xuat_kho(ngay_xuat);
 ```
 
 ---
 
+## Sơ đồ Thực thể Liên kết (ERD / Database Design) Rendered
+
+![Biểu đồ Thiết kế CSDL](../diagrams/database-design.png)
+
 ## File nguồn PlantUML
-Sơ đồ ERD hoàn chỉnh: [database-design.puml](../plantuml/database-design.puml).
+Sơ đồ PlantUML hoàn chỉnh: [database-design.puml](../plantuml/database-design.puml).
 Render đồ họa:
 ```bash
 java -jar plantuml.jar plantuml/database-design.puml -o ../diagrams/

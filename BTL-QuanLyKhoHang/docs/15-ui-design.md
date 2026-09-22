@@ -8,34 +8,25 @@ Thiết kế giao diện trong quy trình OOSAD chuyển tiếp trực tiếp t�
 2. **Sơ đồ tuần tự mức hệ thống (SSD)**: Xác định chuỗi màn hình tương tác và phản hồi của hệ thống.
 3. **Mô hình hóa cấu trúc (Domain Classes)**: Xác định các thực thể và thuộc tính hiển thị trên các biểu mẫu (Forms / Data Grids).
 
-### Các nguyên tắc vàng được áp dụng:
-- **Tính nhất quán (Consistency)**: Thanh điều hướng bên trái (Sidebar) cố định, thanh trạng thái trên cùng (Top header) hiển thị thông tin phiên đăng nhập và chuông cảnh báo tồn kho thấp.
-- **Phản hồi trạng thái (Feedback & Status)**: Sử dụng các huy hiệu (Badges) trạng thái màu sắc chuẩn hóa (Xanh lá: Thành công / Đã duyệt; Vàng: Chờ duyệt; Đỏ: Hủy / Cảnh báo tồn thấp).
-- **Phòng ngừa lỗi (Error Prevention)**: Kiểm tra tính hợp lệ dữ liệu ngay tại Client (Validation: số lượng > 0, mã sản phẩm duy nhất) và hộp thoại xác nhận (Modal Confirmation) đối với các hành động phá hủy hoặc quan trọng (Xóa, Hủy đơn, Chốt kiểm kê).
-
 ---
 
-## Sơ đồ Điều hướng Màn hình (Window Navigation Diagram - WND)
+## Cấu trúc Điều hướng Hệ thống (Site Map)
 
 ```
-                       ┌──────────────────────┐
-                       │  Màn hình Đăng nhập  │
-                       └──────────┬───────────┘
-                                  │ (Xác thực thành công)
-                                  ▼
-                       ┌──────────────────────┐
-                       │ Dashboard Tổng quan  │
-                       └──────────┬───────────┘
-         ┌────────────────────────┼────────────────────────┬────────────────────────┐
-         ▼                        ▼                        ▼                        ▼
-┌──────────────────┐    ┌──────────────────┐    ┌──────────────────┐    ┌──────────────────┐
-│ Quản lý Sản phẩm │    │ Quản trị Kho     │    │ Quản lý Đơn hàng │    │ Báo cáo Thống kê │
-├──────────────────┤    ├──────────────────┤    ├──────────────────┤    ├──────────────────┤
-│• Danh mục SP     │    │• Phiếu Nhập Kho  │    │• Đơn Mua Hàng    │    │• Báo cáo Tồn kho │
-│• Danh sách SP    │    │• Phiếu Xuất Kho  │    │• Duyệt Đơn Mua   │    │• Báo cáo Doanh thu│
-│• Chi tiết / CRUD │    │• Tra cứu Tồn kho │    │• Đơn Bán Hàng    │    │• Lịch sử Nhập/Xuất│
-│• Cảnh báo tồn    │    │• Phiên Kiểm kê   │    │• Khách hàng/NCC  │    │• Báo cáo Công nợ │
-└──────────────────┘    └──────────────────┘    └──────────────────┘    └──────────────────┘
+[ ĐĂNG NHẬP HỆ THỐNG ]
+          │
+          ▼
+   [ DASHBOARD TỔNG QUAN ]
+          ├─────────────────────────┬─────────────────────────┬─────────────────────────┐
+          ▼                         ▼                         ▼                         ▼
+┌──────────────────┐      ┌──────────────────┐      ┌──────────────────┐      ┌──────────────────┐
+│  QUẢN LÝ SẢN PHẨM│      │ QUẢN LÝ KHO HÀNG │      │ QUẢN LÝ MUA HÀNG │      │BÁO CÁO & THỐNG KÊ│
+├──────────────────┤      ├──────────────────┤      ├──────────────────┤      ├──────────────────┤
+│• Danh mục SP     │      │• Phiếu Nhập kho  │      │• Đơn mua (PO)    │      │• Báo cáo Tồn kho │
+│• Danh sách SP    │      │• Phiếu Xuất kho  │      │• Duyệt đơn mua   │      │• Báo cáo Nhập/Xuất
+│• Cảnh báo tồn    │      │• Chuyển kho      │      │• Nhà cung cấp    │      │• Báo cáo Mua hàng│
+│• Định mức kho    │      │• Phiên Kiểm kê   │      │• Đánh giá NCC    │      │• Biên bản Kiểm kê│
+└──────────────────┘      └──────────────────┘      └──────────────────┘      └──────────────────┘
 ```
 
 ---
@@ -50,20 +41,20 @@ Thiết kế giao diện trong quy trình OOSAD chuyển tiếp trực tiếp t�
 +-----------------------------------------------------------------------------------------------+
 | [MENU]                 | DASHBOARD TỔNG QUAN                             Thứ Hai, 14/09/2026   |
 |                        +----------------------------------------------------------------------+
-| > Dashboard            | [ THỐNG KÊ TỔNG HỢP ]                                                |
+| > Dashboard            | [ THỐNG KÊ KHO HÀNG TỔNG HỢP ]                                       |
 |   Sản phẩm             | +------------------+ +------------------+ +------------------+       |
-|   Kho hàng             | | TỔNG SẢN PHẨM    | | TỔNG TỒN KHO     | | CẢNH BÁO TỒN THẤP|       |
-|     - Nhập kho         | | 1,240 mặt hàng   | | 48,500 chiếc     | | 8 sản phẩm (ĐỎ)  |       |
-|     - Xuất kho         | +------------------+ +------------------+ +------------------+       |
-|     - Tồn kho          | +------------------+ +------------------+ +------------------+       |
-|     - Kiểm kê          | | ĐƠN MUA CHỜ DUYỆT| | ĐƠN BÁN TRONG NGÀY| | GIÁ TRỊ KHO HÀNG |       |
-|   Mua hàng (PO)        | | 4 đơn mới        | | 28 đơn hoàn tất  | | 14.8 Tỷ VNĐ      |       |
-|   Bán hàng (SO)        | +------------------+ +------------------+ +------------------+       |
-|   Đối tác (NCC/KH)     |                                                                      |
-|   Báo cáo & Phân tích  | [ CẢNH BÁO TỒN KHO DƯỚI NGƯỠNG AN TOÀN ]                             |
+|     - Danh mục         | | TỔNG SẢN PHẨM    | | TỔNG TỒN KHO     | | CẢNH BÁO TỒN THẤP|       |
+|     - Danh sách SP     | | 1,240 mặt hàng   | | 48,500 chiếc     | | 8 sản phẩm (ĐỎ)  |       |
+|   Kho hàng             | +------------------+ +------------------+ +------------------+       |
+|     - Nhập kho         | +------------------+ +------------------+ +------------------+       |
+|     - Xuất kho         | | ĐƠN MUA CHỜ DUYỆT| | XUẤT KHO HÔM NAY | | GIÁ TRỊ KHO HÀNG |       |
+|     - Tồn kho          | | 4 đơn mới        | | 12 phiếu xuất    | | 14.8 Tỷ VNĐ      |       |
+|     - Kiểm kê          | +------------------+ +------------------+ +------------------+       |
+|   Mua hàng (PO)        |                                                                      |
+|     - Đơn mua          | [ CẢNH BÁO TỒN KHO DƯỚI NGƯỠNG AN TOÀN ]                             |
+|     - Nhà cung cấp     | +------------+----------------------+----------+----------+---------+|
+|   Báo cáo & Thống kê   | | Mã SP      | Tên sản phẩm         | Tồn hiện | Ngưỡng   | Thao tác||
 |   Cài đặt hệ thống     | +------------+----------------------+----------+----------+---------+|
-|                        | | Mã SP      | Tên sản phẩm         | Tồn hiện | Ngưỡng   | Thao tác||
-|                        | +------------+----------------------+----------+----------+---------+|
 |                        | | SP-SAM-S24 | Samsung S24 Ultra    | 2 chiếc  | 10 chiếc | [Tạo PO]||
 |                        | | SP-LOGI-M3 | Chuột Logitech M331  | 4 chiếc  | 20 chiếc | [Tạo PO]||
 |                        | | SP-DELL-P2 | Màn hình Dell P2419H | 1 chiếc  | 5 chiếc  | [Tạo PO]||
@@ -100,36 +91,34 @@ Thiết kế giao diện trong quy trình OOSAD chuyển tiếp trực tiếp t�
 
 ---
 
-### 3. Màn hình Bán Hàng & Tạo Đơn Bán (UC17)
+### 3. Màn hình Lập Phiếu Xuất Kho (UC07)
 
 ```
 +-----------------------------------------------------------------------------------------------+
-| BÁN HÀNG TẠI QUẦY & ĐƠN HÀNG (POS)                                    Thu ngân: Nguyễn Văn Bình|
-+------------------------------------------------------------------+----------------------------+
-| TÌM KIẾM SẢN PHẨM: [ Nhập mã hoặc quét barcode sản phẩm...    ]  | THÔNG TIN KHÁCH HÀNG       |
-+----+-------------+----------------------+-----+-----+------------+ [Tìm KH qua SĐT: 0912...  ]|
-| STT| Mã SP       | Tên sản phẩm         | ĐVT | SL  | Đơn giá    | KH: Tập đoàn Viettel       |
-+----+-------------+----------------------+-----+-----+------------+ Loại: DOANH NGHIỆP (VIP)   |
-| 1  | SP-SAM-S24U | Samsung S24 Ultra    | Chiếc| 6  | 31,990,000 | Kho xuất: Kho Tổng Hà Nội  |
-|    |             | (Tồn kho khả dụng: 35)                         |----------------------------|
-+----+-------------+----------------------+-----+-----+------------+ TỔNG TIỀN HÀNG: 191,940,000|
-|                                                                  | Thuế VAT (10%):  19,194,000|
-|                                                                  | Chiết khấu DN:   -5,000,000|
-|                                                                  |----------------------------|
-|                                                                  | TỔNG CỘNG:      206,134,000|
-|                                                                  |----------------------------|
-|                                                                  | Phương thức thanh toán:    |
-|                                                                  | (*) Chuyển khoản [Quét QR] |
-|                                                                  | ( ) Tiền mặt               |
-|                                                                  | ( ) Công nợ 30 ngày        |
-|                                                                  |                            |
-|                                                                  | [ IN HÓA ĐƠN & HOÀN TẤT ]  |
-+------------------------------------------------------------------+----------------------------+
+| TẠO PHIẾU XUẤT KHO                                            [Hủy bỏ]   [Lưu & Xác nhận Xuất]|
++-----------------------------------------------------------------------------------------------+
+| THÔNG TIN PHIẾU XUẤT                                                                          |
+| Mã phiếu: [ PXK-2026-301   ] (Tự sinh)           Ngày xuất: [ 15/09/2026 09:15 ]              |
+| Kho xuất: [ Kho Tổng Hà Nội           ▼ ]        Thủ kho:   [ NV003 - Lê Hoàng Long          ]|
+| Lý do:    (*) Chuyển kho nội bộ  ( ) Trả hàng NCC  ( ) Xuất hủy hàng hỏng  ( ) Cân đối kiểm kê|
+| Nơi nhận: [ Kho Chi nhánh TP.HCM                                                            ▼]|
++-----------------------------------------------------------------------------------------------+
+| DANH SÁCH MẶT HÀNG XUẤT KHO                                   [+ Thêm dòng]  [Quét mã vạch]   |
++----+-------------+-------------------------+-------+----------+------------+------------+-----+
+| STT| Mã SP       | Tên sản phẩm            | ĐVT   | Tồn hiện | SL Xuất    | Vị trí kệ  | Xóa |
++----+-------------+-------------------------+-------+----------+------------+------------+-----+
+| 1  | SP-SAM-S24U | Samsung S24 Ultra 512GB | Chiếc | 35       | [ 5    ]   | Kệ A-01-02 | [x] |
+| 2  | SP-LOGI-M3  | Chuột không dây M331    | Chiếc | 80       | [ 20   ]   | Kệ B-03-01 | [x] |
++----+-------------+-------------------------+-------+----------+------------+------------+-----+
+| Ghi chú: [ Điều chuyển hàng dự trữ phục vụ nhu cầu chi nhánh miền Nam                        ]|
+|                                                                                               |
+|                                                     TỔNG SỐ LƯỢNG MẶT HÀNG XUẤT: 25 chiếc     |
++-----------------------------------------------------------------------------------------------+
 ```
 
 ---
 
 ## Tiêu chí Đánh giá Trải nghiệm Người dùng (Usability Criteria)
-- **Hiệu quả (Efficiency)**: Thời gian thao tác lập 1 phiếu nhập/xuất kho trung bình dưới 2 phút đối với người dùng đã được đào tạo.
+- **Hiệu quả (Efficiency)**: Thời gian thao tác lập 1 phiếu nhập/xuất kho trung bình dưới 2 phút đối với thủ kho.
 - **Tốc độ phản hồi (Speed)**: Tìm kiếm sản phẩm theo mã/tên trong kho dữ liệu 100,000 bản ghi dưới 0.5 giây.
-- **Hỗ trợ đa phương tiện**: Hỗ trợ phím tắt (`F2`: Tìm kiếm, `F4`: Thêm dòng, `F9`: Thanh toán, `Esc`: Đóng popup).
+- **Hỗ trợ đa phương tiện**: Hỗ trợ quét mã vạch Barcode/QR Code và các phím tắt chuyên dụng (`F2`: Tìm kiếm, `F4`: Thêm dòng hàng, `F9`: Lưu & In phiếu kho, `Esc`: Đóng cửa sổ).

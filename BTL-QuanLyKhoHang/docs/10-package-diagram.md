@@ -29,10 +29,13 @@ Theo giáo trình **IT3120 - Kiến trúc Hệ thống (System Architecture)**:
 | `domain.product` | `SanPham`, `DanhMuc` | `dam.SanPhamDAM` | Create, Read, Update, Delete |
 | `domain.inventory` | `Kho`, `ViTriKho`, `TonKho`, `PhieuNhapKho`, `PhieuXuatKho`, `PhienKiemKe` | `dam.PhieuNhapKhoDAM`, `dam.TonKhoDAM`, `dam.PhienKiemKeDAM` | Create, Read, Update |
 | `domain.purchase` | `DonMuaHang`, `MucMua`, `NhaCungCap` | `dam.DonMuaHangDAM`, `dam.NhaCungCapDAM` | Create, Read, Update |
-| `domain.sales` | `DonBanHang`, `MucBan`, `KhachHang` | `dam.DonBanHangDAM`, `dam.KhachHangDAM`, `infrastructure.payment` | Create, Read, Update |
 | `domain.identity` | `NhanVien`, `TaiKhoan`, `VaiTro`, `Quyen` | `dam.TaiKhoanDAM`, `infrastructure.security` | Create, Read, Update, Delete |
 
 ---
+
+## Sơ đồ Gói Rendered
+
+![Sơ đồ Gói](../diagrams/package-diagram.png)
 
 ## File nguồn PlantUML
 Sơ đồ PlantUML hoàn chỉnh: [package-diagram.puml](../plantuml/package-diagram.puml).

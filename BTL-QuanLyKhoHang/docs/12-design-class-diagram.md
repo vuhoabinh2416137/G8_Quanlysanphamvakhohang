@@ -9,14 +9,14 @@ DCD đáp ứng đầy đủ:
 1. **Kiểu dữ liệu kỹ thuật và phạm vi truy cập**: `+` (public), `-` (private), `#` (protected), danh sách kiểu trả về, tham số phương thức (`Optional<T>`, `List<T>`, `Double`, `ResponseEntity`).
 2. **Nguyên lý thiết kế hướng đối tượng SOLID**:
    - **S (Single Responsibility)**: Tách riêng Controller (tiếp nhận HTTP Request), Service (xử lý nghiệp vụ), DAO (truy vấn CSDL), Entity (lưu giữ trạng thái nghiệp vụ).
-   - **O (Open/Closed)**: Mở rộng các chiến lược giá bán (`PricingStrategy`) mà không phải sửa mã nguồn lớp `BanHangService`.
+   - **O (Open/Closed)**: Mở rộng các chiến lược định giá tồn kho / phân bổ xuất kho (`InventoryValuationStrategy`) mà không phải sửa mã nguồn lớp `XuatKhoService` hay `TonKhoService`.
    - **L (Liskov Substitution)**: Lớp trừu tượng `PhieuKho` được kế thừa bởi `PhieuNhapKho` và `PhieuXuatKho`, mọi phương thức thao tác trên `PhieuKho` đều hoạt động đúng khi truyền thể hiện con.
-   - **I (Interface Segregation)**: Chia nhỏ các giao diện DAO (`PhieuNhapDAO`, `TonKhoDAO`, `DonBanDAO`) thay vì một DAO khổng lồ.
-   - **D (Dependency Inversion)**: `NhapKhoServiceImpl` phụ thuộc vào Interface `PhieuNhapDAO` và Interface `TonKhoService`, giúp dễ dàng Unit Test với Mockito.
+   - **I (Interface Segregation)**: Chia nhỏ các giao diện DAO (`PhieuNhapDAO`, `PhieuXuatDAO`, `TonKhoDAO`, `SanPhamDAO`, `DonMuaDAO`) thay vì một DAO khổng lồ.
+   - **D (Dependency Inversion)**: `NhapKhoServiceImpl` phụ thuộc vào Interface `PhieuNhapDAO` và Interface `TonKhoService`, `XuatKhoServiceImpl` phụ thuộc vào Interface `PhieuXuatDAO`, giúp dễ dàng Unit Test với Mockito.
 3. **Các mẫu thiết kế (GoF Design Patterns)**:
-   - **Factory Pattern**: `PhieuKhoFactory` đóng gói logic khởi tạo các loại phiếu kho khác nhau.
-   - **Observer Pattern**: `TonKhoSubject` tự động phát thông báo cho các `TonKhoObserver` (`LowStockAlertObserver`, `AuditLogObserver`) mỗi khi lượng tồn kho biến động.
-   - **Strategy Pattern**: `PricingStrategy` cho phép thay đổi thuật toán định giá bán linh hoạt giữa bán lẻ chuẩn (`StandardRetailPricingStrategy`) và bán buôn theo hợp đồng doanh nghiệp (`WholesalePricingStrategy`).
+   - **Factory Pattern**: `PhieuKhoFactory` đóng gói logic khởi tạo các loại phiếu kho khác nhau (`PhieuNhapKho`, `PhieuXuatKho`).
+   - **Observer Pattern**: `TonKhoSubject` tự động phát thông báo cho các `TonKhoObserver` (`LowStockAlertObserver`, `AuditLogObserver`) mỗi khi lượng tồn kho biến động dưới ngưỡng.
+   - **Strategy Pattern**: `InventoryValuationStrategy` cho phép thay đổi linh hoạt giải pháp tính giá vốn xuất kho và chọn lô hàng (`FIFOStrategy` - Nhập trước xuất trước, `WeightedAverageStrategy` - Bình quân gia quyền).
 
 ---
 
@@ -34,7 +34,18 @@ DCD đáp ứng đầy đủ:
   - Nếu có liên kết với `DonMuaHang`, trạng thái đơn mua chuyển thành `DA_NHAN_HANG`.
   - Trả về đối tượng `PhieuNhapResponseDTO` chứa mã phiếu tự sinh và tổng giá trị.
 
-### 2. Hợp đồng `TonKhoService.truTonKho(maKho, maSP, soLuong)`
+### 2. Hợp đồng `XuatKhoService.taoPhieuXuatKho(dto: PhieuXuatRequestDTO)`
+- **Mục đích**: Lập phiếu xuất kho cho các lý do: Chuyển kho, Xuất trả NCC, Xuất hủy, Điều chỉnh kiểm kê.
+- **Tiền điều kiện**:
+  - Nhân viên lập phiếu có quyền `XUAT_KHO`.
+  - Kho xuất và các sản phẩm xuất phải tồn tại.
+  - Số lượng xuất của từng mục `<= TonKho.soLuong` hiện có tại kho xuất.
+- **Hậu điều kiện**:
+  - Bản ghi `PhieuXuatKho` được lưu với trạng thái `DA_XAC_NHAN`.
+  - Gọi `TonKhoService.truTonKho(...)` để giảm số lượng tồn kho.
+  - Kích hoạt thông báo cảnh báo nếu số lượng tồn chạm hoặc xuống dưới ngưỡng an toàn.
+
+### 3. Hợp đồng `TonKhoService.truTonKho(maKho, maSP, soLuong)`
 - **Mục đích**: Giảm số lượng tồn vật lý sau khi xuất hàng.
 - **Tiền điều kiện**:
   - `soLuong > 0`.
@@ -44,6 +55,10 @@ DCD đáp ứng đầy đủ:
   - Nếu `TonKho.soLuong <= SanPham.nguongTonKho`, kích hoạt `notifyObservers(...)` gửi cảnh báo tồn kho thấp.
 
 ---
+
+## Biểu đồ Lớp Thiết kế Chi tiết Rendered
+
+![Biểu đồ Lớp Thiết kế](../diagrams/design-class-diagram.png)
 
 ## File nguồn PlantUML
 Sơ đồ PlantUML hoàn chỉnh: [design-class-diagram.puml](../plantuml/design-class-diagram.puml).

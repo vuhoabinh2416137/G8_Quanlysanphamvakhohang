@@ -2,6 +2,7 @@
 !theme plain
 autonumber
 skinparam responseMessageBelowArrow true
+skinparam defaultFontName "Arial"
 
 title Sơ đồ Tuần tự Thiết kế: Tạo Phiếu Nhập Kho (UC06)
 
@@ -86,87 +87,82 @@ UI --> NV: hienThiThongBao("Nhập kho thành công!")
 deactivate UI
 @enduml
 
-@startuml sequence-ban-hang
+@startuml sequence-xuat-kho
 !theme plain
 autonumber
 skinparam responseMessageBelowArrow true
+skinparam defaultFontName "Arial"
 
-title Sơ đồ Tuần tự Thiết kế: Xử lý Đơn Bán Hàng & Xuất Kho (UC17 + UC07)
+title Sơ đồ Tuần tự Thiết kế: Tạo Phiếu Xuất Kho (UC07)
 
-actor "Nhân viên bán hàng" as NVBH
-boundary "BanHangUI" as UI
-control "BanHangController" as Ctrl
-participant "BanHangService" as Service
+actor "Nhân viên kho" as NV
+boundary "XuatKhoUI" as UI
+control "XuatKhoController" as Ctrl
+participant "XuatKhoService" as Service
 participant "TonKhoService" as TKService
-entity "dbh : DonBanHang" as DBH
-entity "mb : MucBan" as MB
-participant "PaymentService" as PayService
-database "DonBanDAO" as DBDAO
+entity "pxk : PhieuXuatKho" as PXK
+entity "mx : MucXuat" as MX
+database "PhieuXuatDAO" as PXDAO
+database "TonKhoDAO" as TKDAO
 participant "NotificationService" as NotifService
 
-NVBH -> UI: xacNhanThanhToanVaDatHang(orderDTO)
+NV -> UI: nhanNut "Lưu Phiếu Xuất"(dto)
 activate UI
-
-UI -> Ctrl: datHang(orderDTO)
+UI -> Ctrl: xuLyTaoPhieuXuat(phieuXuatDTO)
 activate Ctrl
 
-Ctrl -> Service: taoDonBanHang(orderDTO)
+Ctrl -> Service: taoPhieuXuatKho(dto)
 activate Service
 
-Service -> DBH**: create(maDon, maKH, maKho, phuongThucTT)
+Service -> PXK**: create(maPhieu, ngayXuat, lyDoXuat, maKho)
 
-loop voi moi san pham
-    Service -> TKService: kiemTraTonKhaDung(maKho, maSP, soLuong)
+loop voi moi muc hang trong dto.danhSachMucXuat
+    Service -> TKService: kiemTraTonKhaDung(dto.maKho, mx.maSP, mx.soLuong)
     activate TKService
     TKService --> Service: duTon (true)
     deactivate TKService
-    
-    Service -> DBH: themMucBan(maSP, soLuong, donGia)
-    activate DBH
-    DBH -> MB**: create(maSP, soLuong, donGia)
-    DBH -> MB: tinhThanhTien()
-    activate MB
-    MB --> DBH: thanhTien
-    deactivate MB
-    deactivate DBH
+
+    Service -> PXK: themMucXuat(maSP, soLuong, donGia)
+    activate PXK
+    PXK -> MX**: create(maSP, soLuong, donGia)
+    PXK -> MX: tinhThanhTien()
+    activate MX
+    MX --> PXK: thanhTien
+    deactivate MX
+    deactivate PXK
 end
 
-Service -> DBH: tinhTongTienVaThue()
-activate DBH
-DBH --> Service: tongThanhToan
-deactivate DBH
+Service -> PXK: tinhTongGiaTri()
+activate PXK
+PXK --> Service: tongGiaTri
+deactivate PXK
 
-opt Phuong thuc thanh toan truc tuyen
-    Service -> PayService: thanhToan(orderDTO.thongTinThanhToan, tongThanhToan)
-    activate PayService
-    PayService --> Service: transactionReceipt(status: SUCCESS)
-    deactivate PayService
+Service -> PXDAO: save(pxk)
+activate PXDAO
+PXDAO --> Service: true
+deactivate PXDAO
+
+' Trừ tồn kho
+loop voi moi muc xuat
+    Service -> TKService: truTonKho(pxk.maKho, mx.maSP, mx.soLuong)
+    activate TKService
+    opt Canh bao ton kho thap
+        TKService -> NotifService: guiCanhBaoTonThap(maSP)
+        activate NotifService
+        NotifService --> TKService: sent
+        deactivate NotifService
+    end
+    TKService --> Service: thanhCong
+    deactivate TKService
 end
 
-Service -> DBDAO: save(dbh)
-activate DBDAO
-DBDAO --> Service: true
-deactivate DBDAO
-
-' Trừ tồn kho tạm thời (hoặc xuất kho)
-Service -> TKService: giamTonKho(dbh.maKho, dbh.danhSachMucBan)
-activate TKService
-opt Canh bao ton kho thap
-    TKService -> NotifService: guiCanhBaoTonThap(dsSanPham)
-    activate NotifService
-    NotifService --> TKService: sent
-    deactivate NotifService
-end
-TKService --> Service: thanhCong
-deactivate TKService
-
-Service --> Ctrl: orderResponseDTO
+Service --> Ctrl: phieuXuatResponseDTO
 deactivate Service
 
-Ctrl --> UI: hienThiXacNhanInHoaDon(orderResponseDTO)
+Ctrl --> UI: hienThiXacNhan(phieuXuatResponseDTO)
 deactivate Ctrl
 
-UI --> NVBH: inHoaDon()
+UI --> NV: thongBao("Xuất kho thành công!")
 deactivate UI
 @enduml
 
@@ -174,6 +170,7 @@ deactivate UI
 !theme plain
 autonumber
 skinparam responseMessageBelowArrow true
+skinparam defaultFontName "Arial"
 
 title Sơ đồ Tuần tự Thiết kế: Phê duyệt Kết quả Kiểm kê (UC09)
 

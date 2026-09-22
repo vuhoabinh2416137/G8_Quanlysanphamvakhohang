@@ -7,8 +7,8 @@ Theo giáo trình **IT3120 - Mô hình hóa Cấu trúc (Structural Modeling)**,
 Phương pháp trích xuất lớp áp dụng:
 1. **Phân tích ngữ nghĩa văn bản (Textual Analysis / Noun Extraction)**: Danh từ chỉ thực thể/lớp, động từ chỉ thao tác/hành vi, tính từ chỉ trạng thái/thuộc tính.
 2. **Các mẫu phân tích chuẩn (Analysis Patterns)**:
-   - **Party - Place - Transaction pattern**: Bên tham gia (KhachHang, NhaCungCap, NhanVien) - Địa điểm (Kho, ViTriKho) - Giao dịch (DonMuaHang, DonBanHang, PhieuNhapKho, PhieuXuatKho).
-   - **Order Pattern (Header - Line Item)**: DonMuaHang - MucMua, DonBanHang - MucBan, PhieuNhapKho - MucNhap, PhieuXuatKho - MucXuat.
+   - **Party - Place - Transaction pattern**: Bên tham gia (NhaCungCap, NhanVien) - Địa điểm (Kho, ViTriKho) - Giao dịch (DonMuaHang, PhieuNhapKho, PhieuXuatKho, PhienKiemKe).
+   - **Order Pattern (Header - Line Item)**: DonMuaHang - MucMua, PhieuNhapKho - MucNhap, PhieuXuatKho - MucXuat.
    - **Catalog - Item Pattern**: DanhMuc - SanPham, SanPham - TonKho.
 
 ---
@@ -16,7 +16,7 @@ Phương pháp trích xuất lớp áp dụng:
 ## Danh mục các Gói nghiệp vụ và Lớp đối tượng
 
 ### 1. Gói Quản lý Sản phẩm
-- `SanPham`: Lưu thông tin thuộc tính cơ bản của sản phẩm (mã, tên, đơn vị tính, giá nhập chuẩn, giá bán niêm yết, ngưỡng tồn kho an toàn, trạng thái kinh doanh).
+- `SanPham`: Lưu thông tin thuộc tính cơ bản của sản phẩm (mã, tên, đơn vị tính, giá nhập chuẩn, ngưỡng tồn kho an toàn, trạng thái lưu kho).
 - `DanhMuc`: Phân loại cấu trúc sản phẩm dạng phân cấp (hỗ trợ quan hệ đệ quy `0..1 -- *` để tạo danh mục cha - con).
 - `TrangThaiSP`: Enum quy định trạng thái `DANG_KINH_DOANH`, `NGUNG_KINH_DOANH`.
 
@@ -32,11 +32,7 @@ Phương pháp trích xuất lớp áp dụng:
 - `DonMuaHang` & `MucMua`: Đơn đặt hàng gửi tới Nhà cung cấp (Purchase Order).
 - `NhaCungCap`: Đối tác cung cấp sản phẩm cho doanh nghiệp.
 
-### 4. Gói Quản lý Bán hàng
-- `DonBanHang` & `MucBan`: Đơn bán hàng tạo cho khách (Sales Order).
-- `KhachHang`: Thông tin đối tác mua hàng (cá nhân hoặc tổ chức/doanh nghiệp).
-
-### 5. Gói Quản lý Nhân viên & Phân quyền (RBAC)
+### 4. Gói Quản lý Nhân viên & Phân quyền (RBAC)
 - `NhanVien`: Hồ sơ nhân sự (họ tên, ngày sinh, chức vụ, trạng thái làm việc).
 - `TaiKhoan`: Thông tin đăng nhập hệ thống (tên đăng nhập, mật khẩu mã hóa hash, trạng thái khóa/hoạt động).
 - `VaiTro` & `Quyen`: Mô hình phân quyền dựa trên vai trò (Role-Based Access Control - RBAC).
@@ -47,12 +43,13 @@ Phương pháp trích xuất lớp áp dụng:
 
 | Tên lớp | Thuộc tính chính | Phương thức chính | Mẫu áp dụng |
 |---------|------------------|-------------------|-------------|
-| **SanPham** | `maSP`, `tenSP`, `donViTinh`, `giaNhap`, `giaBan`, `nguongTonKho`, `trangThai` | `layThongTin()`, `capNhat()`, `kiemTraTonKho()` | Entity / Item |
+| **SanPham** | `maSP`, `tenSP`, `donViTinh`, `giaNhap`, `nguongTonKho`, `trangThai` | `layThongTin()`, `capNhat()`, `kiemTraTonKho()` | Entity / Item |
+| **PhieuXuatKho** | `maPhieu`, `ngayXuat`, `lyDoXuat`, `khoDich`, `trangThai` | `xacNhan()`, `huyPhieu()` | Transaction Header |
+| **MucXuat** | `soLuong`, `viTriKho`, `ghiChu` | `tinhThanhTien()` | Line Item |
 | **TonKho** | `soLuong`, `ngayCapNhat` | `tang()`, `giam()`, `kiemTraNguong()` | Association Class |
 | **PhieuNhapKho** | `maPhieu`, `ngayNhap`, `lyDoNhap`, `tongGiaTri`, `trangThai` | `tinhTongGiaTri()`, `xacNhan()` | Transaction Header |
 | **MucNhap** | `soLuong`, `donGiaNhap`, `thanhTien` | `tinhThanhTien()` | Line Item |
 | **DonMuaHang** | `maDon`, `ngayTao`, `ngayGiaoDuKien`, `tongGiaTri`, `trangThai` | `tinhTongGiaTri()`, `duyet()`, `tuChoi()` | Order Pattern |
-| **DonBanHang** | `maDon`, `ngayTao`, `tongTien`, `thue`, `giamGia`, `thanhToan`, `trangThai` | `tinhTongTien()`, `xacNhan()`, `huy()` | Order Pattern |
 | **PhienKiemKe** | `maPhien`, `ngayKiemKe`, `phamVi`, `trangThai` | `taoPhieuDieuChinh()` | Transaction |
 | **MucKiemKe** | `soLuongHeThong`, `soLuongThucTe`, `chenhLech`, `lyDo` | `tinhChenhLech()` | Line Item |
 
@@ -62,8 +59,7 @@ Phương pháp trích xuất lớp áp dụng:
 
 1. **Composition (Quan hệ Hợp thành `1 *-- 1..*`)**:
    - `DonMuaHang` hợp thành `MucMua`: Một đơn mua phải có ít nhất 1 dòng mặt hàng. Nếu đơn mua bị hủy/xóa vật lý, các dòng chi tiết không thể tồn tại độc lập.
-   - `DonBanHang` hợp thành `MucBan`: Tương tự, các dòng bán gắn liền với vòng đời của đơn bán.
-   - `PhieuNhapKho` hợp thành `MucNhap`, `PhieuXuatKho` hợp thành `MucXuat`, `PhienKiemKe` hợp thành `MucKiemKe`.
+      - `PhieuNhapKho` hợp thành `MucNhap`, `PhieuXuatKho` hợp thành `MucXuat`, `PhienKiemKe` hợp thành `MucKiemKe`.
 2. **Aggregation / Association**:
    - `Kho` và `TonKho`: `Kho 1 -- * TonKho` và `SanPham 1 -- * TonKho`. Đây là ánh xạ nhiều-nhiều giữa Kho và Sản phẩm được làm rõ bằng thuộc tính số lượng tồn.
    - `DanhMuc 0..1 -- * DanhMuc`: Quan hệ phân cấp danh mục tự quy chiếu (Reflexive association).

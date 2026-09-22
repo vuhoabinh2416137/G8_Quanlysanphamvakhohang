@@ -2,6 +2,7 @@
 !theme plain
 skinparam classAttributeIconSize 0
 skinparam classFontSize 11
+skinparam defaultFontName "Arial"
 
 title Thiết kế Các Lớp Quản lý Truy cập Dữ liệu (Data Access Management - DAM / DAO)\nTheo chuẩn mẫu mã nguồn IT3120 HUST
 
@@ -73,7 +74,7 @@ package "Các Lớp Data Access Management (DAM)" #E0F7FA {
         + getAll(): Stream<PhieuXuatKho>
         + getById(maPhieu: String): Optional<PhieuXuatKho>
         + getByKho(maKho: String): Stream<PhieuXuatKho>
-        + getByDonBan(maDonBan: String): Optional<PhieuXuatKho>
+        + getByLyDoXuat(lyDo: LyDoXuat): Stream<PhieuXuatKho>
         + add(pxk: PhieuXuatKho): Boolean
         + update(pxk: PhieuXuatKho): Boolean
         + delete(pxk: PhieuXuatKho): Boolean
@@ -91,17 +92,6 @@ package "Các Lớp Data Access Management (DAM)" #E0F7FA {
         + update(po: DonMuaHang): Boolean
         + delete(po: DonMuaHang): Boolean
         # createEntity(rs: ResultSet): DonMuaHang
-    }
-
-    class DonBanHangDAM extends AbstractDAM {
-        + getAll(): Stream<DonBanHang>
-        + getById(maDon: String): Optional<DonBanHang>
-        + getByKhachHang(maKH: String): Stream<DonBanHang>
-        + getByTrangThai(trangThai: TrangThaiDonBan): Stream<DonBanHang>
-        + add(so: DonBanHang): Boolean
-        + update(so: DonBanHang): Boolean
-        + delete(so: DonBanHang): Boolean
-        # createEntity(rs: ResultSet): DonBanHang
     }
 
     class PhienKiemKeDAM extends AbstractDAM {

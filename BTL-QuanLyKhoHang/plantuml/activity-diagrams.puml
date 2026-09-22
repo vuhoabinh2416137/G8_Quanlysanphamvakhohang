@@ -1,9 +1,8 @@
-@startuml activity-quy-trinh-tong-hop
+@startuml activity-nhap-kho
 !theme plain
-title Biểu đồ Hoạt động Tổng hợp - Hệ thống Quản lý Sản phẩm và Kho hàng
+skinparam defaultFontName "Arial"
+title Biểu đồ Hoạt động: Quy trình Nhập kho từ Đơn mua hàng (UC06 + UC15)
 
-' ==============================================================================
-' 1. QUY TRÌNH NHẬP KHO TỪ ĐƠN MUA HÀNG (UC06 + UC15)
 ' ==============================================================================
 |Nhà cung cấp|
 start
@@ -59,94 +58,48 @@ end fork
 :In phiếu nhập kho và lưu trữ;
 stop
 
-' ==============================================================================
-' 2. QUY TRÌNH BÁN HÀNG VÀ XUẤT KHO (UC17 + UC18 + UC07)
-' ==============================================================================
 @enduml
 
-@startuml activity-ban-hang-xuat-kho
+@startuml activity-xuat-kho
 !theme plain
-title Biểu đồ Hoạt động: Quy trình Bán hàng và Xuất kho (UC17 + UC18 + UC07)
+skinparam defaultFontName "Arial"
+title Biểu đồ Hoạt động: Quy trình Xuất kho (UC07)
 
-|Nhân viên bán hàng|
+|Nhân viên kho|
 start
-:Tiếp nhận đơn đặt hàng từ khách;
-:Mở giao diện "Tạo đơn bán hàng";
+:Nhận yêu cầu xuất kho (chuyển kho / trả NCC / hủy hàng / điều chỉnh);
+:Mở giao diện "Tạo phiếu xuất kho";
 
 |Hệ thống|
-:Hiển thị form lập đơn bán;
+:Hiển thị form lập phiếu xuất;
 
-|Nhân viên bán hàng|
-:Tìm kiếm và chọn khách hàng;
-if (Khách hàng tồn tại?) then (Có)
-    |Hệ thống|
-    :Tải thông tin và lịch sử tín dụng;
-else (Chưa có)
-    |Nhân viên bán hàng|
-    :Nhập thông tin tạo hồ sơ khách hàng mới;
-    |Hệ thống|
-    :Lưu hồ sơ khách hàng;
-endif
-
-|Nhân viên bán hàng|
-:Chọn kho xuất hàng;
+|Nhân viên kho|
+:Chọn kho xuất và lý do xuất;
 repeat
-    :Thêm sản phẩm vào đơn hàng;
-    :Nhập số lượng cần bán;
+    :Chọn sản phẩm cần xuất;
+    :Nhập số lượng xuất;
     |Hệ thống|
     :Kiểm tra số lượng tồn khả dụng;
     if (Tồn khả dụng đủ?) then (Đủ)
-        :Áp dụng chính sách giá & chiết khấu;
-        :Tạm giữ hàng trong kho (reserve);
+        :Thêm mục xuất vào phiếu;
     else (Không đủ)
         :Thông báo thiếu hàng;
-        |Nhân viên bán hàng|
-        :Đề xuất kho khác hoặc đổi mặt hàng;
+        |Nhân viên kho|
+        :Giảm số lượng hoặc bỏ mặt hàng;
     endif
-    |Nhân viên bán hàng|
+    |Nhân viên kho|
 repeat while (Còn sản phẩm tiếp theo?) is (Có)
 -> Hết;
 
-|Hệ thống|
-:Tính tổng tiền hàng, thuế VAT, giảm giá;
-
-|Nhân viên bán hàng|
-:Chọn phương thức thanh toán;
-if (Thanh toán điện tử / Thẻ?) then (Có)
-    |Hệ thống thanh toán|
-    :Xác thực và xử lý thanh toán online;
-    if (Giao dịch thành công?) then (Thành công)
-        :Trả mã chuẩn chi giao dịch;
-    else (Thất bại)
-        |Nhân viên bán hàng|
-        :Yêu cầu phương thức khác / Ghi nợ;
-    endif
-else (Tiền mặt / Chuyển khoản trực tiếp)
-    |Nhân viên bán hàng|
-    :Thu tiền hoặc xác nhận công nợ;
-endif
-
-|Nhân viên bán hàng|
-:Xác nhận duyệt đơn bán hàng;
-
-|Hệ thống|
-:Lưu đơn bán hàng với trạng thái "CHO_XUAT_KHO";
-:Tự động tạo lệnh xuất kho gửi Bộ phận Kho;
-
-' ===== PHÂN ĐOẠN XUẤT KHO =====
 |Nhân viên kho|
-:Xem danh sách đơn chờ xuất kho;
-:Nhận lệnh xuất kho và danh sách nhặt hàng (Pick-list);
-:Lấy hàng tại các vị trí kệ kho;
-:Kiểm tra chất lượng và quét mã vạch kiểm tra;
-:Tạo "Phiếu xuất kho" trên hệ thống;
+:Nhập ghi chú và xác nhận phiếu xuất;
 
 |Hệ thống|
-:Xác nhận phiếu xuất kho;
+:Lưu phiếu xuất kho vào CSDL;
 fork
     :Giảm số lượng tồn kho vật lý;
 fork again
-    :Cập nhật trạng thái đơn bán thành "DA_XUAT_KHO";
+    :Ghi log lịch sử giao dịch kho;
 fork again
     if (Tồn kho sau xuất < Ngưỡng an toàn?) then (Cảnh báo)
         :Gửi cảnh báo tồn kho thấp đến Quản lý kho;
@@ -154,20 +107,15 @@ fork again
     endif
 end fork
 
+:Xuất phiếu xuất kho điện tử;
 |Nhân viên kho|
-:Đóng gói và bàn giao hàng cho đơn vị vận chuyển/khách hàng;
-:Cập nhật trạng thái giao hàng thành "DANG_GIAO";
-
-|Khách hàng|
-:Nhận hàng và ký nhận bàn giao;
-
-|Hệ thống|
-:Cập nhật trạng thái đơn thành "HOAN_THANH";
+:In phiếu xuất kho và bàn giao hàng;
 stop
 @enduml
 
 @startuml activity-kiem-ke-kho
 !theme plain
+skinparam defaultFontName "Arial"
 title Biểu đồ Hoạt động: Quy trình Kiểm kê Kho hàng (UC09)
 
 |Quản lý kho|
@@ -203,7 +151,7 @@ else (Chấp nhận được hoặc giải trình hợp lý)
 endif
 
 |Quản lý kho|
-:Nhập nguyên nhân sai lệch (hỏng hóc, hao hụt, nhầm lẫn mã);
+:Nhập nguyên nhân sai lệch (hư hỏng, hao hụt, nhầm lẫn mã);
 :Phê duyệt kết quả kiểm kê;
 
 |Hệ thống|
@@ -224,6 +172,7 @@ stop
 
 @startuml activity-mua-hang
 !theme plain
+skinparam defaultFontName "Arial"
 title Biểu đồ Hoạt động: Quy trình Mua hàng từ Nhà Cung Cấp (UC13 + UC14)
 
 |Nhân viên mua hàng|
@@ -273,6 +222,6 @@ endif
 
 |Nhà cung cấp|
 :Nhận email đơn đặt hàng và xác nhận giao dịch;
-:Chuẩn bị hàng và tiến hành giao hàng tới kho;
+:Chuẩn bị hàng và tiến hành giao hàng tại kho;
 stop
 @enduml

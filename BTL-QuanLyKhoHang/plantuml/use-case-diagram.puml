@@ -10,17 +10,16 @@ skinparam usecase {
 skinparam actor {
     BackgroundColor #87CEEB
 }
+skinparam defaultFontName "Arial"
 
 title Biểu đồ Ca sử dụng Tổng quan\nHệ thống Quản lý Sản phẩm và Kho hàng
 
 ' ===== ACTORS =====
 actor "Quản trị viên\n(Admin)" as Admin
 actor "Quản lý kho\n(Warehouse Manager)" as WM
-actor "Nhân viên\nbán hàng\n(Sales Staff)" as SS
 actor "Nhân viên\nmua hàng\n(Purchasing Staff)" as PS
 actor "Nhân viên kho\n(Warehouse Staff)" as WS
 
-actor "Hệ thống\nthanh toán" as PaySys <<System>>
 actor "Hệ thống\nemail" as EmailSys <<System>>
 
 ' ===== Generalization giữa các tác nhân =====
@@ -60,23 +59,15 @@ rectangle "Hệ thống Quản lý Sản phẩm và Kho hàng" {
         usecase "UC15: Nhận hàng từ\nnhà cung cấp" as UC15
     }
 
-    ' --- Nhóm 5: Quản lý Bán hàng ---
-    package "Quản lý Bán hàng" {
-        usecase "UC16: Quản lý\nkhách hàng" as UC16
-        usecase "UC17: Tạo đơn\nbán hàng" as UC17
-        usecase "UC18: Xử lý\ngiao hàng" as UC18
-    }
-
-    ' --- Nhóm 6: Quản lý nhân viên ---
+    ' --- Nhóm 5: Quản lý nhân viên ---
     package "Quản lý Nhân viên" {
-        usecase "UC19: Quản lý\nnhân viên" as UC19
+        usecase "UC16: Quản lý\nnhân viên" as UC16
     }
 
-    ' --- Nhóm 7: Báo cáo ---
+    ' --- Nhóm 6: Báo cáo ---
     package "Báo cáo Thống kê" {
-        usecase "UC20: Xem báo cáo\ntồn kho" as UC20
-        usecase "UC21: Xem báo cáo\ndoanh thu" as UC21
-        usecase "UC22: Xem báo cáo\nmua hàng" as UC22
+        usecase "UC17: Xem báo cáo\ntồn kho" as UC17
+        usecase "UC18: Xem báo cáo\nmua hàng" as UC18
     }
 }
 
@@ -84,7 +75,6 @@ rectangle "Hệ thống Quản lý Sản phẩm và Kho hàng" {
 ' --- UC01: Tất cả đăng nhập ---
 Admin -- UC01
 WM -- UC01
-SS -- UC01
 PS -- UC01
 WS -- UC01
 
@@ -95,7 +85,6 @@ Admin -- UC02
 WM -- UC03
 WM -- UC04
 WM -- UC05
-SS -- UC05
 PS -- UC05
 WS -- UC05
 
@@ -115,28 +104,19 @@ PS -- UC13
 WM -- UC14
 WS -- UC15
 
-' --- Quản lý bán hàng ---
-SS -- UC16
-SS -- UC17
-WS -- UC18
-UC17 -- PaySys
-
 ' --- Quản lý nhân viên ---
-Admin -- UC19
+Admin -- UC16
 
 ' --- Báo cáo ---
-WM -- UC20
-Admin -- UC21
-Admin -- UC22
+WM -- UC17
+Admin -- UC18
 
 ' ===== RELATIONSHIPS =====
 ' Include relationships
 UC06 ..> UC10 : <<include>>
 UC07 ..> UC10 : <<include>>
 UC15 ..> UC06 : <<include>>
-UC18 ..> UC07 : <<include>>
 UC13 ..> UC12 : <<include>>
-UC17 ..> UC16 : <<include>>
 
 ' Extend relationships
 UC11 ..> UC10 : <<extend>>\n[tồn kho < ngưỡng]

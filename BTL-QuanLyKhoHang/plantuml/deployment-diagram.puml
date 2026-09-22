@@ -2,6 +2,7 @@
 !theme plain
 skinparam nodeFontSize 12
 skinparam artifactFontSize 11
+skinparam defaultFontName "Arial"
 
 title Sơ đồ Triển khai (Deployment Diagram) - Hệ thống Quản lý Sản phẩm và Kho hàng
 
@@ -46,7 +47,7 @@ node "Máy chủ Ứng dụng (Application Server)" as AppServer <<device>> {
 node "Máy chủ Cơ sở Dữ liệu (Database Server)" as DBServer <<device>> {
     node "RDBMS Engine (PostgreSQL / MySQL)" as DBMS <<execution environment>> {
         database "warehouse_db\n(Lưu trữ dữ liệu quan hệ)" as DB <<database>> {
-            frame "Bảng Sản phẩm, Kho, Đơn hàng,\nPhiếu kho, Người dùng" as Tables
+            frame "Bảng Sản phẩm, Kho, Đơn mua,\nPhiếu kho, Người dùng" as Tables
         }
     }
     node "Hệ thống Lưu trữ Sao lưu (Backup Storage)" as BackupStorage {
@@ -57,13 +58,9 @@ node "Máy chủ Cơ sở Dữ liệu (Database Server)" as DBServer <<device>> 
 ' =======================================================
 ' EXTERNAL INTEGRATIONS
 ' =======================================================
-cloud "Hạ tầng Dịch vụ Bên ngoài (Cloud Services)" as CloudServices {
+cloud "Dịch vụ Bên ngoài (Cloud Services)" as CloudServices {
     node "Máy chủ Thư điện tử (SMTP Mail Server)" as MailServer <<device>> {
         component "Email Notification Service" as SMTP
-    }
-    
-    node "Cổng Thanh toán Trực tuyến (Payment Gateway)" as PaymentGateway <<device>> {
-        component "VNPay / MoMo API" as PayAPI
     }
 }
 
@@ -79,6 +76,5 @@ SpringContainer -- DBMS : JDBC / TCP-IP (Port 5432)\n[HikariCP Connection Pool]
 DBMS ..> BackupStorage : Cron Job Snapshot\n(Hàng ngày 02:00 AM)
 
 SpringContainer -- MailServer : SMTP over TLS (Port 587)
-SpringContainer -- PaymentGateway : HTTPS RESTful API / JSON
 
 @enduml

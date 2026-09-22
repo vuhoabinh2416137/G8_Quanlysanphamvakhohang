@@ -88,33 +88,31 @@ public class SanPhamDAM extends AbstractDAM<SanPham, String> {
 
     @Override
     public boolean add(SanPham sp) throws Exception {
-        String sql = "INSERT INTO san_pham (ma_sp, ten_sp, don_vi_tinh, gia_nhap_chuan, gia_ban_niem_yet, nguong_ton_kho, hinh_anh_url, trang_thai, ma_danh_muc) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO san_pham (ma_sp, ten_sp, don_vi_tinh, gia_nhap_chuan, nguong_ton_kho, hinh_anh_url, trang_thai, ma_danh_muc) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, sp.getMaSP());
             stmt.setString(2, sp.getTenSP());
             stmt.setString(3, sp.getDonViTinh());
             stmt.setDouble(4, sp.getGiaNhap());
-            stmt.setDouble(5, sp.getGiaBan());
-            stmt.setInt(6, sp.getNguongTonKho());
-            stmt.setString(7, sp.getHinhAnh());
-            stmt.setString(8, sp.getTrangThai().name());
-            stmt.setString(9, sp.getMaDanhMuc());
+            stmt.setInt(5, sp.getNguongTonKho());
+            stmt.setString(6, sp.getHinhAnh());
+            stmt.setString(7, sp.getTrangThai().name());
+            stmt.setString(8, sp.getMaDanhMuc());
             return stmt.executeUpdate() > 0;
         }
     }
 
     @Override
     public boolean update(SanPham sp) throws Exception {
-        String sql = "UPDATE san_pham SET ten_sp=?, don_vi_tinh=?, gia_nhap_chuan=?, gia_ban_niem_yet=?, nguong_ton_kho=?, trang_thai=? WHERE ma_sp=?";
+        String sql = "UPDATE san_pham SET ten_sp=?, don_vi_tinh=?, gia_nhap_chuan=?, nguong_ton_kho=?, trang_thai=? WHERE ma_sp=?";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, sp.getTenSP());
             stmt.setString(2, sp.getDonViTinh());
             stmt.setDouble(3, sp.getGiaNhap());
-            stmt.setDouble(4, sp.getGiaBan());
-            stmt.setInt(5, sp.getNguongTonKho());
-            stmt.setString(6, sp.getTrangThai().name());
-            stmt.setString(7, sp.getMaSP());
+            stmt.setInt(4, sp.getNguongTonKho());
+            stmt.setString(5, sp.getTrangThai().name());
+            stmt.setString(6, sp.getMaSP());
             return stmt.executeUpdate() > 0;
         }
     }
@@ -135,7 +133,6 @@ public class SanPhamDAM extends AbstractDAM<SanPham, String> {
         sp.setTenSP(rs.getString("ten_sp"));
         sp.setDonViTinh(rs.getString("don_vi_tinh"));
         sp.setGiaNhap(rs.getDouble("gia_nhap_chuan"));
-        sp.setGiaBan(rs.getDouble("gia_ban_niem_yet"));
         sp.setNguongTonKho(rs.getInt("nguong_ton_kho"));
         sp.setHinhAnh(rs.getString("hinh_anh_url"));
         sp.setTrangThai(TrangThaiSP.valueOf(rs.getString("trang_thai")));
@@ -177,6 +174,10 @@ public boolean savePhieuNhapVaChiTiet(PhieuNhapKho pnk) throws Exception {
 ```
 
 ---
+
+## Sơ đồ Lớp DAM Rendered
+
+![Sơ đồ DAM Classes](../diagrams/dam-classes.png)
 
 ## File nguồn PlantUML
 Sơ đồ PlantUML hoàn chỉnh: [dam-classes.puml](../plantuml/dam-classes.puml).

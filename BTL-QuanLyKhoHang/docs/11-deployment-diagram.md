@@ -14,8 +14,8 @@ Theo giáo trình **IT3120 - Kiến trúc Hệ thống & Hạ tầng Vật lý**
 ## Các Tầng trong Mô hình Triển khai 3 Tầng (3-Tier Architecture)
 
 ### 1. Tầng Khách (Client Tier)
-- **Thiết bị làm việc văn phòng (Desktop / Laptop)**: Truy cập hệ thống thông qua trình duyệt Web tiêu chuẩn (Chrome, Edge, Firefox). Chạy ứng dụng Single Page App (SPA) được tối ưu hóa hiển thị Dashboard, Quản lý đơn hàng, Thống kê báo cáo.
-- **Thiết bị cầm tay chuyên dụng tại kho (PDA Barcode Scanner)**: Sử dụng trình duyệt nhúng trên hệ điều hành Android chuyên dụng để quét mã vạch sản phẩm khi nhập hàng, nhặt hàng và kiểm kê hàng hóa tại vị trí kệ kho.
+- **Thiết bị làm việc văn phòng (Desktop / Laptop)**: Truy cập hệ thống thông qua trình duyệt Web tiêu chuẩn (Chrome, Edge, Firefox). Chạy ứng dụng Single Page App (SPA) được tối ưu hóa hiển thị Dashboard, Quản lý sản phẩm, Quản lý kho hàng, Báo cáo thống kê.
+- **Thiết bị cầm tay chuyên dụng tại kho (PDA Barcode Scanner)**: Sử dụng trình duyệt nhúng trên hệ điều hành Android chuyên dụng để quét mã vạch sản phẩm khi nhập hàng, xuất kho chuyển kho và kiểm kê hàng hóa tại vị trí kệ kho.
 
 ### 2. Tầng Máy chủ Ứng dụng (Application Server Tier)
 - **Nginx Reverse Proxy**:
@@ -24,7 +24,7 @@ Theo giáo trình **IT3120 - Kiến trúc Hệ thống & Hạ tầng Vật lý**
   - Nén dữ liệu Gzip và phân phát tài nguyên tĩnh (HTML/CSS/JS).
   - Định tuyến các yêu cầu API động về cụm máy chủ ứng dụng Spring Boot.
 - **Java Runtime Environment (OpenJDK 17 LTS)**:
-  - Chạy file thực thi `warehouse-app.jar` chứa toàn bộ logic nghiệp vụ.
+  - Chạy file thực thi `warehouse-app.jar` chứa toàn bộ logic nghiệp vụ quản lý kho.
   - Quản lý phiên làm việc thông qua JWT (JSON Web Token) phi trạng thái (Stateless), giúp hệ thống dễ dàng mở rộng theo chiều ngang (Horizontal Scaling).
   - Tích hợp kết nối HikariCP Connection Pool để duy trì các kết nối cơ sở dữ liệu tốc độ cao.
 
@@ -36,11 +36,14 @@ Theo giáo trình **IT3120 - Kiến trúc Hệ thống & Hạ tầng Vật lý**
   - Lưu trữ đĩa mạng hoặc ổ SSD chuyên dụng.
   - Tiến trình Cron Job tự động kết xuất dữ liệu nén hàng ngày lúc 02:00 sáng.
 
-### 4. Tầng Dịch vụ Đám mây Bên ngoài (External Integrations)
-- **SMTP Mail Server**: Gửi email thông báo tự động (thông báo đơn mua cho NCC, cảnh báo tồn kho thấp cho Quản lý kho).
-- **Payment Gateway**: Kết nối API chuẩn RESTful HTTPS tới cổng thanh toán VNPay / MoMo để xác thực giao dịch chuyển khoản.
+### 4. Tầng Dịch vụ Bên ngoài (External Integrations)
+- **SMTP Mail Server**: Gửi email thông báo tự động (thông báo đơn mua cho Nhà cung cấp, cảnh báo tồn kho thấp cho Quản lý kho).
 
 ---
+
+## Sơ đồ Triển khai Rendered
+
+![Sơ đồ Triển khai](../diagrams/deployment-diagram.png)
 
 ## File nguồn PlantUML
 Sơ đồ PlantUML hoàn chỉnh: [deployment-diagram.puml](../plantuml/deployment-diagram.puml).

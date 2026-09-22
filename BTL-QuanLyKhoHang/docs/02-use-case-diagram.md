@@ -6,13 +6,11 @@
 |----------|------|-------------|-------|
 | Quản trị viên (Admin) | Complex | 3 | Quản lý toàn bộ hệ thống: nhân viên, phân quyền, báo cáo tổng hợp |
 | Quản lý kho (Warehouse Manager) | Complex | 3 | Quản lý sản phẩm, danh mục, duyệt đơn mua, kiểm kê, báo cáo tồn kho |
-| Nhân viên bán hàng (Sales Staff) | Complex | 3 | Tạo đơn bán hàng, quản lý khách hàng |
 | Nhân viên mua hàng (Purchasing Staff) | Complex | 3 | Tạo đơn mua hàng, quản lý nhà cung cấp |
-| Nhân viên kho (Warehouse Staff) | Complex | 3 | Thực hiện nhập/xuất kho, kiểm kê, giao hàng |
-| Hệ thống thanh toán | Simple | 1 | API thanh toán bên ngoài (well-defined API) |
+| Nhân viên kho (Warehouse Staff) | Complex | 3 | Thực hiện nhập/xuất kho, kiểm kê |
 | Hệ thống email | Simple | 1 | Dịch vụ gửi email thông báo |
 
-**Tổng UAW (Unadjusted Actor Weight) = 5×3 + 2×1 = 17**
+**Tổng UAW (Unadjusted Actor Weight) = 4x3 + 1x1 = 13**
 
 ## Danh sách các Ca sử dụng
 
@@ -33,15 +31,11 @@
 | UC13 | Tạo đơn mua hàng | NV Mua hàng | Mua hàng | Complex | 15 |
 | UC14 | Duyệt đơn mua hàng | Quản lý kho | Mua hàng | Average | 10 |
 | UC15 | Nhận hàng từ nhà cung cấp | NV Kho | Mua hàng | Complex | 15 |
-| UC16 | Quản lý khách hàng | NV Bán hàng | Bán hàng | Average | 10 |
-| UC17 | Tạo đơn bán hàng | NV Bán hàng | Bán hàng | Complex | 15 |
-| UC18 | Xử lý giao hàng | NV Kho | Bán hàng | Average | 10 |
-| UC19 | Quản lý nhân viên | Admin | Nhân viên | Average | 10 |
-| UC20 | Xem báo cáo tồn kho | Quản lý kho | Báo cáo | Average | 10 |
-| UC21 | Xem báo cáo doanh thu | Admin | Báo cáo | Average | 10 |
-| UC22 | Xem báo cáo mua hàng | Admin | Báo cáo | Average | 10 |
+| UC16 | Quản lý nhân viên | Admin | Nhân viên | Average | 10 |
+| UC17 | Xem báo cáo tồn kho | Quản lý kho | Báo cáo | Average | 10 |
+| UC18 | Xem báo cáo mua hàng | Admin | Báo cáo | Average | 10 |
 
-**Tổng UUCW (Unadjusted Use Case Weight) = 5×5 + 13×10 + 4×15 = 25 + 130 + 60 = 215**
+**Tổng UUCW (Unadjusted Use Case Weight) = 4x5 + 9x10 + 5x15 = 20 + 90 + 75 = 185**
 
 ## Các mối quan hệ giữa các Ca sử dụng
 
@@ -51,9 +45,7 @@
 | UC06 (Tạo phiếu nhập kho) | UC10 (Xem tồn kho) | Sau khi nhập kho, tồn kho được cập nhật và hiển thị |
 | UC07 (Tạo phiếu xuất kho) | UC10 (Xem tồn kho) | Trước khi xuất kho, cần kiểm tra tồn kho |
 | UC15 (Nhận hàng từ NCC) | UC06 (Tạo phiếu nhập kho) | Nhận hàng luôn kèm theo tạo phiếu nhập kho |
-| UC18 (Xử lý giao hàng) | UC07 (Tạo phiếu xuất kho) | Giao hàng luôn kèm theo tạo phiếu xuất kho |
 | UC13 (Tạo đơn mua hàng) | UC12 (Quản lý NCC) | Cần chọn nhà cung cấp khi tạo đơn mua |
-| UC17 (Tạo đơn bán hàng) | UC16 (Quản lý KH) | Cần chọn khách hàng khi tạo đơn bán |
 
 ### Quan hệ Extend (mở rộng)
 | Ca sử dụng gốc | Ca sử dụng mở rộng | Điều kiện kích hoạt |
@@ -67,18 +59,12 @@
 
 File mã nguồn PlantUML: [use-case-diagram.puml](../plantuml/use-case-diagram.puml)
 
-Để re-render sơ đồ, sử dụng lệnh:
-```bash
-java -jar plantuml.jar plantuml/use-case-diagram.puml -o ../diagrams/
-```
-
 ## Phân loại sự kiện
 
 | Sự kiện | Loại | Ca sử dụng tương ứng |
 |---------|------|---------------------|
-| Khách hàng đặt mua sản phẩm | Sự kiện ngoại | UC17 |
 | Nhà cung cấp giao hàng | Sự kiện ngoại | UC15 |
 | Quản lý yêu cầu duyệt đơn mua | Sự kiện ngoại | UC14 |
 | Nhân viên tạo phiếu nhập/xuất kho | Sự kiện ngoại | UC06, UC07 |
-| Cuối tháng: tạo báo cáo | Sự kiện thời gian | UC20, UC21, UC22 |
+| Cuối tháng: tạo báo cáo | Sự kiện thời gian | UC17, UC18 |
 | Tồn kho giảm dưới ngưỡng | Sự kiện trạng thái | UC11 |
