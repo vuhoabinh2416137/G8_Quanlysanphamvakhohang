@@ -1,0 +1,50 @@
+@startuml functional-model-flow-mua-nhap
+!theme plain
+skinparam defaultFontName "Arial"
+skinparam backgroundColor #FEFEFE
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipantBorderColor #2F4F4F
+skinparam sequenceLifeLineBorderColor #2F4F4F
+skinparam sequenceMessageAlign center
+
+title Luồng Dữ liệu Nghiệp vụ: Mua hàng → Nhập kho\nHệ thống Quản lý Sản phẩm và Kho hàng
+
+actor "NV Mua hàng" as NV_MH #87CEEB
+participant "Hệ thống" as HT #F5F5DC
+actor "Quản lý kho" as QLK #87CEEB
+actor "Nhà cung cấp" as NCC #FFE4B5
+actor "NV Kho" as NV_K #87CEEB
+participant "Hệ thống\nEmail" as EMAIL #E8F5E9
+
+== Giai đoạn 1: Tạo đơn mua hàng (UC13) ==
+
+NV_MH -> HT : Tạo đơn mua hàng\n(chọn NCC, SP, SL, giá)
+activate HT
+HT -> HT : Lưu DonMuaHang\n[trạng thái: MỚI TẠO]
+HT -> EMAIL : Gửi thông báo duyệt
+deactivate HT
+EMAIL -> QLK : Email: Đơn mua mới\ncần phê duyệt
+
+== Giai đoạn 2: Duyệt đơn mua (UC14) ==
+
+QLK -> HT : Xem chi tiết &\nPhê duyệt đơn mua
+activate HT
+HT -> HT : Cập nhật trạng thái\n[ĐÃ DUYỆT]
+HT -> EMAIL : Gửi PO đến NCC
+EMAIL -> NCC : Email: Đơn đặt hàng\n(Purchase Order)
+HT -> EMAIL : Thông báo NV mua hàng
+EMAIL -> NV_MH : Email: Kết quả duyệt\n[Đã phê duyệt]
+deactivate HT
+
+== Giai đoạn 3: Nhận hàng & Nhập kho (UC15 + UC06) ==
+
+NCC --> NV_K : Giao hàng thực tế\n(vận chuyển)
+NV_K -> HT : Nhận hàng +\nTạo phiếu nhập kho
+activate HT
+HT -> HT : Lưu PhieuNhapKho\n+ MucNhap
+HT -> HT : Cập nhật TonKho\n(tăng số lượng)
+HT -> HT : Cập nhật DonMuaHang\n[ĐÃ NHẬN ĐỦ / ĐANG GIAO]
+HT --> NV_K : Xác nhận nhập kho\nthành công
+deactivate HT
+
+@enduml

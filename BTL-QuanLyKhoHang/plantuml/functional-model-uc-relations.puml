@@ -1,0 +1,57 @@
+@startuml functional-model-uc-relations
+!theme plain
+skinparam defaultFontName "Arial"
+skinparam backgroundColor #FEFEFE
+skinparam packageStyle rectangle
+
+title Quan hệ giữa các Ca sử dụng\nHệ thống Quản lý Sản phẩm và Kho hàng
+
+skinparam usecase {
+    BackgroundColor<<include_src>> #C8E6C9
+    BorderColor<<include_src>> #2E7D32
+
+    BackgroundColor<<include_tgt>> #E3F2FD
+    BorderColor<<include_tgt>> #1565C0
+
+    BackgroundColor<<extend_src>> #FFF3E0
+    BorderColor<<extend_src>> #EF6C00
+
+    BackgroundColor<<extend_tgt>> #FFEBEE
+    BorderColor<<extend_tgt>> #C62828
+
+    BackgroundColor<<hub>> #E8EAF6
+    BorderColor<<hub>> #283593
+}
+
+' ===== Use Cases =====
+usecase "UC15: Nhận hàng\ntừ NCC" as UC15 <<include_src>>
+usecase "UC06: Tạo phiếu\nnhập kho" as UC06 <<include_src>>
+usecase "UC07: Tạo phiếu\nxuất kho" as UC07 <<include_src>>
+usecase "UC13: Tạo đơn\nmua hàng" as UC13 <<include_src>>
+
+usecase "UC10: Xem\ntồn kho" as UC10 <<hub>>
+usecase "UC12: Quản lý\nNCC" as UC12 <<include_tgt>>
+
+usecase "UC11: Cảnh báo\ntồn kho thấp" as UC11 <<extend_tgt>>
+usecase "UC08: Chuyển kho" as UC08 <<extend_tgt>>
+
+' ===== Include Relationships =====
+UC15 ..> UC06 : <<include>>\n"Nhận hàng kèm\ntạo phiếu nhập"
+
+UC06 ..> UC10 : <<include>>\n"Cập nhật & hiển thị\ntồn kho sau nhập"
+
+UC07 ..> UC10 : <<include>>\n"Kiểm tra tồn kho\ntrước khi xuất"
+
+UC13 ..> UC12 : <<include>>\n"Chọn NCC\nkhi tạo đơn mua"
+
+' ===== Extend Relationships =====
+UC11 ..> UC10 : <<extend>>\n[tồn kho < ngưỡng]
+
+UC08 ..> UC07 : <<extend>>\n[xuất chuyển\ngiữa các kho]
+
+' ===== Layout =====
+UC15 -[hidden]down- UC06
+UC06 -[hidden]down- UC07
+UC13 -[hidden]right- UC15
+
+@enduml

@@ -8,7 +8,7 @@ Dự án áp dụng toàn diện phương pháp **Phân tích và Thiết kế H
 
 ---
 
-## Danh mục Hồ sơ & Deliverables Đã Hoàn Thành (16/16)
+## Danh mục Hồ sơ & Deliverables Đã Hoàn Thành (17/17)
 
 | STT | Giai đoạn | Deliverable | Tài liệu Markdown | Mã nguồn PlantUML | Hình ảnh Sơ đồ Rendered |
 |:---:|:---|:---|:---|:---|:---|
@@ -28,6 +28,7 @@ Dự án áp dụng toàn diện phương pháp **Phân tích và Thiết kế H
 | 14 | Thiết kế lưu trữ | Thiết kế các Lớp DAM / DAO | [14-dam-classes.md](./docs/14-dam-classes.md) | [dam-classes.puml](./plantuml/dam-classes.puml) | [dam-classes.png](./diagrams/dam-classes.png) |
 | 15 | Thiết kế giao diện | Thiết kế Giao diện Người dùng (UI/UX) | [15-ui-design.md](./docs/15-ui-design.md) | - | Mockup giao diện Dashboard Kho, Nhập kho, Xuất kho điều chuyển |
 | 16 | Ước lượng dự án | Ước lượng Chi phí Dự án theo UCP | [16-ucp-estimation.md](./docs/16-ucp-estimation.md) | - | UAW=13, UUCW=185, TCF=1.015, EF=0.755 $\rightarrow$ 151.73 UCP $\approx$ 3,035 giờ |
+| 17 | Phân tích chức năng | Mô hình Chức năng Chi tiết (BFD, CRUD, Luồng NV) | [17-functional-model.md](./docs/17-functional-model.md) | - | BFD 3 cấp, Ma trận CRUD 18×17, 41 Business Rules, Luồng nghiệp vụ |
 
 ---
 
@@ -51,7 +52,8 @@ BTL-QuanLyKhoHang/
 │   ├── 13-database-design.md          # Thiết kế CSDL (18 bảng chuẩn 3NF)
 │   ├── 14-dam-classes.md              # Lớp DAM/DAO
 │   ├── 15-ui-design.md                # Thiết kế giao diện kho hàng
-│   └── 16-ucp-estimation.md           # Ước lượng UCP
+│   ├── 16-ucp-estimation.md           # Ước lượng UCP
+│   └── 17-functional-model.md         # Mô hình chức năng chi tiết
 ├── plantuml/                          # Mã nguồn PlantUML
 │   ├── use-case-diagram.puml
 │   ├── domain-class-diagram.puml

@@ -1,0 +1,47 @@
+@startuml functional-model-flow-kiem-ke
+!theme plain
+skinparam defaultFontName "Arial"
+skinparam backgroundColor #FEFEFE
+skinparam sequenceArrowThickness 2
+skinparam sequenceMessageAlign center
+
+title Luồng Dữ liệu Nghiệp vụ: Kiểm kê Kho hàng\nHệ thống Quản lý Sản phẩm và Kho hàng
+
+actor "Quản lý kho" as QLK #87CEEB
+participant "Hệ thống" as HT #F5F5DC
+actor "NV Kho" as NV_K #87CEEB
+
+== Giai đoạn 1: Khởi tạo kiểm kê ==
+
+QLK -> HT : Tạo phiên kiểm kê\n(chọn kho, phạm vi)
+activate HT
+HT -> HT : Chốt số liệu sổ sách\n(Snapshot TonKho)
+HT -> HT : 🔒 Khóa giao dịch\nxuất/nhập
+HT -> NV_K : Gửi danh sách\nkiểm đếm\n(SP + SL hệ thống)
+deactivate HT
+
+== Giai đoạn 2: Kiểm đếm thực tế ==
+
+NV_K -> HT : Nhập số lượng thực tế\ncho từng sản phẩm
+activate HT
+HT -> HT : Tính chênh lệch\n= SL thực tế − SL hệ thống
+HT -> QLK : Hiển thị báo cáo\nchênh lệch (thừa/thiếu)
+deactivate HT
+
+== Giai đoạn 3: Xử lý chênh lệch ==
+
+alt Có chênh lệch
+    QLK -> HT : Nhập lý do chênh lệch\n+ Phê duyệt điều chỉnh
+    activate HT
+    HT -> HT : Tạo phiếu điều chỉnh\n(nhập nếu thừa,\nxuất nếu thiếu)
+    HT -> HT : Cập nhật TonKho\n= số lượng thực tế
+else Không có chênh lệch
+    HT -> QLK : Thông báo:\n"Kiểm kê hoàn tất\nKhông có chênh lệch"
+end
+
+HT -> HT : 🔓 Mở khóa giao dịch
+HT -> HT : Lưu báo cáo kiểm kê\n[HOÀN THÀNH]
+HT --> QLK : ✅ Xác nhận kiểm kê\nhoàn tất
+deactivate HT
+
+@enduml

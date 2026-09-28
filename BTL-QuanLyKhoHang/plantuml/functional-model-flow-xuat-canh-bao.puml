@@ -1,0 +1,43 @@
+@startuml functional-model-flow-xuat-canh-bao
+!theme plain
+skinparam defaultFontName "Arial"
+skinparam backgroundColor #FEFEFE
+skinparam sequenceArrowThickness 2
+skinparam sequenceMessageAlign center
+
+title Luồng Dữ liệu Nghiệp vụ: Xuất kho → Cảnh báo\nHệ thống Quản lý Sản phẩm và Kho hàng
+
+actor "NV Kho" as NV_K #87CEEB
+participant "Hệ thống" as HT #F5F5DC
+actor "Quản lý kho" as QLK #87CEEB
+participant "Hệ thống\nEmail" as EMAIL #E8F5E9
+
+NV_K -> HT : Tạo phiếu xuất kho\n(chọn kho, SP, SL)
+activate HT
+
+HT -> HT : Kiểm tra tồn kho\nkhả dụng
+
+alt Tồn kho đủ (SL xuất ≤ Tồn kho)
+
+    HT -> HT : Lưu PhieuXuatKho\n+ MucXuat
+    HT -> HT : Cập nhật TonKho\n(giảm số lượng)
+
+    HT -> HT : Kiểm tra ngưỡng\ntồn kho an toàn
+
+    alt TonKho < nguongTonKho (Cảnh báo - UC11)
+        HT -> HT : Tạo bản ghi\ncảnh báo
+        HT -> EMAIL : Gửi email cảnh báo\ntồn kho thấp
+        EMAIL -> QLK : ⚠️ Email: Cảnh báo\ntồn kho dưới ngưỡng\n(SP, Kho, SL hiện tại)
+    end
+
+    HT --> NV_K : ✅ Xác nhận xuất kho\nthành công
+
+else Tồn kho KHÔNG đủ (SL xuất > Tồn kho)
+
+    HT --> NV_K : ❌ Thông báo:\n"Tồn kho không đủ.\nHiện có: X"
+
+end
+
+deactivate HT
+
+@enduml

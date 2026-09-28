@@ -1,0 +1,94 @@
+@startuml functional-model-rbac-matrix
+!theme plain
+skinparam defaultFontName "Arial"
+skinparam backgroundColor #FEFEFE
+
+title Ma trận Phân quyền theo Vai trò (RBAC)\nHệ thống Quản lý Sản phẩm và Kho hàng
+
+skinparam map {
+    BackgroundColor #F8F9FA
+    FontColor #1a365d
+    BorderColor #2F4F4F
+}
+
+map "ADMIN" as admin {
+    Quản lý nhân viên => ✅
+    Phân quyền => ✅
+    Quản lý sản phẩm => ✅
+    Quản lý danh mục => ✅
+    Tìm kiếm sản phẩm => ✅
+    Tạo phiếu nhập kho => ❌
+    Tạo phiếu xuất kho => ❌
+    Chuyển kho => ❌
+    Kiểm kê kho => ❌
+    Xem tồn kho => ✅
+    Quản lý NCC => ❌
+    Tạo đơn mua hàng => ❌
+    Duyệt đơn mua hàng => ❌
+    Nhận hàng từ NCC => ❌
+    Báo cáo tồn kho => ✅
+    Báo cáo mua hàng => ✅
+}
+
+map "QUẢN LÝ KHO" as qlk {
+    Quản lý nhân viên => ❌
+    Phân quyền => ❌
+    Quản lý sản phẩm => ✅
+    Quản lý danh mục => ✅
+    Tìm kiếm sản phẩm => ✅
+    Tạo phiếu nhập kho => ❌
+    Tạo phiếu xuất kho => ❌
+    Chuyển kho => ✅
+    Kiểm kê kho => ✅
+    Xem tồn kho => ✅
+    Quản lý NCC => ❌
+    Tạo đơn mua hàng => ❌
+    Duyệt đơn mua hàng => ✅
+    Nhận hàng từ NCC => ❌
+    Báo cáo tồn kho => ✅
+    Báo cáo mua hàng => ❌
+}
+
+map "NV MUA HÀNG" as nvmh {
+    Quản lý nhân viên => ❌
+    Phân quyền => ❌
+    Quản lý sản phẩm => ❌
+    Quản lý danh mục => ❌
+    Tìm kiếm sản phẩm => ✅
+    Tạo phiếu nhập kho => ❌
+    Tạo phiếu xuất kho => ❌
+    Chuyển kho => ❌
+    Kiểm kê kho => ❌
+    Xem tồn kho => ❌
+    Quản lý NCC => ✅
+    Tạo đơn mua hàng => ✅
+    Duyệt đơn mua hàng => ❌
+    Nhận hàng từ NCC => ❌
+    Báo cáo tồn kho => ❌
+    Báo cáo mua hàng => ❌
+}
+
+map "NV KHO" as nvk {
+    Quản lý nhân viên => ❌
+    Phân quyền => ❌
+    Quản lý sản phẩm => ❌
+    Quản lý danh mục => ❌
+    Tìm kiếm sản phẩm => ✅
+    Tạo phiếu nhập kho => ✅
+    Tạo phiếu xuất kho => ✅
+    Chuyển kho => ❌
+    Kiểm kê kho => ✅
+    Xem tồn kho => ✅
+    Quản lý NCC => ❌
+    Tạo đơn mua hàng => ❌
+    Duyệt đơn mua hàng => ❌
+    Nhận hàng từ NCC => ✅
+    Báo cáo tồn kho => ❌
+    Báo cáo mua hàng => ❌
+}
+
+admin -[hidden]right- qlk
+qlk -[hidden]right- nvmh
+nvmh -[hidden]right- nvk
+
+@enduml
