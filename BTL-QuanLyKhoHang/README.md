@@ -8,7 +8,7 @@ Dự án áp dụng toàn diện phương pháp **Phân tích và Thiết kế H
 
 ---
 
-## Danh mục Hồ sơ & Deliverables Đã Hoàn Thành (17/17)
+## Danh mục Hồ sơ & Deliverables Đã Hoàn Thành (18/18)
 
 | STT | Giai đoạn | Deliverable | Tài liệu Markdown | Mã nguồn PlantUML | Hình ảnh Sơ đồ Rendered |
 |:---:|:---|:---|:---|:---|:---|
@@ -29,6 +29,7 @@ Dự án áp dụng toàn diện phương pháp **Phân tích và Thiết kế H
 | 15 | Thiết kế giao diện | Thiết kế Giao diện Người dùng (UI/UX) | [15-ui-design.md](./docs/15-ui-design.md) | - | Mockup giao diện Dashboard Kho, Nhập kho, Xuất kho điều chuyển |
 | 16 | Ước lượng dự án | Ước lượng Chi phí Dự án theo UCP | [16-ucp-estimation.md](./docs/16-ucp-estimation.md) | - | UAW=13, UUCW=185, TCF=1.015, EF=0.755 $\rightarrow$ 151.73 UCP $\approx$ 3,035 giờ |
 | 17 | Phân tích chức năng | Mô hình Chức năng Chi tiết (BFD, CRUD, Luồng NV) | [17-functional-model.md](./docs/17-functional-model.md) | - | BFD 3 cấp, Ma trận CRUD 18×17, 41 Business Rules, Luồng nghiệp vụ |
+| 18 | Thuyết trình & Bảo vệ | Kịch bản & Bản trình bày Mô hình Chức năng | [18-functional-model-presentation.md](./docs/18-functional-model-presentation.md) | - | Kịch bản thuyết trình từng phần, tóm tắt 1 trang, Q&A phản biện |
 
 ---
 
@@ -36,7 +37,7 @@ Dự án áp dụng toàn diện phương pháp **Phân tích và Thiết kế H
 
 ```
 BTL-QuanLyKhoHang/
-├── docs/                              # 16 tài liệu phân tích & thiết kế chi tiết
+├── docs/                              # 18 tài liệu phân tích, thiết kế & thuyết trình chi tiết
 │   ├── 01-system-request.md           # Yêu cầu hệ thống
 │   ├── 02-use-case-diagram.md         # Biểu đồ ca sử dụng
 │   ├── 03-use-case-specs.md           # Đặc tả ca sử dụng chi tiết
@@ -53,7 +54,8 @@ BTL-QuanLyKhoHang/
 │   ├── 14-dam-classes.md              # Lớp DAM/DAO
 │   ├── 15-ui-design.md                # Thiết kế giao diện kho hàng
 │   ├── 16-ucp-estimation.md           # Ước lượng UCP
-│   └── 17-functional-model.md         # Mô hình chức năng chi tiết
+│   ├── 17-functional-model.md         # Mô hình chức năng chi tiết
+│   └── 18-functional-model-presentation.md # Kịch bản thuyết trình mô hình chức năng
 ├── plantuml/                          # Mã nguồn PlantUML
 │   ├── use-case-diagram.puml
 │   ├── domain-class-diagram.puml
