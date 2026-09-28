@@ -4,7 +4,7 @@ skinparam defaultFontName "Arial"
 skinparam backgroundColor #FEFEFE
 skinparam packageStyle rectangle
 
-title Quan hệ giữa các Ca sử dụng\nHệ thống Quản lý Sản phẩm và Kho hàng
+title Quan hệ giữa các Ca sử dụng\nHệ thống Quản lý Kho hàng và Vật tư Nội bộ Tổ chức
 
 skinparam usecase {
     BackgroundColor<<include_src>> #C8E6C9
@@ -24,25 +24,25 @@ skinparam usecase {
 }
 
 ' ===== Use Cases =====
-usecase "UC15: Nhận hàng\ntừ NCC" as UC15 <<include_src>>
+usecase "UC15: Bàn giao &\ntiếp nhận VT" as UC15 <<include_src>>
 usecase "UC06: Tạo phiếu\nnhập kho" as UC06 <<include_src>>
 usecase "UC07: Tạo phiếu\nxuất kho" as UC07 <<include_src>>
-usecase "UC13: Tạo đơn\nmua hàng" as UC13 <<include_src>>
+usecase "UC13: Tạo yêu cầu\ncấp phát vật tư" as UC13 <<include_src>>
 
 usecase "UC10: Xem\ntồn kho" as UC10 <<hub>>
-usecase "UC12: Quản lý\nNCC" as UC12 <<include_tgt>>
+usecase "UC12: Quản lý\nphòng ban" as UC12 <<include_tgt>>
 
 usecase "UC11: Cảnh báo\ntồn kho thấp" as UC11 <<extend_tgt>>
 usecase "UC08: Chuyển kho" as UC08 <<extend_tgt>>
 
 ' ===== Include Relationships =====
-UC15 ..> UC06 : <<include>>\n"Nhận hàng kèm\ntạo phiếu nhập"
+UC15 ..> UC07 : <<include>>\n"Bàn giao kèm\ntạo phiếu xuất"
 
 UC06 ..> UC10 : <<include>>\n"Cập nhật & hiển thị\ntồn kho sau nhập"
 
 UC07 ..> UC10 : <<include>>\n"Kiểm tra tồn kho\ntrước khi xuất"
 
-UC13 ..> UC12 : <<include>>\n"Chọn NCC\nkhi tạo đơn mua"
+UC13 ..> UC12 : <<include>>\n"Chọn phòng ban\nkhi tạo yêu cầu"
 
 ' ===== Extend Relationships =====
 UC11 ..> UC10 : <<extend>>\n[tồn kho < ngưỡng]
@@ -50,8 +50,8 @@ UC11 ..> UC10 : <<extend>>\n[tồn kho < ngưỡng]
 UC08 ..> UC07 : <<extend>>\n[xuất chuyển\ngiữa các kho]
 
 ' ===== Layout =====
-UC15 -[hidden]down- UC06
-UC06 -[hidden]down- UC07
+UC15 -[hidden]down- UC07
+UC06 -[hidden]down- UC10
 UC13 -[hidden]right- UC15
 
 @enduml

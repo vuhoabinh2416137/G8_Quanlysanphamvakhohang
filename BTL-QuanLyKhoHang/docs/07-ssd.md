@@ -9,45 +9,46 @@ Theo giáo trình **IT3120 - Mô hình hóa Hành vi (Behavioral Modeling)**:
 
 ---
 
-## 1. SSD cho UC06: Tạo Phiếu Nhập Kho
+## 1. SSD cho UC06: Tạo Phiếu Nhập Kho Nội bộ
 - **Tác nhân**: Nhân viên kho.
 - **Sự kiện chính**:
   1. `yeuCauTaoPhieuNhap()`: Khởi tạo phiên làm việc nhập kho.
-  2. `chonDonMuaHang(maDonMua, maKho)`: Liên kết phiếu nhập với Đơn mua hàng gốc.
-  3. `nhapMucHang(maSP, soLuongThucNhan, viTriKe)`: Vòng lặp nhập chi tiết từng mặt hàng.
+  2. `chonKhoVaLyDoNhap(maKho, lyDoNhap, nguonGiao)`: Xác định kho nhận và căn cứ tiếp nhận (bàn giao phân bổ, hoàn nhập phòng ban, điều chuyển).
+  3. `nhapMucVatTu(maVT, soLuongThucNhan, viTriKe)`: Vòng lặp nhập chi tiết từng mặt hàng và vị trí lưu kho.
   4. `xacNhanHoanTatPhieuNhap(ghiChu)`: Chốt phiếu và thực thi ghi sổ tồn kho.
 
 ![SSD Nhập kho](../diagrams/ssd-nhap-kho.png)
 
 ---
 
-## 2. SSD cho UC07: Tạo Phiếu Xuất Kho
+## 2. SSD cho UC07: Tạo Phiếu Xuất Kho Nội bộ
 - **Tác nhân**: Nhân viên kho.
 - **Sự kiện chính**:
   1. `yeuCauTaoPhieuXuat()`: Mở form xuất kho.
-  2. `chonKhoVaLyDoXuat(maKho, lyDoXuat)`: Chọn kho xuất và lý do (chuyển kho, trả NCC, hủy, điều chỉnh).
-  3. `themMucXuat(maSP, soLuongXuat)`: Xác thực tồn kho và thêm mục xuất.
+  2. `chonKhoVaLyDoXuat(maKho, lyDoXuat, maPhongBanNhan)`: Chọn kho xuất, lý do (cấp phát, chuyển kho, thanh lý) và phòng ban nhận.
+  3. `themMucXuat(maVT, soLuongXuat)`: Xác thực tồn kho khả dụng và thêm mục xuất.
   4. `xacNhanXuatKho(ghiChu)`: Ghi nhận giảm tồn kho, tự động kích hoạt cảnh báo nếu chạm ngưỡng.
 
 ![SSD Xuất kho](../diagrams/ssd-xuat-kho.png)
 
 ---
 
-## 3. SSD cho UC13: Tạo Đơn Mua Hàng
-- **Tác nhân**: Nhân viên mua hàng.
+## 3. SSD cho UC13: Tạo Yêu Cầu Cấp Phát Vật Tư
+- **Tác nhân**: Đại diện Phòng ban.
 - **Sự kiện chính**:
-  1. `moFormTaoDonMua()` & `chonNCCVaKhoNhan()`: Chỉ định nhà cung cấp và điểm tập kết hàng.
-  2. `themMatHangMua(maSP, soLuong, donGiaDeXuat)`: Lập danh sách mặt hàng.
-  3. `guiDonMuaHang(ghiChu)`: Chuyển đơn sang trạng thái `CHO_DUYET`.
+  1. `moFormTaoYeuCau()`: Mở form yêu cầu cấp phát.
+  2. `nhapThongTinYeuCau(mucDichSuDung, ngayCanDung)`: Nhập mục đích và thời hạn cần tiếp nhận vật tư.
+  3. `themMatHangYeuCau(maVT, soLuong)`: Lập danh sách vật tư đề nghị cấp phát.
+  4. `guiYeuCauCapPhat(ghiChu)`: Chuyển phiếu yêu cầu sang trạng thái `CHO_DUYET` và thông báo cho Quản lý kho.
 
-![SSD Mua hàng](../diagrams/ssd-mua-hang.png)
+![SSD Yêu cầu cấp phát](../diagrams/ssd-yeu-cau-cap-phat.png)
 
 ---
 
 ## 4. SSD cho UC09: Kiểm Kê Kho
 - **Tác nhân**: Quản lý kho, Nhân viên kho.
 - **Sự kiện chính**:
-  1. `taoPhienKiemKe(maKho, danhMuc)`: Chốt số liệu sổ sách và khóa giao dịch.
+  1. `taoPhienKiemKe(maKho, phamVi)`: Chốt số liệu sổ sách và khóa giao dịch.
   2. `nhapSoLuongKiemDem(maPhien, maSP, soLuongThucTe)`: Nhân viên kho cập nhật số đếm thực.
   3. `yeuCauBaoCaoChenhLech(maPhien)`: Hệ thống tổng hợp báo cáo sai số.
   4. `xacNhanDieuChinhKho(maPhien, lyDo)`: Cân bằng tồn kho và tự sinh phiếu điều chỉnh.

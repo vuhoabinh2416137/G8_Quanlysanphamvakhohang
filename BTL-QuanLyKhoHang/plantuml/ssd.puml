@@ -4,32 +4,32 @@ autonumber
 skinparam responseMessageBelowArrow true
 skinparam defaultFontName "Arial"
 
-title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC06: Tạo Phiếu Nhập Kho
+title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC06: Tạo Phiếu Nhập Kho Nội bộ
 
 actor "Nhân viên kho" as NV
 participant ":Hệ thống" as Sys
 
 NV -> Sys: yeuCauTaoPhieuNhap()
 activate Sys
-Sys --> NV: hienThiFormNhapKho(danhSachKho, danhSachDonMua)
+Sys --> NV: hienThiFormNhapKho(danhSachKho, danhSachLyDoNhap)
 deactivate Sys
 
-NV -> Sys: chonDonMuaHang(maDonMua, maKho)
+NV -> Sys: chonKhoVaLyDoNhap(maKho, lyDoNhap, nguonGiao)
 activate Sys
-Sys --> NV: hienThiChiTietDonMua(dsSanPham, soLuongDat, giaNhap)
+Sys --> NV: hienThiDanhMucVatTu(dsVatTu)
 deactivate Sys
 
-loop Với mỗi sản phẩm thực nhận
-    NV -> Sys: nhapMucHang(maSP, soLuongThucNhan, viTriKe)
+loop Với mỗi vật tư tiếp nhận
+    NV -> Sys: nhapMucVatTu(maVT, soLuongThucNhan, viTriKe)
     activate Sys
-    Sys --> NV: capNhatDanhSachMucNhap(thanhTien, tongTamTinh)
+    Sys --> NV: capNhatDanhSachMucNhap(dsMucHienTai)
     deactivate Sys
 end
 
 NV -> Sys: xacNhanHoanTatPhieuNhap(ghiChu)
 activate Sys
 alt Hợp lệ
-    Sys --> NV: thongBaoThanhCong(maPhieuNhap, tongGiaTri, capNhatTonKho)
+    Sys --> NV: thongBaoThanhCong(maPhieuNhap, tangTonKho)
 else Lỗi dữ liệu
     Sys --> NV: thongBaoLoi(lyDo)
 end
@@ -42,26 +42,26 @@ autonumber
 skinparam responseMessageBelowArrow true
 skinparam defaultFontName "Arial"
 
-title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC07: Tạo Phiếu Xuất Kho
+title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC07: Tạo Phiếu Xuất Kho Nội bộ
 
 actor "Nhân viên kho" as NV
 participant ":Hệ thống" as Sys
 
 NV -> Sys: yeuCauTaoPhieuXuat()
 activate Sys
-Sys --> NV: hienThiFormXuatKho(danhSachKho, danhSachLyDoXuat)
+Sys --> NV: hienThiFormXuatKho(danhSachKho, danhSachLyDoXuat, dsPhongBan)
 deactivate Sys
 
-NV -> Sys: chonKhoVaLyDoXuat(maKho, lyDoXuat)
+NV -> Sys: chonKhoVaLyDoXuat(maKho, lyDoXuat, maPhongBanNhan)
 activate Sys
-Sys --> NV: hienThiDanhSachSanPhamTrongKho(dsSanPham, tonKho)
+Sys --> NV: hienThiDanhSachVatTuTrongKho(dsVatTu, tonKhoKhaDung)
 deactivate Sys
 
-loop Với mỗi mặt hàng xuất
-    NV -> Sys: themMucXuat(maSP, soLuongXuat)
+loop Với mỗi vật tư xuất cấp phát / chuyển kho
+    NV -> Sys: themMucXuat(maVT, soLuongXuat)
     activate Sys
     alt Tồn kho đủ
-        Sys --> NV: xacNhanThemMucXuat(thanhTien, tongTamTinh)
+        Sys --> NV: xacNhanThemMucXuat(dsMucXuatHienTai)
     else Tồn kho không đủ
         Sys --> NV: thongBaoLoiTonKhoKhongDu(soLuongConLai)
     end
@@ -71,7 +71,7 @@ end
 NV -> Sys: xacNhanXuatKho(ghiChu)
 activate Sys
 alt Hợp lệ
-    Sys --> NV: inPhieuXuatKho(maPXK, tongGiaTri, giamTonKho)
+    Sys --> NV: inPhieuXuatKho(maPXK, giamTonKho)
     opt Tồn kho chạm ngưỡng cảnh báo
         Sys -> Sys: guiCanhBaoTonKhoThap()
     end
@@ -81,37 +81,42 @@ end
 deactivate Sys
 @enduml
 
-@startuml ssd-mua-hang
+@startuml ssd-yeu-cau-cap-phat
 !theme plain
 autonumber
 skinparam responseMessageBelowArrow true
 skinparam defaultFontName "Arial"
 
-title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC13: Tạo Đơn Mua Hàng
+title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC13: Tạo Yêu Cầu Cấp Phát Vật Tư
 
-actor "Nhân viên mua hàng" as NVMH
+actor "Đại diện Phòng ban" as DSPB
 participant ":Hệ thống" as Sys
 
-NVMH -> Sys: moFormTaoDonMua()
+DSPB -> Sys: moFormTaoYeuCau()
 activate Sys
-Sys --> NVMH: hienThiDanhSachNCC_VaKho()
+Sys --> DSPB: hienThiThongTinPhongBanVaDanhMucVT(maPB, dsVatTu)
 deactivate Sys
 
-NVMH -> Sys: chonNCCVaKhoNhan(maNCC, maKho, ngayHenGiao)
+DSPB -> Sys: nhapThongTinYeuCau(mucDichSuDung, ngayCanDung)
 activate Sys
-Sys --> NVMH: thongTinNCC_VaBaoGia(dsSP_CungCap)
+Sys --> DSPB: xacNhanThongTinChung()
 deactivate Sys
 
-loop Thêm từng mặt hàng mua
-    NVMH -> Sys: themMatHangMua(maSP, soLuong, donGiaDeXuat)
+loop Với mỗi vật tư đề xuất cấp phát
+    DSPB -> Sys: themMatHangYeuCau(maVT, soLuong)
     activate Sys
-    Sys --> NVMH: tinhThanhTienTamTinh(tongTienPO)
+    alt Số lượng hợp lệ
+        Sys --> DSPB: ghiNhanMucYeuCau(dsMucHienTai)
+    else Số lượng <= 0
+        Sys --> DSPB: baoLoiSoLuongKhongHopLe()
+    end
     deactivate Sys
 end
 
-NVMH -> Sys: guiDonMuaHang(ghiChu)
+DSPB -> Sys: guiYeuCauCapPhat(ghiChu)
 activate Sys
-Sys --> NVMH: xacNhanGuiDonThanhCong(maPO, trangThai: CHO_DUYET)
+Sys --> DSPB: thongBaoThanhCong(maYeuCau, trangThai = "CHO_DUYET")
+Sys -> Sys: guiThongBaoDuyetChoQuanLyKho()
 deactivate Sys
 @enduml
 
@@ -123,29 +128,28 @@ skinparam defaultFontName "Arial"
 
 title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC09: Kiểm Kê Kho
 
-actor "Quản lý kho" as QLK
-actor "Nhân viên kho" as NVK
+actor "Quản lý / Thủ kho" as NV
 participant ":Hệ thống" as Sys
 
-QLK -> Sys: taoPhienKiemKe(maKho, danhMuc)
+NV -> Sys: taoPhienKiemKe(maKho, phamVi)
 activate Sys
-Sys --> QLK: phienKiemKeKho(maPhien, danhSachSanPham, trangThai: KHOA_GD)
+Sys --> NV: xacNhanKhoaGiaoDichVaInCountSheet(maPhien, danhSachSP)
 deactivate Sys
 
-loop Kiểm đếm thực tế
-    NVK -> Sys: nhapSoLuongKiemDem(maPhien, maSP, soLuongThucTe)
+loop Kiểm đếm thực tế từng mặt hàng
+    NV -> Sys: nhapSoLuongKiemDem(maPhien, maSP, soLuongThucTe)
     activate Sys
-    Sys --> NVK: xacNhanGhiNhan()
+    Sys --> NV: capNhatKetQuaKiemDem()
     deactivate Sys
 end
 
-QLK -> Sys: yeuCauBaoCaoChenhLech(maPhien)
+NV -> Sys: yeuCauBaoCaoChenhLech(maPhien)
 activate Sys
-Sys --> QLK: bangSoSanhSoSach_ThucTe(soThua, soThieu)
+Sys --> NV: hienThiBaoCaoChenhLech(dsThuaThieu, tyLeLech)
 deactivate Sys
 
-QLK -> Sys: xacNhanDieuChinhKho(maPhien, lyDo)
+NV -> Sys: xacNhanDieuChinhKho(maPhien, lyDoGiaiTrinh)
 activate Sys
-Sys --> QLK: hoanTatKiemKe(tuDongSinhPhieuDieuChinh, capNhatTonKho, MO_KHOA_GD)
+Sys --> NV: hoanTatKiemKe(tuDongTaoPhieuDieuChinh, moKhoaGiaoDich)
 deactivate Sys
 @enduml

@@ -3,7 +3,7 @@
 skinparam defaultFontName "Arial"
 skinparam wrapWidth 200
 
-title Biểu đồ Phân rã Chức năng (BFD)\nHệ thống Quản lý Sản phẩm và Kho hàng
+title Biểu đồ Phân rã Chức năng (BFD)\nHệ thống Quản lý Kho hàng và Vật tư Nội bộ Tổ chức
 
 <style>
 wbsDiagram {
@@ -32,7 +32,7 @@ wbsDiagram {
 }
 </style>
 
-* Hệ thống Quản lý\nSản phẩm & Kho hàng
+* Hệ thống Quản lý\nKho hàng & Vật tư Nội bộ
 ** F1. Xác thực\n& Phân quyền
 *** F1.1 Đăng nhập/\nĐăng xuất (UC01)
 **** F1.1.1 Xác thực thông tin
@@ -45,51 +45,49 @@ wbsDiagram {
 **** F1.2.3 Gán quyền cho vai trò
 **** F1.2.4 Gán vai trò cho tài khoản
 **** F1.2.5 Thu hồi vai trò
-** F2. Quản lý\nSản phẩm
-*** F2.1 Quản lý\nsản phẩm (UC03)
-**** F2.1.1 Thêm sản phẩm mới
-**** F2.1.2 Cập nhật sản phẩm
-**** F2.1.3 Ngừng kinh doanh SP
-**** F2.1.4 Xem chi tiết SP
-**** F2.1.5 Liệt kê sản phẩm
-*** F2.2 Quản lý\ndanh mục SP (UC04)
+** F2. Quản lý\nVật tư
+*** F2.1 Quản lý\nvật tư (UC03)
+**** F2.1.1 Thêm vật tư mới
+**** F2.1.2 Cập nhật thông tin VT
+**** F2.1.3 Ngừng sử dụng vật tư
+**** F2.1.4 Xem chi tiết vật tư
+**** F2.1.5 Liệt kê danh mục VT
+*** F2.2 Quản lý\ndanh mục VT (UC04)
 **** F2.2.1 Thêm danh mục
 **** F2.2.2 Sửa danh mục
 **** F2.2.3 Xóa danh mục
 **** F2.2.4 Xem cây danh mục
-*** F2.3 Tìm kiếm\nsản phẩm (UC05)
+*** F2.3 Tìm kiếm\nvật tư (UC05)
 **** F2.3.1 Tìm theo từ khóa
 **** F2.3.2 Lọc theo danh mục
 **** F2.3.3 Lọc theo trạng thái
 **** F2.3.4 Lọc theo tồn kho
 **** F2.3.5 Sắp xếp kết quả
-** F3. Quản lý\nKho hàng
+** F3. Vận hành\nKho hàng
 *** F3.1 Tạo phiếu\nnhập kho (UC06)
 **** F3.1.1 Khởi tạo phiếu nhập
 **** F3.1.2 Chọn kho nhận hàng
 **** F3.1.3 Chọn lý do nhập
-**** F3.1.4 Liên kết đơn mua
+**** F3.1.4 Chọn nguồn bàn giao
 **** F3.1.5 Thêm mục nhập kho
-**** F3.1.6 Kiểm tra SL vượt đơn mua
-**** F3.1.7 Tính tổng giá trị
+**** F3.1.6 Kiểm tra quy cách & SL
+**** F3.1.7 Chỉ định vị trí kệ kho
 **** F3.1.8 Xác nhận lưu phiếu
 **** F3.1.9 Cập nhật tồn kho
-**** F3.1.10 Cập nhật TT đơn mua
-**** F3.1.11 Hủy phiếu nhập
+**** F3.1.10 Hủy phiếu nhập
 *** F3.2 Tạo phiếu\nxuất kho (UC07)
 **** F3.2.1 Khởi tạo phiếu xuất
 **** F3.2.2 Chọn kho xuất
 **** F3.2.3 Chọn lý do xuất
-**** F3.2.4 Chọn đích tiếp nhận
+**** F3.2.4 Chọn phòng ban / kho đích
 **** F3.2.5 Thêm mục xuất kho
-**** F3.2.6 Kiểm tra tồn kho
-**** F3.2.7 Kiểm tra SP khóa kiểm kê
-**** F3.2.8 Tính đơn giá xuất
-**** F3.2.9 Xác nhận lưu phiếu
-**** F3.2.10 Cập nhật tồn kho
-**** F3.2.11 Kiểm tra cảnh báo
-**** F3.2.12 Tạo phiếu nhập kho đích
-*** F3.3 Chuyển kho\n(UC08)
+**** F3.2.6 Kiểm tra tồn kho khả dụng
+**** F3.2.7 Kiểm tra VT khóa kiểm kê
+**** F3.2.8 Xác nhận lưu phiếu
+**** F3.2.9 Cập nhật tồn kho
+**** F3.2.10 Kiểm tra cảnh báo tồn thấp
+**** F3.2.11 Tạo phiếu nhập kho đích
+*** F3.3 Chuyển kho\nnội bộ (UC08)
 **** F3.3.1 Chọn kho nguồn & đích
 **** F3.3.2 Tạo phiếu xuất kho nguồn
 **** F3.3.3 Tạo phiếu nhập kho đích
@@ -101,7 +99,7 @@ wbsDiagram {
 **** F3.4.4 Nhập SL thực tế
 **** F3.4.5 Tính chênh lệch
 **** F3.4.6 Hiển thị BC chênh lệch
-**** F3.4.7 Nhập lý do
+**** F3.4.7 Nhập lý do giải trình
 **** F3.4.8 Phê duyệt điều chỉnh
 **** F3.4.9 Tạo phiếu điều chỉnh
 **** F3.4.10 Cập nhật tồn kho
@@ -110,47 +108,45 @@ wbsDiagram {
 *** F3.5 Xem tồn kho\n(UC10)
 **** F3.5.1 Xem tổng hợp
 **** F3.5.2 Xem theo kho
-**** F3.5.3 Xem theo SP
-**** F3.5.4 Xem SP dưới ngưỡng
-**** F3.5.5 Xem SP hết hàng
+**** F3.5.3 Xem theo vật tư
+**** F3.5.4 Xem VT dưới ngưỡng
+**** F3.5.5 Xem VT hết hàng
 **** F3.5.6 Xuất danh sách
 *** F3.6 Cảnh báo\ntồn kho thấp (UC11)
 **** F3.6.1 Giám sát ngưỡng
 **** F3.6.2 Tạo cảnh báo
 **** F3.6.3 Gửi email thông báo
 **** F3.6.4 Hiển thị Dashboard
-** F4. Quản lý\nMua hàng
-*** F4.1 Quản lý NCC\n(UC12)
-**** F4.1.1 Thêm NCC mới
-**** F4.1.2 Cập nhật thông tin
-**** F4.1.3 Ngừng hợp tác
-**** F4.1.4 Xem chi tiết NCC
-**** F4.1.5 Liệt kê NCC
-**** F4.1.6 Liên kết NCC-SP
-*** F4.2 Tạo đơn\nmua hàng (UC13)
-**** F4.2.1 Khởi tạo đơn mua
-**** F4.2.2 Chọn NCC
-**** F4.2.3 Hiển thị SP của NCC
-**** F4.2.4 Chọn kho nhận hàng
-**** F4.2.5 Thêm mục mua
-**** F4.2.6 Tính thành tiền
-**** F4.2.7 Nhập TT bổ sung
-**** F4.2.8 Xác nhận tạo đơn
-**** F4.2.9 Gửi thông báo duyệt
-*** F4.3 Duyệt đơn\nmua hàng (UC14)
-**** F4.3.1 Xem DS đơn chờ duyệt
-**** F4.3.2 Xem chi tiết đơn mua
-**** F4.3.3 Phê duyệt đơn mua
-**** F4.3.4 Từ chối đơn mua
-**** F4.3.5 Gửi thông báo kết quả
-*** F4.4 Nhận hàng\ntừ NCC (UC15)
-**** F4.4.1 Xem đơn mua chờ nhận
-**** F4.4.2 Chọn đơn mua
-**** F4.4.3 Kiểm đếm thực nhận
-**** F4.4.4 Ghi nhận chất lượng
-**** F4.4.5 Tạo phiếu nhập tự động
-**** F4.4.6 Cập nhật TT đơn mua
-** F5. Quản lý\nNhân viên
+** F4. Quản lý Yêu cầu\n& Cấp phát Nội bộ
+*** F4.1 Quản lý\nphòng ban (UC12)
+**** F4.1.1 Thêm phòng ban mới
+**** F4.1.2 Cập nhật thông tin PB
+**** F4.1.3 Gán người phụ trách PB
+**** F4.1.4 Xem chi tiết & lịch sử PB
+**** F4.1.5 Liệt kê phòng ban
+**** F4.1.6 Định mức vật tư PB
+*** F4.2 Tạo yêu cầu\ncấp phát (UC13)
+**** F4.2.1 Khởi tạo yêu cầu
+**** F4.2.2 Chọn phòng ban yêu cầu
+**** F4.2.3 Nhập mục đích sử dụng
+**** F4.2.4 Thêm vật tư & số lượng
+**** F4.2.5 Kiểm tra định mức cấp phát
+**** F4.2.6 Nhập ghi chú & hạn nhận
+**** F4.2.7 Xác nhận gửi yêu cầu
+**** F4.2.8 Gửi thông báo đến QLK
+*** F4.3 Phê duyệt\ncấp phát (UC14)
+**** F4.3.1 Xem DS yêu cầu chờ duyệt
+**** F4.3.2 Xem chi tiết & đối soát tồn
+**** F4.3.3 Phê duyệt yêu cầu
+**** F4.3.4 Từ chối yêu cầu (kèm lý do)
+**** F4.3.5 Gửi thông báo kết quả duyệt
+*** F4.4 Bàn giao &\ntiếp nhận VT (UC15)
+**** F4.4.1 Xem yêu cầu chờ xuất
+**** F4.4.2 Lập phiếu xuất cấp phát
+**** F4.4.3 Kiểm đếm bàn giao thực tế
+**** F4.4.4 Ký nhận bàn giao hai bên
+**** F4.4.5 Cập nhật hoàn tất yêu cầu
+** F5. Quản lý\nNhân sự
 *** F5.1 Quản lý\nnhân viên (UC16)
 **** F5.1.1 Thêm NV mới
 **** F5.1.2 Tạo tài khoản
@@ -158,19 +154,19 @@ wbsDiagram {
 **** F5.1.4 Vô hiệu hóa NV
 **** F5.1.5 Đặt lại mật khẩu
 **** F5.1.6 Liệt kê NV
-** F6. Báo cáo\nThống kê
+** F6. Báo cáo\n& Thống kê
 *** F6.1 Báo cáo\ntồn kho (UC17)
 **** F6.1.1 BC tổng hợp
 **** F6.1.2 BC theo kho
 **** F6.1.3 BC theo danh mục
 **** F6.1.4 BC xuất nhập tồn
-**** F6.1.5 BC SP dưới ngưỡng
+**** F6.1.5 BC VT dưới ngưỡng
 **** F6.1.6 Xuất BC
-*** F6.2 Báo cáo\nmua hàng (UC18)
-**** F6.2.1 BC đơn mua theo kỳ
-**** F6.2.2 BC theo NCC
-**** F6.2.3 BC theo SP
-**** F6.2.4 BC tỉ lệ hoàn thành
+*** F6.2 Báo cáo X-N-T\n& cấp phát PB (UC18)
+**** F6.2.1 BC cấp phát theo phòng ban
+**** F6.2.2 BC biến động X-N-T kỳ
+**** F6.2.3 BC vật tư theo mục đích
+**** F6.2.4 BC tỷ lệ đáp ứng yêu cầu
 **** F6.2.5 Xuất BC
 
 @endwbs

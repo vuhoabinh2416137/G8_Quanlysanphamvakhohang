@@ -8,7 +8,7 @@ Theo giáo trình **IT3120 - Kiến trúc Hệ thống (System Architecture)**:
   1. **HCI Layer (Human-Computer Interaction)**: Chịu trách nhiệm tương tác người dùng, hiển thị dữ liệu và tiếp nhận dữ liệu đầu vào.
   2. **Problem Domain (PD) Layer**: Chứa toàn bộ các quy tắc nghiệp vụ cốt lõi (Business Logic), các thực thể mô hình miền (`domain entities`) và các dịch vụ điều phối nghiệp vụ (`services`).
   3. **Data Management (DM) Layer**: Trừu tượng hóa việc lưu trữ dữ liệu cố định (Persistent Storage) thông qua các lớp DAM (Data Access Management) hoặc DAO (Data Access Object), độc lập với hệ quản trị CSDL cụ thể.
-  4. **Physical Architecture (PA) Layer**: Đảm nhiệm các kết nối hạ tầng vật lý, mạng, tích hợp dịch vụ bên ngoài (Email SMTP, Cổng thanh toán VNPay, Cơ chế mã hóa JWT).
+  4. **Physical Architecture (PA) Layer**: Đảm nhiệm các kết nối hạ tầng vật lý, mạng, tích hợp dịch vụ bên ngoài (Email SMTP gửi thông báo nội bộ, Cơ chế xác thực mã hóa JWT).
   5. **Foundation Layer**: Tầng nền tảng chứa các tiện ích dùng chung (Utilities, Custom Exceptions, Formatting, Logging).
 
 ---
@@ -16,7 +16,7 @@ Theo giáo trình **IT3120 - Kiến trúc Hệ thống (System Architecture)**:
 ## Nguyên tắc Phụ thuộc giữa các Tầng (Layering Rules)
 - Phụ thuộc một chiều từ trên xuống dưới (Strict Layering hoặc Relaxed Layering):
   - `HCI` phụ thuộc vào `PD` (HCI gọi Controller/Service).
-  - `PD` phụ thuộc vào `DM` (để đọc/ghi dữ liệu nghiệp vụ) và `PA` (để gửi email, gọi API thanh toán).
+  - `PD` phụ thuộc vào `DM` (để đọc/ghi dữ liệu nghiệp vụ) và `PA` (để gửi email thông báo).
   - Cả `HCI`, `PD`, `DM`, `PA` đều có thể phụ thuộc vào `Foundation`.
   - **Tuyệt đối không có phụ thuộc vòng (Circular Dependencies)** giữa các gói.
 
@@ -26,9 +26,9 @@ Theo giáo trình **IT3120 - Kiến trúc Hệ thống (System Architecture)**:
 
 | Gói nghiệp vụ (PD Package) | Thực thể quản lý | Phụ thuộc chính | Thao tác CRUDE |
 |----------------------------|-------------------|-----------------|----------------|
-| `domain.product` | `SanPham`, `DanhMuc` | `dam.SanPhamDAM` | Create, Read, Update, Delete |
+| `domain.material` | `VatTu`, `DanhMuc` | `dam.VatTuDAM` | Create, Read, Update, Delete (soft) |
 | `domain.inventory` | `Kho`, `ViTriKho`, `TonKho`, `PhieuNhapKho`, `PhieuXuatKho`, `PhienKiemKe` | `dam.PhieuNhapKhoDAM`, `dam.TonKhoDAM`, `dam.PhienKiemKeDAM` | Create, Read, Update |
-| `domain.purchase` | `DonMuaHang`, `MucMua`, `NhaCungCap` | `dam.DonMuaHangDAM`, `dam.NhaCungCapDAM` | Create, Read, Update |
+| `domain.allocation` | `YeuCauCapPhat`, `ChiTietYeuCau`, `PhongBan` | `dam.YeuCauCapPhatDAM`, `dam.PhongBanDAM` | Create, Read, Update |
 | `domain.identity` | `NhanVien`, `TaiKhoan`, `VaiTro`, `Quyen` | `dam.TaiKhoanDAM`, `infrastructure.security` | Create, Read, Update, Delete |
 
 ---

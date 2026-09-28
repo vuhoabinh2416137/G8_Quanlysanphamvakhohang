@@ -5,14 +5,14 @@ skinparam backgroundColor #FEFEFE
 skinparam sequenceArrowThickness 2
 skinparam sequenceMessageAlign center
 
-title Luồng Dữ liệu Nghiệp vụ: Xuất kho → Cảnh báo\nHệ thống Quản lý Sản phẩm và Kho hàng
+title Luồng Dữ liệu Nghiệp vụ: Xuất kho → Cảnh báo tồn thấp\nHệ thống Quản lý Kho hàng và Vật tư Nội bộ Tổ chức
 
 actor "NV Kho" as NV_K #87CEEB
 participant "Hệ thống" as HT #F5F5DC
 actor "Quản lý kho" as QLK #87CEEB
 participant "Hệ thống\nEmail" as EMAIL #E8F5E9
 
-NV_K -> HT : Tạo phiếu xuất kho\n(chọn kho, SP, SL)
+NV_K -> HT : Tạo phiếu xuất kho\n(chọn kho, vật tư, SL)
 activate HT
 
 HT -> HT : Kiểm tra tồn kho\nkhả dụng
@@ -27,7 +27,7 @@ alt Tồn kho đủ (SL xuất ≤ Tồn kho)
     alt TonKho < nguongTonKho (Cảnh báo - UC11)
         HT -> HT : Tạo bản ghi\ncảnh báo
         HT -> EMAIL : Gửi email cảnh báo\ntồn kho thấp
-        EMAIL -> QLK : ⚠️ Email: Cảnh báo\ntồn kho dưới ngưỡng\n(SP, Kho, SL hiện tại)
+        EMAIL -> QLK : ⚠️ Email: Cảnh báo\nvật tư dưới định mức\n(Vật tư, Kho, Tồn hiện tại)
     end
 
     HT --> NV_K : ✅ Xác nhận xuất kho\nthành công

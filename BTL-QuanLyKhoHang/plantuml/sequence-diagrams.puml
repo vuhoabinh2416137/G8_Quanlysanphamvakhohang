@@ -4,7 +4,7 @@ autonumber
 skinparam responseMessageBelowArrow true
 skinparam defaultFontName "Arial"
 
-title Sơ đồ Tuần tự Thiết kế: Tạo Phiếu Nhập Kho (UC06)
+title Sơ đồ Tuần tự Thiết kế: Tạo Phiếu Nhập Kho Nội bộ (UC06)
 
 actor "Nhân viên kho" as NV
 boundary "NhapKhoUI" as UI
@@ -16,7 +16,6 @@ entity "mn : MucNhap" as MN
 entity "tk : TonKho" as TK
 database "PhieuNhapDAO" as PNDAO
 database "TonKhoDAO" as TKDAO
-database "DonMuaDAO" as PODAO
 
 NV -> UI: nhanNut "Lưu Phiếu Nhập"(dto)
 activate UI
@@ -26,23 +25,14 @@ activate Ctrl
 Ctrl -> Service: taoPhieuNhapKho(dto)
 activate Service
 
-Service -> PNK**: create(maPhieu, ngayNhap, lyDoNhap, maKho, maDonMua)
+Service -> PNK**: create(maPhieu, ngayNhap, lyDoNhap, maKho, maPhongBanGiao)
 
-loop voi moi muc hang trong dto.danhSachMucHang
-    Service -> PNK: themMucNhap(maSP, soLuong, donGia)
+loop voi moi muc vat tu trong dto.danhSachMucHang
+    Service -> PNK: themMucNhap(maVT, soLuong, viTriKe)
     activate PNK
-    PNK -> MN**: create(maSP, soLuong, donGia)
-    PNK -> MN: tinhThanhTien()
-    activate MN
-    MN --> PNK: thanhTien
-    deactivate MN
+    PNK -> MN**: create(maVT, soLuong, viTriKe)
     deactivate PNK
 end
-
-Service -> PNK: tinhTongGiaTri()
-activate PNK
-PNK --> Service: tongGiaTri
-deactivate PNK
 
 Service -> PNDAO: save(pnk)
 activate PNDAO
@@ -50,10 +40,10 @@ PNDAO --> Service: ketQuaLuu (true)
 deactivate PNDAO
 
 ' Cập nhật tồn kho
-loop voi moi muc hang trong pnk.danhSachMucNhap
-    Service -> TKKService: congTonKho(pnk.maKho, mn.maSP, mn.soLuong)
+loop voi moi muc vat tu trong pnk.danhSachMucNhap
+    Service -> TKKService: congTonKho(pnk.maKho, mn.maVT, mn.soLuong)
     activate TKKService
-    TKKService -> TKDAO: timTonKho(maKho, maSP)
+    TKKService -> TKDAO: timTonKho(maKho, maVT)
     activate TKDAO
     TKDAO --> TKKService: tk
     deactivate TKDAO
@@ -67,14 +57,6 @@ loop voi moi muc hang trong pnk.danhSachMucNhap
     TKDAO --> TKKService: thanhCong
     deactivate TKDAO
     deactivate TKKService
-end
-
-' Cập nhật đơn mua
-opt Co lien ket don mua
-    Service -> PODAO: capNhatTrangThai(pnk.maDonMua, "DA_NHAN_HANG")
-    activate PODAO
-    PODAO --> Service: thanhCong
-    deactivate PODAO
 end
 
 Service --> Ctrl: phieuNhapResponseDTO
@@ -93,7 +75,7 @@ autonumber
 skinparam responseMessageBelowArrow true
 skinparam defaultFontName "Arial"
 
-title Sơ đồ Tuần tự Thiết kế: Tạo Phiếu Xuất Kho (UC07)
+title Sơ đồ Tuần tự Thiết kế: Tạo Phiếu Xuất Kho Nội bộ (UC07)
 
 actor "Nhân viên kho" as NV
 boundary "XuatKhoUI" as UI
@@ -114,28 +96,19 @@ activate Ctrl
 Ctrl -> Service: taoPhieuXuatKho(dto)
 activate Service
 
-Service -> PXK**: create(maPhieu, ngayXuat, lyDoXuat, maKho)
+Service -> PXK**: create(maPhieu, ngayXuat, lyDoXuat, maKho, maPhongBanNhan, maYeuCau)
 
-loop voi moi muc hang trong dto.danhSachMucXuat
-    Service -> TKService: kiemTraTonKhaDung(dto.maKho, mx.maSP, mx.soLuong)
+loop voi moi vat tu trong dto.danhSachMucXuat
+    Service -> TKService: kiemTraTonKhaDung(dto.maKho, mx.maVT, mx.soLuong)
     activate TKService
     TKService --> Service: duTon (true)
     deactivate TKService
 
-    Service -> PXK: themMucXuat(maSP, soLuong, donGia)
+    Service -> PXK: themMucXuat(maVT, soLuong)
     activate PXK
-    PXK -> MX**: create(maSP, soLuong, donGia)
-    PXK -> MX: tinhThanhTien()
-    activate MX
-    MX --> PXK: thanhTien
-    deactivate MX
+    PXK -> MX**: create(maVT, soLuong)
     deactivate PXK
 end
-
-Service -> PXK: tinhTongGiaTri()
-activate PXK
-PXK --> Service: tongGiaTri
-deactivate PXK
 
 Service -> PXDAO: save(pxk)
 activate PXDAO
@@ -144,10 +117,10 @@ deactivate PXDAO
 
 ' Trừ tồn kho
 loop voi moi muc xuat
-    Service -> TKService: truTonKho(pxk.maKho, mx.maSP, mx.soLuong)
+    Service -> TKService: truTonKho(pxk.maKho, mx.maVT, mx.soLuong)
     activate TKService
     opt Canh bao ton kho thap
-        TKService -> NotifService: guiCanhBaoTonThap(maSP)
+        TKService -> NotifService: guiCanhBaoTonThap(maVT)
         activate NotifService
         NotifService --> TKService: sent
         deactivate NotifService
@@ -162,7 +135,7 @@ deactivate Service
 Ctrl --> UI: hienThiXacNhan(phieuXuatResponseDTO)
 deactivate Ctrl
 
-UI --> NV: thongBao("Xuất kho thành công!")
+UI --> NV: thongBao("Xuất kho cấp phát thành công!")
 deactivate UI
 @enduml
 
@@ -207,7 +180,7 @@ loop voi moi muc kiem ke trong pkk.danhSachMucKiemKe
     deactivate MKK
     deactivate PKK
     
-    alt chenhLech > 0 (Thừa hàng -> Tạo phiếu nhập điều chỉnh)
+    alt chenhLech > 0 (Thừa vật tư -> Tạo phiếu nhập điều chỉnh)
         Service -> PNDAO: taoPhieuNhapDieuChinh(pkk.maKho, mkk.maSP, chenhLech)
         activate PNDAO
         PNDAO --> Service: true
@@ -216,7 +189,7 @@ loop voi moi muc kiem ke trong pkk.danhSachMucKiemKe
         activate TKService
         TKService --> Service: ok
         deactivate TKService
-    else chenhLech < 0 (Thiếu hàng -> Tạo phiếu xuất điều chỉnh)
+    else chenhLech < 0 (Thiếu vật tư -> Tạo phiếu xuất điều chỉnh)
         Service -> PXDAO: taoPhieuXuatDieuChinh(pkk.maKho, mkk.maSP, abs(chenhLech))
         activate PXDAO
         PXDAO --> Service: true

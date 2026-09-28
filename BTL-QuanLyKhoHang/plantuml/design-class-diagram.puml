@@ -4,7 +4,7 @@ skinparam classAttributeIconSize 0
 skinparam classFontSize 10
 skinparam defaultFontName "Arial"
 
-title Biểu đồ Lớp Thiết kế Chi tiết (Design Class Diagram)\nHệ thống Quản lý Sản phẩm và Kho hàng
+title Biểu đồ Lớp Thiết kế Chi tiết (Design Class Diagram)\nHệ thống Quản lý Kho hàng & Vật tư Nội bộ Tổ chức
 
 ' ========================================================
 ' DESIGN PATTERN 1: FACTORY PATTERN (Tạo phiếu kho)
@@ -28,23 +28,23 @@ package "Mẫu Khởi tạo (Factory Pattern)" #FFF9C4 {
 ' ========================================================
 package "Mẫu Hành Vi (Observer Pattern)" #E1F5FE {
     interface TonKhoObserver {
-        + onStockChanged(khoId: String, spId: String, soLuongMoi: Integer, nguong: Integer): void
+        + onStockChanged(khoId: String, vtId: String, soLuongMoi: Integer, nguong: Integer): void
     }
 
     class LowStockAlertObserver implements TonKhoObserver {
         - emailService: EmailService
-        + onStockChanged(khoId: String, spId: String, soLuongMoi: Integer, nguong: Integer): void
+        + onStockChanged(khoId: String, vtId: String, soLuongMoi: Integer, nguong: Integer): void
     }
 
     class AuditLogObserver implements TonKhoObserver {
-        + onStockChanged(khoId: String, spId: String, soLuongMoi: Integer, nguong: Integer): void
+        + onStockChanged(khoId: String, vtId: String, soLuongMoi: Integer, nguong: Integer): void
     }
 
     class TonKhoSubject {
         - observers: List<TonKhoObserver>
         + attach(observer: TonKhoObserver): void
         + detach(observer: TonKhoObserver): void
-        + notifyObservers(khoId: String, spId: String, soLuongMoi: Integer, nguong: Integer): void
+        + notifyObservers(khoId: String, vtId: String, soLuongMoi: Integer, nguong: Integer): void
     }
     
     TonKhoSubject o-- TonKhoObserver
@@ -64,6 +64,13 @@ package "Tầng Điều Khiển (Controllers)" #EDE7F6 {
         - xuatKhoService: XuatKhoService
         + taoPhieuXuat(request: PhieuXuatRequestDTO): ResponseEntity<PhieuXuatResponseDTO>
         + layChiTietPhieu(maPhieu: String): ResponseEntity<PhieuXuatResponseDTO>
+    }
+
+    class YeuCauCapPhatController {
+        - yeuCauService: YeuCauCapPhatService
+        + taoYeuCau(request: YeuCauRequestDTO): ResponseEntity<String>
+        + pheDuyet(maYeuCau: String, duyetDTO: PheDuyetDTO): ResponseEntity<Void>
+        + tuChoi(maYeuCau: String, lyDo: String): ResponseEntity<Void>
     }
 
     class KiemKeController {
@@ -87,7 +94,6 @@ package "Tầng Dịch Vụ (Services)" #E8F5E9 {
         - phieuKhoFactory: PhieuKhoFactory
         - phieuNhapDAO: PhieuNhapDAO
         - tonKhoService: TonKhoService
-        - donMuaDAO: DonMuaDAO
         + taoPhieuNhapKho(dto: PhieuNhapRequestDTO): PhieuNhapResponseDTO
         + xacNhanNhapKho(maPhieu: String): Boolean
     }
@@ -101,21 +107,22 @@ package "Tầng Dịch Vụ (Services)" #E8F5E9 {
         - phieuKhoFactory: PhieuKhoFactory
         - phieuXuatDAO: PhieuXuatDAO
         - tonKhoService: TonKhoService
+        - yeuCauDAO: YeuCauCapPhatDAO
         + taoPhieuXuatKho(dto: PhieuXuatRequestDTO): PhieuXuatResponseDTO
         + xacNhanXuatKho(maPhieu: String): Boolean
     }
 
     interface TonKhoService {
-        + congTonKho(maKho: String, maSP: String, soLuong: Integer): Boolean
-        + truTonKho(maKho: String, maSP: String, soLuong: Integer): Boolean
-        + kiemTraTonKhaDung(maKho: String, maSP: String, soLuong: Integer): Boolean
+        + congTonKho(maKho: String, maVT: String, soLuong: Integer): Boolean
+        + truTonKho(maKho: String, maVT: String, soLuong: Integer): Boolean
+        + kiemTraTonKhaDung(maKho: String, maVT: String, soLuong: Integer): Boolean
     }
 
     class TonKhoServiceImpl extends TonKhoSubject implements TonKhoService {
         - tonKhoDAO: TonKhoDAO
-        + congTonKho(maKho: String, maSP: String, soLuong: Integer): Boolean
-        + truTonKho(maKho: String, maSP: String, soLuong: Integer): Boolean
-        + kiemTraTonKhaDung(maKho: String, maSP: String, soLuong: Integer): Boolean
+        + congTonKho(maKho: String, maVT: String, soLuong: Integer): Boolean
+        + truTonKho(maKho: String, maVT: String, soLuong: Integer): Boolean
+        + kiemTraTonKhaDung(maKho: String, maVT: String, soLuong: Integer): Boolean
     }
 }
 
@@ -128,60 +135,62 @@ package "Tầng Thực Thể (Entities)" #FFF3E0 {
         # ngayLap: LocalDateTime
         # maKho: String
         # maNhanVien: String
-        # tongGiaTri: Double
         # ghiChu: String
-        + {abstract} tinhTongGiaTri(): Double
     }
 
     class PhieuNhapKho extends PhieuKho {
         - lyDoNhap: LyDoNhap
-        - maDonMua: String
+        - nguonNhap: String
         - dsMucNhap: List<MucNhap>
-        + tinhTongGiaTri(): Double
-        + themMucNhap(maSP: String, sl: Integer, gia: Double): void
+        + themMucNhap(maVT: String, sl: Integer, viTriKe: String): void
     }
 
     class MucNhap {
-        - maSP: String
+        - maVT: String
         - soLuong: Integer
-        - donGiaNhap: Double
-        - thanhTien: Double
-        + tinhThanhTien(): Double
+        - viTriKe: String
     }
 
     class PhieuXuatKho extends PhieuKho {
         - lyDoXuat: LyDoXuat
+        - maYeuCau: String
+        - maPhongBanNhan: String
         - dsMucXuat: List<MucXuat>
-        + tinhTongGiaTri(): Double
-        + themMucXuat(maSP: String, sl: Integer, gia: Double): void
+        + themMucXuat(maVT: String, sl: Integer): void
     }
 
     class MucXuat {
-        - maSP: String
+        - maVT: String
         - soLuongYeuCau: Integer
         - soLuongThucXuat: Integer
-        - donGiaXuat: Double
-        - thanhTien: Double
-        + tinhThanhTien(): Double
+        - ghiChu: String
     }
 
-    class SanPham {
-        - maSP: String
-        - tenSP: String
+    class VatTu {
+        - maVT: String
+        - tenVT: String
         - donViTinh: String
-        - giaNhap: Double
+        - quyCach: String
         - nguongTonKho: Integer
-        - trangThai: TrangThaiSP
+        - trangThai: TrangThaiVT
     }
 
     class TonKho {
         - maKho: String
-        - maSP: String
+        - maVT: String
         - soLuong: Integer
         - ngayCapNhat: LocalDateTime
         + tang(sl: Integer): void
         + giam(sl: Integer): void
         + kiemTraNguong(nguong: Integer): Boolean
+    }
+
+    class YeuCauCapPhat {
+        - maYeuCau: String
+        - maPhongBan: String
+        - mucDichSuDung: String
+        - trangThai: TrangThaiYeuCau
+        - dsChiTiet: List<ChiTietYeuCau>
     }
 
     PhieuNhapKho *-- MucNhap
@@ -201,35 +210,38 @@ package "Tầng Truy Cập Dữ Liệu (DAO / DAM)" #E0F2F1 {
     }
 
     interface PhieuNhapDAO extends GenericDAO {
-        + findByDonMua(maDonMua: String): List<PhieuNhapKho>
+        + findByLyDoNhap(lyDo: LyDoNhap): List<PhieuNhapKho>
     }
 
     interface PhieuXuatDAO extends GenericDAO {
         + findByLyDoXuat(lyDo: LyDoXuat): List<PhieuXuatKho>
+        + findByPhongBan(maPB: String): List<PhieuXuatKho>
     }
 
     interface TonKhoDAO extends GenericDAO {
-        + findByKhoAndSanPham(maKho: String, maSP: String): Optional<TonKho>
-        + updateSoLuong(maKho: String, maSP: String, delta: Integer): Boolean
+        + findByKhoAndVatTu(maKho: String, maVT: String): Optional<TonKho>
+        + updateSoLuong(maKho: String, maVT: String, delta: Integer): Boolean
     }
 
-    interface DonMuaDAO extends GenericDAO {
-        + findByNCC(maNCC: String): List<DonMuaHang>
+    interface YeuCauCapPhatDAO extends GenericDAO {
+        + findByPhongBan(maPB: String): List<YeuCauCapPhat>
+        + findByTrangThai(trangThai: String): List<YeuCauCapPhat>
     }
 }
 
 ' Liên kết giữa các tầng
 NhapKhoController --> NhapKhoService
 XuatKhoController --> XuatKhoService
+YeuCauCapPhatController --> YeuCauCapPhatDAO
 
 NhapKhoServiceImpl --> PhieuKhoFactory
 NhapKhoServiceImpl --> PhieuNhapDAO
 NhapKhoServiceImpl --> TonKhoService
-NhapKhoServiceImpl --> DonMuaDAO
 
 XuatKhoServiceImpl --> PhieuKhoFactory
 XuatKhoServiceImpl --> PhieuXuatDAO
 XuatKhoServiceImpl --> TonKhoService
+XuatKhoServiceImpl --> YeuCauCapPhatDAO
 
 TonKhoServiceImpl --> TonKhoDAO
 

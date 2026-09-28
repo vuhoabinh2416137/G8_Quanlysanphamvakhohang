@@ -1,33 +1,32 @@
 @startuml activity-nhap-kho
 !theme plain
 skinparam defaultFontName "Arial"
-title Biểu đồ Hoạt động: Quy trình Nhập kho từ Đơn mua hàng (UC06 + UC15)
+title Biểu đồ Hoạt động: Quy trình Nhập kho Vật tư Nội bộ (UC06)
 
-' ==============================================================================
-|Nhà cung cấp|
+|Đơn vị giao / Phòng ban|
 start
-:Giao hàng đến kho theo Đơn mua hàng;
+:Bàn giao vật tư đến kho theo kế hoạch\nhoặc hoàn nhập từ phòng ban;
 
 |Nhân viên kho|
-:Tiếp nhận hàng hóa và hóa đơn/phiếu giao;
-:Tra cứu đơn mua hàng trên hệ thống;
+:Tiếp nhận vật tư và biên bản bàn giao;
+:Tra cứu danh mục vật tư trên hệ thống;
 
 |Hệ thống|
-:Hiển thị chi tiết đơn mua hàng (sản phẩm, số lượng đặt);
+:Hiển thị thông tin quy cách và danh mục vật tư;
 
 |Nhân viên kho|
-:Kiểm đếm thực tế số lượng và quy cách sản phẩm;
+:Kiểm đếm thực tế số lượng, quy cách và tình trạng;
 
-if (Hàng đúng quy cách và số lượng?) then (Khớp hoàn toàn)
-    :Xác nhận nhận đủ hàng;
+if (Vật tư đúng quy cách và nguyên vẹn?) then (Khớp hoàn toàn)
+    :Xác nhận nhận đủ vật tư;
 else (Có sai lệch / hư hỏng)
-    :Lập biên bản sai lệch;
-    if (Chấp nhận nhận một phần?) then (Đồng ý)
+    :Lập biên bản sai lệch giao nhận;
+    if (Chấp nhận tiếp nhận một phần?) then (Đồng ý)
         :Ghi nhận số lượng thực nhận;
     else (Từ chối)
-        :Từ chối toàn bộ lô hàng;
-        |Nhà cung cấp|
-        :Thu hồi hàng về;
+        :Từ chối tiếp nhận lô vật tư;
+        |Đơn vị giao / Phòng ban|
+        :Thu hồi vật tư về đơn vị giao;
         stop
     endif
 endif
@@ -37,10 +36,10 @@ endif
 
 |Hệ thống|
 :Khởi tạo phiếu nhập với mã tự sinh;
-:Điền thông tin NCC và danh sách mặt hàng;
+:Hiển thị form nhập: kho nhận, nguồn giao;
 
 |Nhân viên kho|
-:Nhập số lượng thực nhận, đơn giá và vị trí lưu kho (kệ, tầng);
+:Chọn kho nhận, lý do nhập (phân bổ, thu hồi, điều chuyển);\nChỉ định vị trí lưu kho (kệ, tầng);
 :Xác nhận hoàn tất phiếu nhập;
 
 |Hệ thống|
@@ -48,14 +47,14 @@ endif
 fork
     :Tăng số lượng tồn kho (TonKho += soLuongThucNhan);
 fork again
-    :Cập nhật trạng thái Đơn mua hàng\n(DA_NHAN hoặc NHAN_MOT_PHAN);
+    :Cập nhật trạng thái phiếu nhập [DA_XAC_NHAN];
 fork again
     :Ghi log lịch sử giao dịch kho;
 end fork
 
 :Xuất phiếu nhập kho điện tử;
 |Nhân viên kho|
-:In phiếu nhập kho và lưu trữ;
+:In phiếu nhập kho và lưu hồ sơ tài sản;
 stop
 
 @enduml
@@ -63,32 +62,32 @@ stop
 @startuml activity-xuat-kho
 !theme plain
 skinparam defaultFontName "Arial"
-title Biểu đồ Hoạt động: Quy trình Xuất kho (UC07)
+title Biểu đồ Hoạt động: Quy trình Xuất kho Nội bộ (UC07)
 
 |Nhân viên kho|
 start
-:Nhận yêu cầu xuất kho (chuyển kho / trả NCC / hủy hàng / điều chỉnh);
+:Nhận yêu cầu xuất kho (cấp phát phòng ban / chuyển kho / thanh lý hủy / điều chỉnh);
 :Mở giao diện "Tạo phiếu xuất kho";
 
 |Hệ thống|
 :Hiển thị form lập phiếu xuất;
 
 |Nhân viên kho|
-:Chọn kho xuất và lý do xuất;
+:Chọn kho xuất, lý do xuất và phòng ban nhận / kho đích;
 repeat
-    :Chọn sản phẩm cần xuất;
+    :Chọn vật tư cần xuất;
     :Nhập số lượng xuất;
     |Hệ thống|
     :Kiểm tra số lượng tồn khả dụng;
     if (Tồn khả dụng đủ?) then (Đủ)
         :Thêm mục xuất vào phiếu;
     else (Không đủ)
-        :Thông báo thiếu hàng;
+        :Thông báo tồn kho không đủ;
         |Nhân viên kho|
-        :Giảm số lượng hoặc bỏ mặt hàng;
+        :Điều chỉnh giảm số lượng hoặc chuyển kho khác;
     endif
     |Nhân viên kho|
-repeat while (Còn sản phẩm tiếp theo?) is (Có)
+repeat while (Còn vật tư tiếp theo?) is (Có)
 -> Hết;
 
 |Nhân viên kho|
@@ -109,29 +108,29 @@ end fork
 
 :Xuất phiếu xuất kho điện tử;
 |Nhân viên kho|
-:In phiếu xuất kho và bàn giao hàng;
+:In phiếu xuất kho và tiến hành bàn giao vật tư;
 stop
 @enduml
 
 @startuml activity-kiem-ke-kho
 !theme plain
 skinparam defaultFontName "Arial"
-title Biểu đồ Hoạt động: Quy trình Kiểm kê Kho hàng (UC09)
+title Biểu đồ Hoạt động: Quy trình Kiểm kê Kho hàng Nội bộ (UC09)
 
 |Quản lý kho|
 start
 :Lên kế hoạch kiểm kê định kỳ / đột xuất;
-:Chọn kho kiểm kê và phạm vi (Toàn bộ / Theo nhóm hàng / Vị trí);
+:Chọn kho kiểm kê và phạm vi (Toàn bộ / Theo danh mục / Vị trí);
 :Tạo "Phiếu kiểm kê kho" trên hệ thống;
 
 |Hệ thống|
 :Chốt số liệu sổ sách tại thời điểm lập phiếu (Snapshot tồn kho);
-:Khóa tạm thời các giao dịch nhập/xuất đối với sản phẩm kiểm kê;
-:Tạo danh sách kiểm đếm (Count sheet) không hiển thị số lượng tồn sổ sách;
+:Khóa tạm thời các giao dịch nhập/xuất đối với vật tư kiểm kê;
+:Tạo danh sách kiểm đếm (Count sheet) không hiển thị số lượng sổ sách;
 
 |Nhân viên kho|
 :Nhận danh sách kiểm đếm;
-:Tiến hành kiểm đếm thực tế hàng hóa tại từng vị trí ô/kệ;
+:Tiến hành kiểm đếm thực tế vật tư tại từng vị trí ô/kệ;
 :Ghi chép số lượng thực tế kiểm đếm được;
 :Nhập số liệu kiểm kê thực tế vào hệ thống;
 
@@ -151,15 +150,15 @@ else (Chấp nhận được hoặc giải trình hợp lý)
 endif
 
 |Quản lý kho|
-:Nhập nguyên nhân sai lệch (hư hỏng, hao hụt, nhầm lẫn mã);
+:Nhập nguyên nhân sai lệch (hư hỏng, hao hụt tự nhiên, nhầm lẫn mã);
 :Phê duyệt kết quả kiểm kê;
 
 |Hệ thống|
 :Xác nhận hoàn tất phiên kiểm kê;
 fork
-    :Tự động tạo Phiếu điều chỉnh tăng (nếu thừa hàng);
+    :Tự động tạo Phiếu điều chỉnh tăng (nếu thừa vật tư);
 fork again
-    :Tự động tạo Phiếu điều chỉnh giảm (nếu thiếu/hỏng hàng);
+    :Tự động tạo Phiếu điều chỉnh giảm (nếu thiếu/hỏng);
 fork again
     :Cập nhật lại số lượng tồn kho chính thức;
 fork again
@@ -170,58 +169,57 @@ end fork
 stop
 @enduml
 
-@startuml activity-mua-hang
+@startuml activity-yeu-cau-cap-phat
 !theme plain
 skinparam defaultFontName "Arial"
-title Biểu đồ Hoạt động: Quy trình Mua hàng từ Nhà Cung Cấp (UC13 + UC14)
+title Biểu đồ Hoạt động: Quy trình Yêu cầu & Cấp phát Vật tư Nội bộ (UC13 + UC14)
 
-|Nhân viên mua hàng|
+|Đại diện Phòng ban|
 start
-:Nhận cảnh báo tồn kho thấp hoặc đề xuất nhập hàng;
-:Phân tích nhu cầu hàng hóa và lịch sử tiêu thụ;
-:Mở chức năng "Tạo đơn mua hàng" (PO);
+:Phát sinh nhu cầu sử dụng vật tư / thiết bị cho công tác;
+:Mở chức năng "Tạo phiếu yêu cầu cấp phát";
 
 |Hệ thống|
-:Khởi tạo form Đơn mua hàng với mã số tự sinh;
+:Khởi tạo form yêu cầu với mã số tự sinh;
+:Tự động điền thông tin phòng ban của nhân viên;
 
-|Nhân viên mua hàng|
-:Chọn Nhà cung cấp phù hợp (theo bảng giá, uy tín);
-:Chọn Kho nhận hàng dự kiến;
+|Đại diện Phòng ban|
+:Nhập mục đích sử dụng (trang bị mới, sửa chữa, định kỳ);
 repeat
-    :Chọn sản phẩm cần mua;
-    :Nhập số lượng đề xuất và đơn giá thương lượng;
+    :Chọn vật tư từ danh mục của tổ chức;
+    :Nhập số lượng cần cấp phát;
     |Hệ thống|
-    :Tính thành tiền từng mặt hàng;
-    |Nhân viên mua hàng|
-repeat while (Thêm sản phẩm khác?) is (Có)
+    :Kiểm tra quy chuẩn định mức phòng ban;
+    |Đại diện Phòng ban|
+repeat while (Thêm vật tư khác?) is (Có)
 -> Hết;
 
-:Nhập ngày hẹn giao dự kiến và điều khoản thanh toán;
-:Gửi đơn mua hàng lên hệ thống với trạng thái "CHO_DUYET";
+:Nhập ngày mong muốn tiếp nhận và ghi chú;
+:Gửi yêu cầu lên hệ thống với trạng thái "CHO_DUYET";
 
 |Quản lý kho|
-:Nhận thông báo có đơn mua hàng mới cần duyệt;
-:Mở chi tiết đơn mua hàng để xem xét;
-:Kiểm tra ngân sách, dung lượng kho và nhu cầu thực tế;
+:Nhận thông báo có yêu cầu cấp phát mới cần duyệt;
+:Mở chi tiết yêu cầu để xem xét;
+:Kiểm tra định mức phòng ban và tồn kho khả dụng;
 
-if (Phê duyệt đơn mua?) then (Đồng ý duyệt)
+if (Phê duyệt cấp phát?) then (Đồng ý duyệt)
+    :Xác nhận số lượng duyệt cấp phát;
     :Nhấn "Phê duyệt";
     |Hệ thống|
-    :Cập nhật trạng thái đơn mua thành "DA_DUYET";
-    :Tự động gửi email Đơn đặt hàng đến Nhà cung cấp;
-    :Thông báo cho NV mua hàng biết đơn đã duyệt;
+    :Cập nhật trạng thái yêu cầu thành "DA_DUYET";
+    :Tự động gửi email thông báo cho Phòng ban và Nhân viên kho;
+    |Nhân viên kho|
+    :Nhận thông báo, chuẩn bị xuất kho bàn giao vật tư;
 else (Từ chối)
-    :Nhập lý do từ chối (giá cao, kho đầy, sai chủng loại);
+    |Quản lý kho|
+    :Nhập lý do từ chối (vượt định mức, kho hết hàng dự phòng);
     |Hệ thống|
-    :Cập nhật trạng thái đơn mua thành "TU_CHOI";
-    :Thông báo kết quả từ chối về NV mua hàng;
-    |Nhân viên mua hàng|
-    :Xem xét điều chỉnh hoặc hủy đơn;
+    :Cập nhật trạng thái yêu cầu thành "TU_CHOI";
+    :Gửi email thông báo kết quả từ chối về Phòng ban;
+    |Đại diện Phòng ban|
+    :Xem xét điều chỉnh hoặc hủy yêu cầu;
     stop
 endif
 
-|Nhà cung cấp|
-:Nhận email đơn đặt hàng và xác nhận giao dịch;
-:Chuẩn bị hàng và tiến hành giao hàng tại kho;
 stop
 @enduml

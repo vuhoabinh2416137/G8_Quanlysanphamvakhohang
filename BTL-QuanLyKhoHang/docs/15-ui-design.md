@@ -20,12 +20,12 @@ Thiết kế giao diện trong quy trình OOSAD chuyển tiếp trực tiếp t�
           ├─────────────────────────┬─────────────────────────┬─────────────────────────┐
           ▼                         ▼                         ▼                         ▼
 ┌──────────────────┐      ┌──────────────────┐      ┌──────────────────┐      ┌──────────────────┐
-│  QUẢN LÝ SẢN PHẨM│      │ QUẢN LÝ KHO HÀNG │      │ QUẢN LÝ MUA HÀNG │      │BÁO CÁO & THỐNG KÊ│
+│  QUẢN LÝ VẬT TƯ  │      │ QUẢN LÝ KHO HÀNG │      │YÊU CẦU & CẤP PHÁT│      │BÁO CÁO & THỐNG KÊ│
 ├──────────────────┤      ├──────────────────┤      ├──────────────────┤      ├──────────────────┤
-│• Danh mục SP     │      │• Phiếu Nhập kho  │      │• Đơn mua (PO)    │      │• Báo cáo Tồn kho │
-│• Danh sách SP    │      │• Phiếu Xuất kho  │      │• Duyệt đơn mua   │      │• Báo cáo Nhập/Xuất
-│• Cảnh báo tồn    │      │• Chuyển kho      │      │• Nhà cung cấp    │      │• Báo cáo Mua hàng│
-│• Định mức kho    │      │• Phiên Kiểm kê   │      │• Đánh giá NCC    │      │• Biên bản Kiểm kê│
+│• Danh mục vật tư │      │• Phiếu Nhập kho  │      │• Lập yêu cầu     │      │• Báo cáo Tồn kho │
+│• Danh sách VT    │      │• Phiếu Xuất kho  │      │• Duyệt cấp phát  │      │• Báo cáo X-N-T   │
+│• Định mức tồn kho│      │• Chuyển kho      │      │• Danh mục PB     │      │• Cấp phát theo PB│
+│• Cảnh báo tồn    │      │• Phiên Kiểm kê   │      │• Biên bản giao   │      │• Biên bản Kiểm kê│
 └──────────────────┘      └──────────────────┘      └──────────────────┘      └──────────────────┘
 ```
 
@@ -37,88 +37,82 @@ Thiết kế giao diện trong quy trình OOSAD chuyển tiếp trực tiếp t�
 
 ```
 +-----------------------------------------------------------------------------------------------+
-| LOGO  HỆ THỐNG QUẢN LÝ SẢN PHẨM & KHO HÀNG        [Chuông: 3 Cảnh báo]  [Avatar: Trần Khánh Linh]  |
+| LOGO  HỆ THỐNG QUẢN LÝ KHO & VẬT TƯ NỘI BỘ        [Chuông: 3 Cảnh báo]  [Avatar: Trần Khánh Linh]  |
 +-----------------------------------------------------------------------------------------------+
 | [MENU]                 | DASHBOARD TỔNG QUAN                             Thứ Hai, 14/09/2026   |
 |                        +----------------------------------------------------------------------+
-| > Dashboard            | [ THỐNG KÊ KHO HÀNG TỔNG HỢP ]                                       |
-|   Sản phẩm             | +------------------+ +------------------+ +------------------+       |
-|     - Danh mục         | | TỔNG SẢN PHẨM    | | TỔNG TỒN KHO     | | CẢNH BÁO TỒN THẤP|       |
-|     - Danh sách SP     | | 1,240 mặt hàng   | | 48,500 chiếc     | | 8 sản phẩm (ĐỎ)  |       |
+| > Dashboard            | [ THỐNG KÊ VẬT TƯ KHO HÀNG TỔNG HỢP ]                                |
+|   Vật tư, thiết bị     | +------------------+ +------------------+ +------------------+       |
+|     - Danh mục         | | TỔNG VẬT TƯ      | | TỔNG TỒN KHO     | | CẢNH BÁO TỒN THẤP|       |
+|     - Danh sách VT     | | 1,240 loại VT    | | 48,500 đơn vị    | | 8 loại vật tư(ĐỎ)|       |
 |   Kho hàng             | +------------------+ +------------------+ +------------------+       |
 |     - Nhập kho         | +------------------+ +------------------+ +------------------+       |
-|     - Xuất kho         | | ĐƠN MUA CHỜ DUYỆT| | XUẤT KHO HÔM NAY | | GIÁ TRỊ KHO HÀNG |       |
-|     - Tồn kho          | | 4 đơn mới        | | 12 phiếu xuất    | | 14.8 Tỷ VNĐ      |       |
+|     - Xuất kho         | | YÊU CẦU CHỜ DUYỆT| | XUẤT KHO HÔM NAY | | TỔNG SỐ KHO HÀNG |       |
+|     - Tồn kho          | | 4 yêu cầu mới    | | 12 phiếu xuất    | | 2 cơ sở kho      |       |
 |     - Kiểm kê          | +------------------+ +------------------+ +------------------+       |
-|   Mua hàng (PO)        |                                                                      |
-|     - Đơn mua          | [ CẢNH BÁO TỒN KHO DƯỚI NGƯỠNG AN TOÀN ]                             |
-|     - Nhà cung cấp     | +------------+----------------------+----------+----------+---------+|
-|   Báo cáo & Thống kê   | | Mã SP      | Tên sản phẩm         | Tồn hiện | Ngưỡng   | Thao tác||
-|   Cài đặt hệ thống     | +------------+----------------------+----------+----------+---------+|
-|                        | | SP-SAM-S24 | Samsung S24 Ultra    | 2 chiếc  | 10 chiếc | [Tạo PO]||
-|                        | | SP-LOGI-M3 | Chuột Logitech M331  | 4 chiếc  | 20 chiếc | [Tạo PO]||
-|                        | | SP-DELL-P2 | Màn hình Dell P2419H | 1 chiếc  | 5 chiếc  | [Tạo PO]||
+|   Yêu cầu & Cấp phát   |                                                                      |
+|     - Phiếu yêu cầu    | [ CẢNH BÁO VẬT TƯ DƯỚI NGƯỠNG ĐỊNH MỨC AN TOÀN ]                     |
+|     - Duyệt cấp phát   | +------------+----------------------+----------+----------+---------+|
+|     - Phòng ban        | | Mã VT      | Tên vật tư           | Tồn hiện | Ngưỡng   | Thao tác||
+|   Báo cáo & Thống kê   | +------------+----------------------+----------+----------+---------+|
+|   Cài đặt hệ thống     | | VT-DELL-OPT| Máy tính Dell Opti   | 2 bộ     | 5 bộ     | [Chuyển]||
+|                        | | VT-MUC-IN  | Hộp mực máy in Canon | 3 hộp    | 10 hộp   | [Đề xuất]||
+|                        | | VT-GIAY-A4 | Giấy in Double A A4  | 8 ram    | 20 ram   | [Đề xuất]||
 |                        | +------------+----------------------+----------+----------+---------+|
 +-----------------------------------------------------------------------------------------------+
 ```
 
 ---
 
-### 2. Màn hình Lập Phiếu Nhập Kho (UC06)
+### 2. Màn hình Lập Phiếu Nhập Kho Nội bộ (UC06)
 
 ```
 +-----------------------------------------------------------------------------------------------+
-| TẠO PHIẾU NHẬP KHO                                            [Hủy bỏ]   [Lưu & Xác nhận Nhập]|
+| TẠO PHIẾU NHẬP KHO NỘI BỘ                                     [Hủy bỏ]   [Lưu & Xác nhận Nhập]|
 +-----------------------------------------------------------------------------------------------+
 | THÔNG TIN PHIẾU NHẬP                                                                          |
 | Mã phiếu: [ PNK-2026-101   ] (Tự sinh)           Ngày nhập: [ 14/09/2026 14:30 ]              |
-| Kho nhập: [ Kho Tổng Hà Nội           ▼ ]        Thủ kho:   [ NV002 - Trần Khánh Linh        ]|
-| Lý do:    (*) Từ Nhà cung cấp  ( ) Chuyển kho    ( ) Điều chỉnh kiểm kê                       |
-| Đơn mua:  [ PO-2026-001 - Samsung Electronics VN                                            ▼]|
+| Kho nhận: [ Kho Vật tư Tổng           ▼ ]        Thủ kho:   [ NV002 - Trần Khánh Linh        ]|
+| Lý do:    (*) Phân bổ cấp trên  ( ) Thu hồi phòng ban  ( ) Chuyển kho đến  ( ) Kiểm kê thừa   |
+| Đơn vị:   [ PB-HCTH - Phòng Hành chính - Tổng hợp bàn giao                                  ▼]|
 +-----------------------------------------------------------------------------------------------+
-| DANH SÁCH MẶT HÀNG NHẬP KHO                                   [+ Thêm dòng]  [Quét mã vạch]   |
-+----+-------------+-------------------------+-------+----------+------------+------------+-----+
-| STT| Mã SP       | Tên sản phẩm            | ĐVT   | SL Nhận  | Đơn giá    | Thành tiền | Xóa |
-+----+-------------+-------------------------+-------+----------+------------+------------+-----+
-| 1  | SP-SAM-S24U | Samsung S24 Ultra 512GB | Chiếc | [ 20   ] | 25,000,000 | 500,000,000| [x] |
-| 2  | SP-SAM-BUDS3| Galaxy Buds 3 Pro       | Bộ    | [ 50   ] |  5,000,000 | 250,000,000| [x] |
-+----+-------------+-------------------------+-------+----------+------------+------------+-----+
-| Ghi chú: [ Hàng nguyên đai nguyên kiện theo PO-2026-001                                      ]|
+| DANH SÁCH MẶT HÀNG TIẾP NHẬN                                  [+ Thêm dòng]  [Quét mã vạch]   |
++----+-------------+------------------------------------+-------+----------+--------------+-----+
+| STT| Mã VT       | Tên vật tư                         | ĐVT   | SL Nhận  | Vị trí kệ    | Xóa |
++----+-------------+------------------------------------+-------+----------+--------------+-----+
+| 1  | VT-DELL-OPT | Máy tính để bàn Dell OptiPlex      | Bộ    | [ 20   ] | VT-HN-A1-1   | [x] |
+| 2  | VT-LOGI-M331| Chuột quang không dây Logitech M331| Chiếc | [ 50   ] | VT-HN-A1-2   | [x] |
++----+-------------+------------------------------------+-------+----------+--------------+-----+
+| Ghi chú: [ Tiếp nhận bàn giao vật tư đợt 1 năm 2026 từ Ban Quản lý Cơ sở Vật chất            ]|
 |                                                                                               |
-|                                                     TỔNG GIÁ TRỊ NHẬP KHO: 750,000,000 VNĐ    |
+|                                                     TỔNG SỐ LƯỢNG NHẬP: 70 đơn vị             |
 +-----------------------------------------------------------------------------------------------+
 ```
 
 ---
 
-### 3. Màn hình Lập Phiếu Xuất Kho (UC07)
+### 3. Màn hình Lập Phiếu Xuất Kho Cấp phát Nội bộ (UC07)
 
 ```
 +-----------------------------------------------------------------------------------------------+
-| TẠO PHIẾU XUẤT KHO                                            [Hủy bỏ]   [Lưu & Xác nhận Xuất]|
+| TẠO PHIẾU XUẤT KHO CẤP PHÁT                                   [Hủy bỏ]   [Lưu & Xác nhận Xuất]|
 +-----------------------------------------------------------------------------------------------+
 | THÔNG TIN PHIẾU XUẤT                                                                          |
 | Mã phiếu: [ PXK-2026-301   ] (Tự sinh)           Ngày xuất: [ 15/09/2026 09:15 ]              |
-| Kho xuất: [ Kho Tổng Hà Nội           ▼ ]        Thủ kho:   [ NV003 - Lê Hoàng Long          ]|
-| Lý do:    (*) Chuyển kho nội bộ  ( ) Trả hàng NCC  ( ) Xuất hủy hàng hỏng  ( ) Cân đối kiểm kê|
-| Nơi nhận: [ Kho Chi nhánh TP.HCM                                                            ▼]|
+| Kho xuất: [ Kho Vật tư Tổng           ▼ ]        Thủ kho:   [ NV003 - Lê Hoàng Long          ]|
+| Lý do:    (*) Cấp phát phòng ban  ( ) Chuyển kho  ( ) Thanh lý hủy  ( ) Kiểm kê thiếu         |
+| Căn cứ:   [ YCCP-2026-001 - Phòng Công nghệ Thông tin & Kỹ thuật                            ▼]|
 +-----------------------------------------------------------------------------------------------+
-| DANH SÁCH MẶT HÀNG XUẤT KHO                                   [+ Thêm dòng]  [Quét mã vạch]   |
-+----+-------------+-------------------------+-------+----------+------------+------------+-----+
-| STT| Mã SP       | Tên sản phẩm            | ĐVT   | Tồn hiện | SL Xuất    | Vị trí kệ  | Xóa |
-+----+-------------+-------------------------+-------+----------+------------+------------+-----+
-| 1  | SP-SAM-S24U | Samsung S24 Ultra 512GB | Chiếc | 35       | [ 5    ]   | Kệ A-01-02 | [x] |
-| 2  | SP-LOGI-M3  | Chuột không dây M331    | Chiếc | 80       | [ 20   ]   | Kệ B-03-01 | [x] |
-+----+-------------+-------------------------+-------+----------+------------+------------+-----+
-| Ghi chú: [ Điều chuyển hàng dự trữ phục vụ nhu cầu chi nhánh miền Nam                        ]|
+| DANH SÁCH MẶT HÀNG XUẤT CẤP PHÁT                              [+ Thêm dòng]  [Quét mã vạch]   |
++----+-------------+------------------------------------+-------+----------+--------------+-----+
+| STT| Mã VT       | Tên vật tư                         | ĐVT   | SL Duyệt | SL Thực xuất | Kho |
++----+-------------+------------------------------------+-------+----------+--------------+-----+
+| 1  | VT-DELL-OPT | Máy tính để bàn Dell OptiPlex      | Bộ    | 5        | [ 5    ]     | ĐỦ  |
+| 2  | VT-LOGI-M331| Chuột quang không dây Logitech M331| Chiếc | 5        | [ 5    ]     | ĐỦ  |
++----+-------------+------------------------------------+-------+----------+--------------+-----+
+| Đại diện nhận: [ NV004 - Phạm Minh Tuấn - Phòng CNTT & Kỹ thuật                              ]|
+| Ghi chú:       [ Cấp phát trang bị phòng thực hành tin học theo phê duyệt của Quản lý kho    ]|
 |                                                                                               |
-|                                                     TỔNG SỐ LƯỢNG MẶT HÀNG XUẤT: 25 chiếc     |
+|                                                     TỔNG SỐ LƯỢNG XUẤT: 10 đơn vị             |
 +-----------------------------------------------------------------------------------------------+
 ```
-
----
-
-## Tiêu chí Đánh giá Trải nghiệm Người dùng (Usability Criteria)
-- **Hiệu quả (Efficiency)**: Thời gian thao tác lập 1 phiếu nhập/xuất kho trung bình dưới 2 phút đối với thủ kho.
-- **Tốc độ phản hồi (Speed)**: Tìm kiếm sản phẩm theo mã/tên trong kho dữ liệu 100,000 bản ghi dưới 0.5 giây.
-- **Hỗ trợ đa phương tiện**: Hỗ trợ quét mã vạch Barcode/QR Code và các phím tắt chuyên dụng (`F2`: Tìm kiếm, `F4`: Thêm dòng hàng, `F9`: Lưu & In phiếu kho, `Esc`: Đóng cửa sổ).

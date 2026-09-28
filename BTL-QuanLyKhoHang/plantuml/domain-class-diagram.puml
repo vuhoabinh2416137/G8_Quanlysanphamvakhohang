@@ -4,20 +4,20 @@ skinparam classAttributeIconSize 0
 skinparam classFontSize 11
 skinparam defaultFontName "Arial"
 
-title Biểu đồ Lớp Mô hình Lĩnh vực (Domain Model)\nHệ thống Quản lý Sản phẩm và Kho hàng
+title Biểu đồ Lớp Mô hình Lĩnh vực (Domain Model)\nHệ thống Quản lý Kho hàng và Vật tư Nội bộ Tổ chức
 
-' ===== NHOM SAN PHAM =====
-package "Quản lý Sản phẩm" #FFFDE7 {
-    class SanPham <<entity>> {
-        - maSP: String
-        - tenSP: String
+' ===== NHOM VAT TU =====
+package "Quản lý Vật tư" #FFFDE7 {
+    class VatTu <<entity>> {
+        - maVT: String
+        - tenVT: String
         - donViTinh: String
-        - giaNhap: Double
+        - quyCach: String
         - nguongTonKho: Integer
         - hinhAnhURL: String
-        - trangThai: TrangThaiSP
+        - trangThai: TrangThaiVT
         --
-        + layThongTin(): SanPham
+        + layThongTin(): VatTu
         + capNhat(): void
         + kiemTraTonKho(): Boolean
     }
@@ -27,12 +27,13 @@ package "Quản lý Sản phẩm" #FFFDE7 {
         - tenDanhMuc: String
         - moTa: String
         --
-        + layDanhSachSanPham(): List<SanPham>
+        + layDanhSachVatTu(): List<VatTu>
     }
 
-    enum TrangThaiSP {
-        DANG_KINH_DOANH
-        NGUNG_KINH_DOANH
+    enum TrangThaiVT {
+        DANG_SU_DUNG
+        TAM_NGUNG
+        NGUNG_SU_DUNG
     }
 }
 
@@ -71,41 +72,35 @@ package "Quản lý Kho hàng" #E0F0FF {
         - maPhieu: String
         - ngayNhap: Date
         - lyDoNhap: LyDoNhap
-        - tongGiaTri: Double
+        - nguonNhap: String
         - ghiChu: String
         - trangThai: TrangThaiPhieu
         --
-        + tinhTongGiaTri(): Double
         + xacNhan(): void
+        + huyPhieu(): void
     }
 
     class MucNhap <<entity>> {
         - soLuong: Integer
-        - donGiaNhap: Double
-        - thanhTien: Double
-        --
-        + tinhThanhTien(): Double
+        - viTriKe: String
+        - ghiChu: String
     }
 
     class PhieuXuatKho <<entity>> {
         - maPhieu: String
         - ngayXuat: Date
         - lyDoXuat: LyDoXuat
-        - tongGiaTri: Double
         - ghiChu: String
         - trangThai: TrangThaiPhieu
         --
-        + tinhTongGiaTri(): Double
         + xacNhan(): void
+        + huyPhieu(): void
     }
 
     class MucXuat <<entity>> {
         - soLuongYeuCau: Integer
         - soLuongThucXuat: Integer
-        - donGiaXuat: Double
-        - thanhTien: Double
-        --
-        + tinhThanhTien(): Double
+        - ghiChu: String
     }
 
     class PhienKiemKe <<entity>> {
@@ -128,17 +123,17 @@ package "Quản lý Kho hàng" #E0F0FF {
     }
 
     enum LyDoNhap {
-        TU_NHA_CUNG_CAP
-        CHUYEN_KHO
-        KIEM_KE_DIEU_CHINH
-        TRA_HANG
+        TIEP_NHAN_PHAN_BO
+        THU_HOI_PHONG_BAN
+        CHUYEN_KHO_DEN
+        CAN_DOI_KIEM_KE
     }
 
     enum LyDoXuat {
+        CAP_PHAT_NOI_BO
         CHUYEN_KHO
-        KIEM_KE_DIEU_CHINH
-        TRA_NCC
-        HUY_HANG
+        THANH_LY_HUY
+        CAN_DOI_KIEM_KE
     }
 
     enum TrangThaiPhieu {
@@ -154,59 +149,52 @@ package "Quản lý Kho hàng" #E0F0FF {
     }
 }
 
-' ===== NHOM MUA HANG =====
-package "Quản lý Mua hàng" #E8F5E9 {
-    class DonMuaHang <<entity>> {
-        - maDon: String
-        - ngayTao: Date
-        - ngayGiaoDuKien: Date
-        - tongGiaTri: Double
-        - ghiChu: String
-        - trangThai: TrangThaiDonMua
+' ===== NHOM YEU CAU & CAP PHAT NOI BO =====
+package "Quản lý Yêu cầu & Cấp phát Nội bộ" #E8F5E9 {
+    class PhongBan <<entity>> {
+        - maPhongBan: String
+        - tenPhongBan: String
+        - dienThoai: String
+        - diaDiem: String
+        - moTa: String
+        - trangThai: String
         --
-        + tinhTongGiaTri(): Double
+        + layDanhSachYeuCau(): List<YeuCauCapPhat>
+    }
+
+    class YeuCauCapPhat <<entity>> {
+        - maYeuCau: String
+        - ngayYeuCau: Date
+        - ngayDuyet: Date
+        - mucDichSuDung: String
+        - ghiChu: String
+        - lyDoTuChoi: String
+        - trangThai: TrangThaiYeuCau
+        --
+        + guiYeuCau(): void
         + duyet(): void
         + tuChoi(lyDo: String): void
     }
 
-    class MucMua <<entity>> {
-        - soLuong: Integer
-        - donGiaMua: Double
-        - thanhTien: Double
-        --
-        + tinhThanhTien(): Double
+    class ChiTietYeuCau <<entity>> {
+        - soLuongYeuCau: Integer
+        - soLuongDuyet: Integer
+        - ghiChu: String
     }
 
-    class NhaCungCap <<entity>> {
-        - maNCC: String
-        - tenNCC: String
-        - diaChi: String
-        - dienThoai: String
-        - email: String
-        - nguoiLienHe: String
-        - trangThai: TrangThaiNCC
-        --
-        + layDanhSachDonMua(): List<DonMuaHang>
-    }
-
-    enum TrangThaiDonMua {
+    enum TrangThaiYeuCau {
         MOI_TAO
+        CHO_DUYET
         DA_DUYET
         TU_CHOI
-        DANG_GIAO
-        DA_NHAN_HANG
+        DANG_CAP_PHAT
         HOAN_THANH
         DA_HUY
     }
-
-    enum TrangThaiNCC {
-        HOAT_DONG
-        NGUNG_HOP_TAC
-    }
 }
 
-' ===== NHOM NHAN VIEN =====
-package "Quản lý Nhân viên & Phân quyền" #F3E5F5 {
+' ===== NHOM NHAN VIEN & PHAN QUYEN =====
+package "Nhân viên & Phân quyền (RBAC)" #F3E5F5 {
     class NhanVien <<entity>> {
         - maNV: String
         - hoTen: String
@@ -216,29 +204,25 @@ package "Quản lý Nhân viên & Phân quyền" #F3E5F5 {
         - dienThoai: String
         - email: String
         - chucVu: String
-        - ngayVaoLam: Date
-        - trangThai: TrangThaiNV
+        - trangThai: String
         --
         + layThongTin(): NhanVien
     }
 
     class TaiKhoan <<entity>> {
         - tenDangNhap: String
-        - matKhau: String
-        - trangThai: TrangThaiTK
-        - lanDangNhapCuoi: DateTime
+        - matKhauHash: String
+        - trangThai: String
+        - lanDangNhapCuoi: Date
         --
-        + dangNhap(tenDN: String, mk: String): Boolean
-        + dangXuat(): void
-        + doiMatKhau(mkCu: String, mkMoi: String): Boolean
+        + kiemTraMatKhau(mk: String): Boolean
+        + doiMatKhau(mkMoi: String): void
     }
 
     class VaiTro <<entity>> {
         - maVaiTro: String
         - tenVaiTro: String
         - moTa: String
-        --
-        + layDanhSachQuyen(): List<Quyen>
     }
 
     class Quyen <<entity>> {
@@ -246,69 +230,61 @@ package "Quản lý Nhân viên & Phân quyền" #F3E5F5 {
         - tenQuyen: String
         - moTa: String
     }
-
-    enum TrangThaiNV {
-        DANG_LAM_VIEC
-        DA_NGHI_VIEC
-    }
-
-    enum TrangThaiTK {
-        HOAT_DONG
-        BI_KHOA
-    }
 }
 
-' ============================
-' RELATIONSHIPS
-' ============================
+' ===== RELATIONSHIPS =====
+' Danh mục tự quy chiếu
+DanhMuc "0..1" -- "*" DanhMuc : chua
 
-' --- Sản phẩm - Danh mục ---
-DanhMuc "1" -- "*" SanPham : phân loại >
-DanhMuc "0..1" -- "*" DanhMuc : danh mục cha >
+' Danh mục - Vật tư
+DanhMuc "1" -- "*" VatTu : phan loai
 
-' --- Sản phẩm - Tồn kho ---
-SanPham "1" -- "*" TonKho : theo dõi >
-Kho "1" -- "*" TonKho : chứa >
+' Kho - Vị trí
+Kho "1" *-- "1..*" ViTriKho : co
 
-' --- Kho - Vị trí ---
-Kho "1" *-- "*" ViTriKho : bao gồm >
+' Kho - Vật tư thông qua Tồn kho
+Kho "1" -- "*" TonKho
+VatTu "1" -- "*" TonKho
+ViTriKho "0..1" -- "*" TonKho : luu tai
 
-' --- Phiếu nhập kho ---
-Kho "1" -- "*" PhieuNhapKho : nhập vào >
-PhieuNhapKho "1" *-- "1..*" MucNhap : chứa >
-MucNhap "*" -- "1" SanPham : cho >
-NhanVien "1" -- "*" PhieuNhapKho : tạo bởi >
-DonMuaHang "0..1" -- "0..1" PhieuNhapKho : liên quan >
+' Phiếu nhập kho
+PhieuNhapKho "1" *-- "1..*" MucNhap : chua
+MucNhap "*" -- "1" VatTu : nhap vat tu
+Kho "1" -- "*" PhieuNhapKho : nhan vao kho
+NhanVien "1" -- "*" PhieuNhapKho : nguoi lap
+PhongBan "0..1" -- "*" PhieuNhapKho : ban giao
 
-' --- Phiếu xuất kho ---
-Kho "1" -- "*" PhieuXuatKho : xuất từ >
-PhieuXuatKho "1" *-- "1..*" MucXuat : chứa >
-MucXuat "*" -- "1" SanPham : cho >
-NhanVien "1" -- "*" PhieuXuatKho : tạo bởi >
+' Phiếu xuất kho
+PhieuXuatKho "1" *-- "1..*" MucXuat : chua
+MucXuat "*" -- "1" VatTu : xuat vat tu
+Kho "1" -- "*" PhieuXuatKho : xuat tu kho
+Kho "0..1" -- "*" PhieuXuatKho : chuyen toi kho
+NhanVien "1" -- "*" PhieuXuatKho : nguoi lap
+PhongBan "0..1" -- "*" PhieuXuatKho : nhan cap phat
 
-' --- Kiểm kê ---
-Kho "1" -- "*" PhienKiemKe : kiểm kê >
-PhienKiemKe "1" *-- "1..*" MucKiemKe : bao gồm >
-MucKiemKe "*" -- "1" SanPham : cho >
-NhanVien "1" -- "*" PhienKiemKe : thực hiện >
+' Yêu cầu cấp phát nội bộ
+PhongBan "1" -- "*" YeuCauCapPhat : tao yeu cau
+YeuCauCapPhat "1" *-- "1..*" ChiTietYeuCau : gom
+ChiTietYeuCau "*" -- "1" VatTu : chi dinh vat tu
+NhanVien "1" -- "*" YeuCauCapPhat : nguoi yeu cau
+NhanVien "0..1" -- "*" YeuCauCapPhat : nguoi phe duyet
+YeuCauCapPhat "0..1" -- "0..1" PhieuXuatKho : can cu xuat kho
 
-' --- Đơn mua hàng ---
-NhaCungCap "1" -- "*" DonMuaHang : cung cấp cho >
-DonMuaHang "1" *-- "1..*" MucMua : bao gồm >
-MucMua "*" -- "1" SanPham : mua >
-NhanVien "1" -- "*" DonMuaHang : tạo bởi >
-NhanVien "0..1" -- "*" DonMuaHang : duyệt bởi >
-Kho "1" -- "*" DonMuaHang : nhận tại >
+' Kiểm kê
+Kho "1" -- "*" PhienKiemKe : kiem ke tai
+PhienKiemKe "1" *-- "1..*" MucKiemKe : gom
+MucKiemKe "*" -- "1" VatTu : kiem dem
+NhanVien "1" -- "*" PhienKiemKe : thuc hien
 
-' --- Nhân viên - Tài khoản - Vai trò ---
-NhanVien "1" -- "0..1" TaiKhoan : có >
-TaiKhoan "*" -- "*" VaiTro : gán >
-VaiTro "*" -- "*" Quyen : bao gồm >
+' Quản lý kho
+NhanVien "1" -- "*" Kho : quan ly
 
-' --- NCC - SP ---
-NhaCungCap "*" -- "*" SanPham : cung cấp >
+' Nhân viên - Phòng ban
+PhongBan "1" -- "*" NhanVien : truc thuoc
 
-' --- Kho - NV ---
-Kho "*" -- "1" NhanVien : quản lý bởi >
+' Tài khoản & Phân quyền
+NhanVien "1" -- "1" TaiKhoan : so huu
+TaiKhoan "*" -- "*" VaiTro : duoc gan
+VaiTro "*" -- "*" Quyen : co quyen
 
 @enduml

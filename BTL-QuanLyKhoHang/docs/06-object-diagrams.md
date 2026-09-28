@@ -9,14 +9,14 @@ Theo giáo trình **IT3120 - Mô hình hóa Cấu trúc (Structural Modeling)**,
 
 ---
 
-## 1. Biểu đồ Đối tượng: Phiếu Nhập Kho thực tế
+## 1. Biểu đồ Đối tượng: Phiếu Nhập Kho Tiếp nhận Vật tư
 
 ### Bối cảnh nghiệp vụ
-Ngày 14/09/2026, Nhà cung cấp **Samsung Electronics Việt Nam** giao lô hàng theo đơn mua `PO-2026-001`. Quản lý kho **Trần Thị Khánh Linh** tại **Kho Tổng Hà Nội** tiến hành lập phiếu nhập kho `PNK-2026-101` với 2 mặt hàng:
-1. 20 chiếc *Samsung Galaxy S24 Ultra 512GB* với đơn giá nhập 25,000,000 VNĐ (Thành tiền: 500,000,000 VNĐ).
-2. 50 bộ *Tai nghe Galaxy Buds 3 Pro* với đơn giá nhập 5,000,000 VNĐ (Thành tiền: 250,000,000 VNĐ).
+Ngày 14/09/2026, **Phòng Hành chính - Tổng hợp** tiến hành bàn giao lô vật tư trang bị đợt 1 năm 2026 về **Kho Vật tư Tổng**. Quản lý kho **Trần Thị Khánh Linh** tiến hành lập và xác nhận phiếu nhập kho `PNK-2026-101` với 2 mặt hàng:
+1. 20 bộ *Máy tính để bàn Dell OptiPlex* (xếp tại vị trí kệ `VT-HN-A1-1`).
+2. 50 chiếc *Chuột quang không dây Logitech M331* (xếp tại vị trí kệ `VT-HN-A1-2`).
 
-Tổng giá trị phiếu nhập: 750,000,000 VNĐ. Số lượng tồn kho tại kho Hà Nội của 2 sản phẩm tương ứng tăng lên 35 và 80.
+Số lượng tồn kho tại Kho Tổng của 2 vật tư trên tương ứng được cập nhật tăng lên thành 25 bộ máy tính và 50 chuột.
 
 ### Sơ đồ đối tượng Phiếu Nhập Kho
 
@@ -24,23 +24,25 @@ Tổng giá trị phiếu nhập: 750,000,000 VNĐ. Số lượng tồn kho tạ
 
 ---
 
-## 2. Biểu đồ Đối tượng: Phiếu Xuất Kho Điều chuyển Nội bộ
+## 2. Biểu đồ Đối tượng: Phiếu Xuất Kho Cấp phát Vật tư cho Phòng ban
 
 ### Bối cảnh nghiệp vụ
-Ngày 15/09/2026, nhân viên kho **Lê Hoàng Long** thực hiện điều chuyển hàng từ **Kho Tổng Hà Nội** sang **Kho Chi nhánh TP.HCM**. Phiếu xuất kho `PXK-2026-301` được lập với 1 mặt hàng:
-- 5 chiếc *Samsung Galaxy S24 Ultra 512GB* với đơn giá 25,000,000 VNĐ (Thành tiền: 125,000,000 VNĐ).
+Ngày 15/09/2026, thủ kho **Lê Hoàng Long** thực hiện xuất kho cấp phát vật tư cho **Phòng Công nghệ Thông tin & Kỹ thuật** căn cứ theo phiếu yêu cầu cấp phát `YCCP-2026-001` đã được Quản lý kho phê duyệt. Phiếu xuất kho `PXK-2026-301` được lập với 2 mặt hàng:
+1. 5 bộ *Máy tính để bàn Dell OptiPlex*.
+2. 5 chiếc *Chuột quang không dây Logitech M331*.
 
-Lý do xuất: `CHUYEN_KHO`. Sau khi xuất, tồn kho tại Kho HN giảm đi 5 chiếc, đồng thời hệ thống tự động tạo phiếu nhập tương ứng tại Kho SG.
+Lý do xuất: `CAP_PHAT_NOI_BO`. Sau khi hoàn tất xuất kho, tồn kho tại Kho Tổng giảm đi 5 bộ máy tính (còn 20 bộ) và giảm 5 chuột (còn 45 chiếc). Đại diện phòng ban ký nhận biên bản bàn giao.
 
-### Sơ đồ đối tượng Phiếu Xuất Kho Điều chuyển
+### Sơ đồ đối tượng Phiếu Xuất Cấp phát
 
-![Phiếu Xuất Kho Điều chuyển](../diagrams/object-diagram-phieu-xuat-chuyen-kho.png)
+![Phiếu Xuất Cấp phát](../diagrams/object-diagram-phieu-xuat-chuyen-kho.png)
 
 ---
 
 ## Kiểm tra Tính nhất quán với Biểu đồ Lớp (Model Balancing)
 - **Tên thuộc tính và kiểu dữ liệu**: Hoàn toàn trùng khớp với định nghĩa trong lớp [domain-class-diagram.puml](../plantuml/domain-class-diagram.puml).
 - **Cơ số (Multiplicity)**:
-  - `pnk2026_101` liên kết hợp thành dòng với 2 `MucNhap` (`1 *-- 1..*`).
-  - Mỗi `MucNhap` liên kết chính xác với một thể hiện `SanPham`.
-  - `TonKho` phản ánh đúng quan hệ tam giác giữa `SanPham` và `Kho`.
+  - `pnk2026` liên kết hợp thành dòng với 2 `MucNhap` (`1 *-- 1..*`).
+  - Mỗi `MucNhap` liên kết chính xác với một thể hiện `VatTu`.
+  - `TonKho` phản ánh đúng quan hệ tam giác giữa `VatTu` và `Kho`.
+  - Phiếu xuất kho liên kết chặt chẽ với đối tượng `PhongBan` nhận và đối tượng `YeuCauCapPhat`.

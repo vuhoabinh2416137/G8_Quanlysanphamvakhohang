@@ -14,17 +14,17 @@ Theo giáo trình **IT3120 - Kiến trúc Hệ thống & Hạ tầng Vật lý**
 ## Các Tầng trong Mô hình Triển khai 3 Tầng (3-Tier Architecture)
 
 ### 1. Tầng Khách (Client Tier)
-- **Thiết bị làm việc văn phòng (Desktop / Laptop)**: Truy cập hệ thống thông qua trình duyệt Web tiêu chuẩn (Chrome, Edge, Firefox). Chạy ứng dụng Single Page App (SPA) được tối ưu hóa hiển thị Dashboard, Quản lý sản phẩm, Quản lý kho hàng, Báo cáo thống kê.
-- **Thiết bị cầm tay chuyên dụng tại kho (PDA Barcode Scanner)**: Sử dụng trình duyệt nhúng trên hệ điều hành Android chuyên dụng để quét mã vạch sản phẩm khi nhập hàng, xuất kho chuyển kho và kiểm kê hàng hóa tại vị trí kệ kho.
+- **Thiết bị làm việc văn phòng (Desktop / Laptop)**: Truy cập hệ thống thông qua trình duyệt Web tiêu chuẩn (Chrome, Edge, Firefox). Chạy ứng dụng Single Page App (SPA) được tối ưu hóa hiển thị Dashboard, Quản lý vật tư, Quản lý kho hàng, Yêu cầu cấp phát, Báo cáo thống kê.
+- **Thiết bị cầm tay chuyên dụng tại kho (PDA Barcode Scanner)**: Sử dụng trình duyệt nhúng trên hệ điều hành Android chuyên dụng để quét mã vạch vật tư khi tiếp nhận nhập kho, xuất kho cấp phát / điều chuyển và kiểm kê hàng hóa tại vị trí kệ kho.
 
 ### 2. Tầng Máy chủ Ứng dụng (Application Server Tier)
 - **Nginx Reverse Proxy**:
-  - Đóng vai trò cổng vào duy nhất từ Internet/Mạng nội bộ.
+  - Đóng vai trò cổng vào duy nhất từ Mạng nội bộ / VPN tổ chức.
   - Tiếp nhận kết nối HTTPS cổng 443, giải mã chứng chỉ bảo mật SSL/TLS.
   - Nén dữ liệu Gzip và phân phát tài nguyên tĩnh (HTML/CSS/JS).
   - Định tuyến các yêu cầu API động về cụm máy chủ ứng dụng Spring Boot.
 - **Java Runtime Environment (OpenJDK 17 LTS)**:
-  - Chạy file thực thi `warehouse-app.jar` chứa toàn bộ logic nghiệp vụ quản lý kho.
+  - Chạy file thực thi `warehouse-app.jar` chứa toàn bộ logic nghiệp vụ quản lý kho và vật tư nội bộ.
   - Quản lý phiên làm việc thông qua JWT (JSON Web Token) phi trạng thái (Stateless), giúp hệ thống dễ dàng mở rộng theo chiều ngang (Horizontal Scaling).
   - Tích hợp kết nối HikariCP Connection Pool để duy trì các kết nối cơ sở dữ liệu tốc độ cao.
 
@@ -37,7 +37,7 @@ Theo giáo trình **IT3120 - Kiến trúc Hệ thống & Hạ tầng Vật lý**
   - Tiến trình Cron Job tự động kết xuất dữ liệu nén hàng ngày lúc 02:00 sáng.
 
 ### 4. Tầng Dịch vụ Bên ngoài (External Integrations)
-- **SMTP Mail Server**: Gửi email thông báo tự động (thông báo đơn mua cho Nhà cung cấp, cảnh báo tồn kho thấp cho Quản lý kho).
+- **SMTP Mail Server**: Gửi email thông báo tự động (thông báo kết quả duyệt yêu cầu cấp phát cho Phòng ban, gửi cảnh báo tồn kho thấp cho Quản lý kho).
 
 ---
 

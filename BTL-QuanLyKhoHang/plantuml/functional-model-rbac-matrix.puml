@@ -3,7 +3,7 @@
 skinparam defaultFontName "Arial"
 skinparam backgroundColor #FEFEFE
 
-title Ma trận Phân quyền theo Vai trò (RBAC)\nHệ thống Quản lý Sản phẩm và Kho hàng
+title Ma trận Phân quyền theo Vai trò (RBAC)\nHệ thống Quản lý Kho hàng và Vật tư Nội bộ Tổ chức
 
 skinparam map {
     BackgroundColor #F8F9FA
@@ -14,81 +14,81 @@ skinparam map {
 map "ADMIN" as admin {
     Quản lý nhân viên => ✅
     Phân quyền => ✅
-    Quản lý sản phẩm => ✅
+    Quản lý vật tư => ✅
     Quản lý danh mục => ✅
-    Tìm kiếm sản phẩm => ✅
+    Tìm kiếm vật tư => ✅
     Tạo phiếu nhập kho => ❌
     Tạo phiếu xuất kho => ❌
-    Chuyển kho => ❌
+    Chuyển kho nội bộ => ❌
     Kiểm kê kho => ❌
     Xem tồn kho => ✅
-    Quản lý NCC => ❌
-    Tạo đơn mua hàng => ❌
-    Duyệt đơn mua hàng => ❌
-    Nhận hàng từ NCC => ❌
+    Quản lý phòng ban => ✅
+    Tạo yêu cầu cấp phát => ❌
+    Duyệt yêu cầu cấp phát => ❌
+    Bàn giao vật tư => ❌
     Báo cáo tồn kho => ✅
-    Báo cáo mua hàng => ✅
+    Báo cáo cấp phát PB => ✅
 }
 
 map "QUẢN LÝ KHO" as qlk {
     Quản lý nhân viên => ❌
     Phân quyền => ❌
-    Quản lý sản phẩm => ✅
+    Quản lý vật tư => ✅
     Quản lý danh mục => ✅
-    Tìm kiếm sản phẩm => ✅
+    Tìm kiếm vật tư => ✅
     Tạo phiếu nhập kho => ❌
     Tạo phiếu xuất kho => ❌
-    Chuyển kho => ✅
+    Chuyển kho nội bộ => ✅
     Kiểm kê kho => ✅
     Xem tồn kho => ✅
-    Quản lý NCC => ❌
-    Tạo đơn mua hàng => ❌
-    Duyệt đơn mua hàng => ✅
-    Nhận hàng từ NCC => ❌
+    Quản lý phòng ban => ✅
+    Tạo yêu cầu cấp phát => ❌
+    Duyệt yêu cầu cấp phát => ✅
+    Bàn giao vật tư => ❌
     Báo cáo tồn kho => ✅
-    Báo cáo mua hàng => ❌
+    Báo cáo cấp phát PB => ✅
 }
 
-map "NV MUA HÀNG" as nvmh {
+map "ĐẠI DIỆN PHÒNG BAN" as pb {
     Quản lý nhân viên => ❌
     Phân quyền => ❌
-    Quản lý sản phẩm => ❌
+    Quản lý vật tư => ❌
     Quản lý danh mục => ❌
-    Tìm kiếm sản phẩm => ✅
+    Tìm kiếm vật tư => ✅
     Tạo phiếu nhập kho => ❌
     Tạo phiếu xuất kho => ❌
-    Chuyển kho => ❌
+    Chuyển kho nội bộ => ❌
     Kiểm kê kho => ❌
     Xem tồn kho => ❌
-    Quản lý NCC => ✅
-    Tạo đơn mua hàng => ✅
-    Duyệt đơn mua hàng => ❌
-    Nhận hàng từ NCC => ❌
+    Quản lý phòng ban => ❌
+    Tạo yêu cầu cấp phát => ✅
+    Duyệt yêu cầu cấp phát => ❌
+    Bàn giao vật tư (ký nhận) => ✅
     Báo cáo tồn kho => ❌
-    Báo cáo mua hàng => ❌
+    Báo cáo cấp phát PB => ❌
 }
 
-map "NV KHO" as nvk {
+map "NHÂN VIÊN KHO" as nvk {
     Quản lý nhân viên => ❌
     Phân quyền => ❌
-    Quản lý sản phẩm => ❌
+    Quản lý vật tư => ❌
     Quản lý danh mục => ❌
-    Tìm kiếm sản phẩm => ✅
+    Tìm kiếm vật tư => ✅
     Tạo phiếu nhập kho => ✅
     Tạo phiếu xuất kho => ✅
-    Chuyển kho => ❌
+    Chuyển kho nội bộ => ❌
     Kiểm kê kho => ✅
     Xem tồn kho => ✅
-    Quản lý NCC => ❌
-    Tạo đơn mua hàng => ❌
-    Duyệt đơn mua hàng => ❌
-    Nhận hàng từ NCC => ✅
+    Quản lý phòng ban => ❌
+    Tạo yêu cầu cấp phát => ❌
+    Duyệt yêu cầu cấp phát => ❌
+    Bàn giao vật tư (xuất giao) => ✅
     Báo cáo tồn kho => ❌
-    Báo cáo mua hàng => ❌
+    Báo cáo cấp phát PB => ❌
 }
 
 admin -[hidden]right- qlk
-qlk -[hidden]right- nvmh
-nvmh -[hidden]right- nvk
+qlk -[hidden]right- pb
+pb -[hidden]right- nvk
 
 @enduml

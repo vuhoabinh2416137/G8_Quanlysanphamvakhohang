@@ -34,23 +34,23 @@ package "Các Lớp Data Access Management (DAM)" #E0F7FA {
         # {abstract} createEntity(rs: ResultSet): T
     }
 
-    class SanPhamDAM extends AbstractDAM {
-        + getAll(): Stream<SanPham>
-        + getById(maSP: String): Optional<SanPham>
-        + getByDanhMuc(maDanhMuc: String): Stream<SanPham>
-        + getSanPhamCanhBaoTonThap(): Stream<SanPham>
-        + add(sp: SanPham): Boolean
-        + update(sp: SanPham): Boolean
-        + delete(sp: SanPham): Boolean
-        # createEntity(rs: ResultSet): SanPham
+    class VatTuDAM extends AbstractDAM {
+        + getAll(): Stream<VatTu>
+        + getById(maVT: String): Optional<VatTu>
+        + getByDanhMuc(maDanhMuc: String): Stream<VatTu>
+        + getVatTuCanhBaoTonThap(): Stream<VatTu>
+        + add(vt: VatTu): Boolean
+        + update(vt: VatTu): Boolean
+        + delete(vt: VatTu): Boolean
+        # createEntity(rs: ResultSet): VatTu
     }
 
     class TonKhoDAM extends AbstractDAM {
         + getAll(): Stream<TonKho>
-        + getById(maKho_maSP: CompositeKey): Optional<TonKho>
+        + getById(maKho_maVT: CompositeKey): Optional<TonKho>
         + getTonKhoByKho(maKho: String): Stream<TonKho>
-        + tangSoLuong(maKho: String, maSP: String, delta: Integer): Boolean
-        + giamSoLuong(maKho: String, maSP: String, delta: Integer): Boolean
+        + tangSoLuong(maKho: String, maVT: String, delta: Integer): Boolean
+        + giamSoLuong(maKho: String, maVT: String, delta: Integer): Boolean
         + add(tk: TonKho): Boolean
         + update(tk: TonKho): Boolean
         + delete(tk: TonKho): Boolean
@@ -61,7 +61,7 @@ package "Các Lớp Data Access Management (DAM)" #E0F7FA {
         + getAll(): Stream<PhieuNhapKho>
         + getById(maPhieu: String): Optional<PhieuNhapKho>
         + getByKho(maKho: String): Stream<PhieuNhapKho>
-        + getByDonMua(maDonMua: String): Optional<PhieuNhapKho>
+        + getByLyDoNhap(lyDo: LyDoNhap): Stream<PhieuNhapKho>
         + add(pnk: PhieuNhapKho): Boolean
         + update(pnk: PhieuNhapKho): Boolean
         + delete(pnk: PhieuNhapKho): Boolean
@@ -75,6 +75,7 @@ package "Các Lớp Data Access Management (DAM)" #E0F7FA {
         + getById(maPhieu: String): Optional<PhieuXuatKho>
         + getByKho(maKho: String): Stream<PhieuXuatKho>
         + getByLyDoXuat(lyDo: LyDoXuat): Stream<PhieuXuatKho>
+        + getByPhongBan(maPB: String): Stream<PhieuXuatKho>
         + add(pxk: PhieuXuatKho): Boolean
         + update(pxk: PhieuXuatKho): Boolean
         + delete(pxk: PhieuXuatKho): Boolean
@@ -83,15 +84,24 @@ package "Các Lớp Data Access Management (DAM)" #E0F7FA {
         # createEntity(rs: ResultSet): PhieuXuatKho
     }
 
-    class DonMuaHangDAM extends AbstractDAM {
-        + getAll(): Stream<DonMuaHang>
-        + getById(maDon: String): Optional<DonMuaHang>
-        + getByTrangThai(trangThai: TrangThaiDonMua): Stream<DonMuaHang>
-        + getByNCC(maNCC: String): Stream<DonMuaHang>
-        + add(po: DonMuaHang): Boolean
-        + update(po: DonMuaHang): Boolean
-        + delete(po: DonMuaHang): Boolean
-        # createEntity(rs: ResultSet): DonMuaHang
+    class YeuCauCapPhatDAM extends AbstractDAM {
+        + getAll(): Stream<YeuCauCapPhat>
+        + getById(maYeuCau: String): Optional<YeuCauCapPhat>
+        + getByTrangThai(trangThai: String): Stream<YeuCauCapPhat>
+        + getByPhongBan(maPB: String): Stream<YeuCauCapPhat>
+        + add(yc: YeuCauCapPhat): Boolean
+        + update(yc: YeuCauCapPhat): Boolean
+        + delete(yc: YeuCauCapPhat): Boolean
+        # createEntity(rs: ResultSet): YeuCauCapPhat
+    }
+
+    class PhongBanDAM extends AbstractDAM {
+        + getAll(): Stream<PhongBan>
+        + getById(maPB: String): Optional<PhongBan>
+        + add(pb: PhongBan): Boolean
+        + update(pb: PhongBan): Boolean
+        + delete(pb: PhongBan): Boolean
+        # createEntity(rs: ResultSet): PhongBan
     }
 
     class PhienKiemKeDAM extends AbstractDAM {
@@ -103,8 +113,17 @@ package "Các Lớp Data Access Management (DAM)" #E0F7FA {
         + delete(pkk: PhienKiemKe): Boolean
         # createEntity(rs: ResultSet): PhienKiemKe
     }
+
+    class TaiKhoanDAM extends AbstractDAM {
+        + getAll(): Stream<TaiKhoan>
+        + getById(tenDangNhap: String): Optional<TaiKhoan>
+        + getByNhanVien(maNV: String): Optional<TaiKhoan>
+        + add(tk: TaiKhoan): Boolean
+        + update(tk: TaiKhoan): Boolean
+        + delete(tk: TaiKhoan): Boolean
+        # createEntity(rs: ResultSet): TaiKhoan
+    }
 }
 
-AbstractDAM o-- DataSource
-DatabaseConfig ..> DataSource : <<creates>>
+AbstractDAM ..> DataSource : uses
 @enduml

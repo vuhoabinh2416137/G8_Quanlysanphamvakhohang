@@ -42,25 +42,25 @@ public abstract class AbstractDAM<T, ID> {
 
 ---
 
-## Minh họa Cài đặt Thực tế: `SanPhamDAM`
+## Minh họa Cài đặt Thực tế: `VatTuDAM`
 
-Lớp `SanPhamDAM` quản lý lưu trữ cho thực thể `SanPham`:
+Lớp `VatTuDAM` quản lý lưu trữ cho thực thể `VatTu` (bảng `san_pham`):
 
 ```java
-public class SanPhamDAM extends AbstractDAM<SanPham, String> {
+public class VatTuDAM extends AbstractDAM<VatTu, String> {
 
-    public SanPhamDAM(DataSource dataSource) {
+    public VatTuDAM(DataSource dataSource) {
         super(dataSource);
     }
 
     @Override
-    public Stream<SanPham> getAll() throws Exception {
+    public Stream<VatTu> getAll() throws Exception {
         Connection conn = getConnection();
         PreparedStatement stmt = conn.prepareStatement("SELECT * FROM san_pham");
         ResultSet rs = stmt.executeQuery();
-        return StreamSupport.stream(new Spliterators.AbstractSpliterator<SanPham>(Long.MAX_VALUE, Spliterator.ORDERED) {
+        return StreamSupport.stream(new Spliterators.AbstractSpliterator<VatTu>(Long.MAX_VALUE, Spliterator.ORDERED) {
             @Override
-            public boolean tryAdvance(Consumer<? super SanPham> action) {
+            public boolean tryAdvance(Consumer<? super VatTu> action) {
                 try {
                     if (!rs.next()) return false;
                     action.accept(createEntity(rs));
@@ -73,10 +73,10 @@ public class SanPhamDAM extends AbstractDAM<SanPham, String> {
     }
 
     @Override
-    public Optional<SanPham> getById(String maSP) throws Exception {
+    public Optional<VatTu> getById(String maVT) throws Exception {
         String sql = "SELECT * FROM san_pham WHERE ma_sp = ?";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, maSP);
+            stmt.setString(1, maVT);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return Optional.of(createEntity(rs));
@@ -87,97 +87,190 @@ public class SanPhamDAM extends AbstractDAM<SanPham, String> {
     }
 
     @Override
-    public boolean add(SanPham sp) throws Exception {
-        String sql = "INSERT INTO san_pham (ma_sp, ten_sp, don_vi_tinh, gia_nhap_chuan, nguong_ton_kho, hinh_anh_url, trang_thai, ma_danh_muc) " +
+    public boolean add(VatTu vt) throws Exception {
+        String sql = "INSERT INTO san_pham (ma_sp, ten_sp, don_vi_tinh, quy_cach, nguong_ton_kho, hinh_anh_url, trang_thai, ma_danh_muc) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, sp.getMaSP());
-            stmt.setString(2, sp.getTenSP());
-            stmt.setString(3, sp.getDonViTinh());
-            stmt.setDouble(4, sp.getGiaNhap());
-            stmt.setInt(5, sp.getNguongTonKho());
-            stmt.setString(6, sp.getHinhAnh());
-            stmt.setString(7, sp.getTrangThai().name());
-            stmt.setString(8, sp.getMaDanhMuc());
+            stmt.setString(1, vt.getMaVT());
+            stmt.setString(2, vt.getTenVT());
+            stmt.setString(3, vt.getDonViTinh());
+            stmt.setString(4, vt.getQuyCach());
+            stmt.setInt(5, vt.getNguongTonKho());
+            stmt.setString(6, vt.getHinhAnhURL());
+            stmt.setString(7, vt.getTrangThai().name());
+            stmt.setString(8, vt.getMaDanhMuc());
             return stmt.executeUpdate() > 0;
         }
     }
 
     @Override
-    public boolean update(SanPham sp) throws Exception {
-        String sql = "UPDATE san_pham SET ten_sp=?, don_vi_tinh=?, gia_nhap_chuan=?, nguong_ton_kho=?, trang_thai=? WHERE ma_sp=?";
+    public boolean update(VatTu vt) throws Exception {
+        String sql = "UPDATE san_pham SET ten_sp = ?, don_vi_tinh = ?, quy_cach = ?, nguong_ton_kho = ?, " +
+                     "hinh_anh_url = ?, trang_thai = ?, ma_danh_muc = ? WHERE ma_sp = ?";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, sp.getTenSP());
-            stmt.setString(2, sp.getDonViTinh());
-            stmt.setDouble(3, sp.getGiaNhap());
-            stmt.setInt(4, sp.getNguongTonKho());
-            stmt.setString(5, sp.getTrangThai().name());
-            stmt.setString(6, sp.getMaSP());
+            stmt.setString(1, vt.getTenVT());
+            stmt.setString(2, vt.getDonViTinh());
+            stmt.setString(3, vt.getQuyCach());
+            stmt.setInt(4, vt.getNguongTonKho());
+            stmt.setString(5, vt.getHinhAnhURL());
+            stmt.setString(6, vt.getTrangThai().name());
+            stmt.setString(7, vt.getMaDanhMuc());
+            stmt.setString(8, vt.getMaVT());
             return stmt.executeUpdate() > 0;
         }
     }
 
     @Override
-    public boolean delete(SanPham sp) throws Exception {
-        String sql = "DELETE FROM san_pham WHERE ma_sp = ?";
+    public boolean delete(VatTu vt) throws Exception {
+        // Soft delete: chuyển sang trạng thái NGUNG_SU_DUNG để bảo toàn toàn vẹn lịch sử giao dịch kho
+        String sql = "UPDATE san_pham SET trang_thai = 'NGUNG_SU_DUNG' WHERE ma_sp = ?";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, sp.getMaSP());
+            stmt.setString(1, vt.getMaVT());
             return stmt.executeUpdate() > 0;
         }
     }
 
     @Override
-    protected SanPham createEntity(ResultSet rs) throws SQLException {
-        SanPham sp = new SanPham();
-        sp.setMaSP(rs.getString("ma_sp"));
-        sp.setTenSP(rs.getString("ten_sp"));
-        sp.setDonViTinh(rs.getString("don_vi_tinh"));
-        sp.setGiaNhap(rs.getDouble("gia_nhap_chuan"));
-        sp.setNguongTonKho(rs.getInt("nguong_ton_kho"));
-        sp.setHinhAnh(rs.getString("hinh_anh_url"));
-        sp.setTrangThai(TrangThaiSP.valueOf(rs.getString("trang_thai")));
-        return sp;
+    protected VatTu createEntity(ResultSet rs) throws SQLException {
+        VatTu vt = new VatTu();
+        vt.setMaVT(rs.getString("ma_sp"));
+        vt.setTenVT(rs.getString("ten_sp"));
+        vt.setDonViTinh(rs.getString("don_vi_tinh"));
+        vt.setQuyCach(rs.getString("quy_cach"));
+        vt.setNguongTonKho(rs.getInt("nguong_ton_kho"));
+        vt.setHinhAnhURL(rs.getString("hinh_anh_url"));
+        vt.setTrangThai(TrangThaiVT.valueOf(rs.getString("trang_thai")));
+        vt.setMaDanhMuc(rs.getString("ma_danh_muc"));
+        return vt;
     }
 }
 ```
 
 ---
 
-## Quản lý Giao dịch (Transaction Management) trong `PhieuNhapKhoDAM`
+## Cài đặt Lớp `YeuCauCapPhatDAM`
 
-Đối với các thực thể có quan hệ Hợp thành mạnh (`Composition`) như `PhieuNhapKho` và `MucNhap`, lớp DAM kích hoạt Transaction (`setAutoCommit(false)`) để đảm bảo tính trọn vẹn:
+Lớp quản lý các giao dịch đề nghị cấp phát vật tư từ phòng ban:
 
 ```java
-public boolean savePhieuNhapVaChiTiet(PhieuNhapKho pnk) throws Exception {
-    Connection conn = getConnection();
-    try {
-        conn.setAutoCommit(false); // Bắt đầu Transaction
-        
-        // 1. Thêm bản ghi cha: phieu_nhap_kho
-        insertPhieuNhapHeader(pnk, conn);
+public class YeuCauCapPhatDAM extends AbstractDAM<YeuCauCapPhat, String> {
 
-        // 2. Thêm các bản ghi con: muc_nhap_kho
-        for (MucNhap mn : pnk.getDsMucNhap()) {
-            insertMucNhapDetail(pnk.getMaPhieu(), mn, conn);
+    public YeuCauCapPhatDAM(DataSource dataSource) {
+        super(dataSource);
+    }
+
+    public Stream<YeuCauCapPhat> getByPhongBan(String maPB) throws Exception {
+        Connection conn = getConnection();
+        PreparedStatement stmt = conn.prepareStatement("SELECT * FROM yeu_cau_cap_phat WHERE ma_phong_ban = ?");
+        stmt.setString(1, maPB);
+        ResultSet rs = stmt.executeQuery();
+        return StreamSupport.stream(new Spliterators.AbstractSpliterator<YeuCauCapPhat>(Long.MAX_VALUE, Spliterator.ORDERED) {
+            @Override
+            public boolean tryAdvance(Consumer<? super YeuCauCapPhat> action) {
+                try {
+                    if (!rs.next()) return false;
+                    action.accept(createEntity(rs));
+                    return true;
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }, false).onClose(() -> mutedClose(conn, stmt, rs));
+    }
+
+    @Override
+    public Stream<YeuCauCapPhat> getAll() throws Exception {
+        Connection conn = getConnection();
+        PreparedStatement stmt = conn.prepareStatement("SELECT * FROM yeu_cau_cap_phat ORDER BY ngay_yeu_cau DESC");
+        ResultSet rs = stmt.executeQuery();
+        return StreamSupport.stream(new Spliterators.AbstractSpliterator<YeuCauCapPhat>(Long.MAX_VALUE, Spliterator.ORDERED) {
+            @Override
+            public boolean tryAdvance(Consumer<? super YeuCauCapPhat> action) {
+                try {
+                    if (!rs.next()) return false;
+                    action.accept(createEntity(rs));
+                    return true;
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }, false).onClose(() -> mutedClose(conn, stmt, rs));
+    }
+
+    @Override
+    public Optional<YeuCauCapPhat> getById(String id) throws Exception {
+        String sql = "SELECT * FROM yeu_cau_cap_phat WHERE ma_yeu_cau = ?";
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(createEntity(rs));
+                }
+            }
         }
+        return Optional.empty();
+    }
 
-        conn.commit(); // Thành công -> Commit
-        return true;
-    } catch (Exception e) {
-        conn.rollback(); // Lỗi -> Rollback
-        throw e;
-    } finally {
-        conn.setAutoCommit(true);
-        conn.close();
+    @Override
+    public boolean add(YeuCauCapPhat yc) throws Exception {
+        String sql = "INSERT INTO yeu_cau_cap_phat (ma_yeu_cau, ma_phong_ban, ma_nv_yeu_cau, muc_dich_su_dung, trang_thai, ghi_chu) " +
+                     "VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, yc.getMaYeuCau());
+            stmt.setString(2, yc.getMaPhongBan());
+            stmt.setString(3, yc.getMaNvYeuCau());
+            stmt.setString(4, yc.getMucDichSuDung());
+            stmt.setString(5, yc.getTrangThai().name());
+            stmt.setString(6, yc.getGhiChu());
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    @Override
+    public boolean update(YeuCauCapPhat yc) throws Exception {
+        String sql = "UPDATE yeu_cau_cap_phat SET ma_nv_duyet = ?, ngay_duyet = ?, trang_thai = ?, ly_do_tu_choi = ? WHERE ma_yeu_cau = ?";
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, yc.getMaNvDuyet());
+            stmt.setTimestamp(2, yc.getNgayDuyet() != null ? new Timestamp(yc.getNgayDuyet().getTime()) : null);
+            stmt.setString(3, yc.getTrangThai().name());
+            stmt.setString(4, yc.getLyDoTuChoi());
+            stmt.setString(5, yc.getMaYeuCau());
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    @Override
+    public boolean delete(YeuCauCapPhat yc) throws Exception {
+        String sql = "UPDATE yeu_cau_cap_phat SET trang_thai = 'DA_HUY' WHERE ma_yeu_cau = ?";
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, yc.getMaYeuCau());
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    @Override
+    protected YeuCauCapPhat createEntity(ResultSet rs) throws SQLException {
+        YeuCauCapPhat yc = new YeuCauCapPhat();
+        yc.setMaYeuCau(rs.getString("ma_yeu_cau"));
+        yc.setMaPhongBan(rs.getString("ma_phong_ban"));
+        yc.setMaNvYeuCau(rs.getString("ma_nv_yeu_cau"));
+        yc.setMaNvDuyet(rs.getString("ma_nv_duyet"));
+        yc.setNgayYeuCau(rs.getTimestamp("ngay_yeu_cau"));
+        yc.setNgayDuyet(rs.getTimestamp("ngay_duyet"));
+        yc.setMucDichSuDung(rs.getString("muc_dich_su_dung"));
+        yc.setTrangThai(TrangThaiYeuCau.valueOf(rs.getString("trang_thai")));
+        yc.setLyDoTuChoi(rs.getString("ly_do_tu_choi"));
+        yc.setGhiChu(rs.getString("ghi_chu"));
+        return yc;
     }
 }
 ```
 
 ---
 
-## Sơ đồ Lớp DAM Rendered
+## Biểu đồ Lớp DAM Chi tiết Rendered
 
-![Sơ đồ DAM Classes](../diagrams/dam-classes.png)
+![Biểu đồ Lớp DAM](../diagrams/dam-classes.png)
 
 ## File nguồn PlantUML
 Sơ đồ PlantUML hoàn chỉnh: [dam-classes.puml](../plantuml/dam-classes.puml).

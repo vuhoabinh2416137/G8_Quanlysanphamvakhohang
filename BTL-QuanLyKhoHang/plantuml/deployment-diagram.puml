@@ -4,12 +4,12 @@ skinparam nodeFontSize 12
 skinparam artifactFontSize 11
 skinparam defaultFontName "Arial"
 
-title Sơ đồ Triển khai (Deployment Diagram) - Hệ thống Quản lý Sản phẩm và Kho hàng
+title Sơ đồ Triển khai (Deployment Diagram) - Hệ thống Quản lý Kho hàng & Vật tư Nội bộ Tổ chức
 
 ' =======================================================
 ' CLIENT TIER
 ' =======================================================
-node "Thiết bị Client (Người dùng)" as ClientDevice <<device>> {
+node "Thiết bị Client (Cán bộ / Thủ kho)" as ClientDevice <<device>> {
     node "Web Browser" <<execution environment>> {
         artifact "Single Page App (SPA)\n(HTML5/CSS3/JavaScript)" as WebApp <<artifact>>
     }
@@ -47,7 +47,7 @@ node "Máy chủ Ứng dụng (Application Server)" as AppServer <<device>> {
 node "Máy chủ Cơ sở Dữ liệu (Database Server)" as DBServer <<device>> {
     node "RDBMS Engine (PostgreSQL / MySQL)" as DBMS <<execution environment>> {
         database "warehouse_db\n(Lưu trữ dữ liệu quan hệ)" as DB <<database>> {
-            frame "Bảng Sản phẩm, Kho, Đơn mua,\nPhiếu kho, Người dùng" as Tables
+            frame "Bảng Vật tư, Kho, Yêu cầu cấp phát,\nPhiếu kho, Phòng ban, Người dùng" as Tables
         }
     }
     node "Hệ thống Lưu trữ Sao lưu (Backup Storage)" as BackupStorage {
@@ -60,7 +60,7 @@ node "Máy chủ Cơ sở Dữ liệu (Database Server)" as DBServer <<device>> 
 ' =======================================================
 cloud "Dịch vụ Bên ngoài (Cloud Services)" as CloudServices {
     node "Máy chủ Thư điện tử (SMTP Mail Server)" as MailServer <<device>> {
-        component "Email Notification Service" as SMTP
+        component "Email Notification Service\n(Cảnh báo tồn kho & Duyệt cấp phát)" as SMTP
     }
 }
 

@@ -1,71 +1,70 @@
 @startuml activity-nhap-kho
 !theme plain
-title Biểu đồ Hoạt động: Quy trình Nhập Kho\n(UC06 + UC15)
+title Biểu đồ Hoạt động: Quy trình Nhập Kho Vật tư Nội bộ\n(UC06)
 
-|Nhà cung cấp|
+|Đơn vị giao / Phòng ban|
 start
-:Giao hàng đến kho;
+:Bàn giao vật tư đến kho;
 
 |Nhân viên kho|
-:Tiếp nhận hàng hóa;
-:Kiểm tra hàng hóa\nvới đơn mua hàng;
+:Tiếp nhận vật tư và biên bản;
+:Kiểm tra quy cách vật tư trên hệ thống;
 
-if (Hàng đúng với đơn mua?) then (Đúng)
+if (Vật tư đạt tiêu chuẩn chất lượng?) then (Đạt)
     :Xác nhận nhận hàng;
-else (Không đúng)
-    :Ghi nhận chênh lệch;
-    :Liên hệ NCC để xử lý;
-    if (Chấp nhận nhận hàng\ntheo thực tế?) then (Có)
-        :Xác nhận nhận hàng\nvới số lượng thực tế;
+else (Không đạt)
+    :Ghi nhận hư hỏng / sai lệch;
+    :Liên hệ đơn vị bàn giao để xử lý;
+    if (Chấp nhận nhận số lượng đạt?) then (Có)
+        :Xác nhận nhận số lượng đạt chuẩn;
     else (Không)
-        :Từ chối nhận hàng;
-        |Nhà cung cấp|
-        :Nhận hàng trả lại;
+        :Từ chối nhận bàn giao;
+        |Đơn vị giao / Phòng ban|
+        :Thu hồi vật tư về;
         stop
     endif
 endif
 
 |Nhân viên kho|
-:Chọn chức năng\n"Tạo phiếu nhập kho";
+:Chọn chức năng "Tạo phiếu nhập kho";
 
 |Hệ thống|
-:Hiển thị biểu mẫu\nphiếu nhập kho;
+:Hiển thị biểu mẫu phiếu nhập kho;
 
 |Nhân viên kho|
 :Chọn kho nhận hàng;
-:Chọn đơn mua hàng\nliên quan;
+:Chọn lý do nhập (tiếp nhận phân bổ / thu hồi phòng ban / điều chuyển);
 
 |Hệ thống|
-:Hiển thị danh sách\nsản phẩm từ đơn mua;
+:Hiển thị danh mục vật tư;
 
 |Nhân viên kho|
 repeat
-    :Nhập số lượng thực nhận\ncho từng mục hàng;
+    :Nhập số lượng thực nhận và vị trí kệ lưu kho;
     |Hệ thống|
-    :Kiểm tra tính hợp lệ;
+    :Kiểm tra tính hợp lệ dữ liệu;
     |Nhân viên kho|
-repeat while (Còn mục hàng?) is (Có)
+repeat while (Còn vật tư?) is (Có)
 -> Không;
 
-:Nhập ghi chú\n(nếu có);
+:Nhập ghi chú (nếu có);
 :Xác nhận hoàn thành;
 
 |Hệ thống|
-:Tính tổng giá trị\nphiếu nhập;
-:Lưu phiếu nhập kho;
+:Lưu phiếu nhập kho vào CSDL;
 
 fork
-    :Cập nhật tồn kho\n(tăng số lượng);
+    :Cập nhật tồn kho (tăng số lượng);
 fork again
-    :Cập nhật trạng thái\nđơn mua hàng;
+    :Ghi nhật ký giao dịch kho;
 fork again
-    :Kiểm tra ngưỡng tồn kho;
+    :Kiểm tra ngưỡng tồn kho an toàn;
 end fork
 
-:Hiển thị xác nhận\nthành công;
+:Hiển thị xác nhận thành công;
 
 |Nhân viên kho|
-:In phiếu nhập kho;
+:In phiếu nhập kho và ký biên bản bàn giao;
 
 stop
 @enduml

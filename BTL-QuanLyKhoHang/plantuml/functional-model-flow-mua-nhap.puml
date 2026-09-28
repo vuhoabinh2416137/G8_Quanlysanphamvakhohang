@@ -7,44 +7,44 @@ skinparam sequenceParticipantBorderColor #2F4F4F
 skinparam sequenceLifeLineBorderColor #2F4F4F
 skinparam sequenceMessageAlign center
 
-title Luồng Dữ liệu Nghiệp vụ: Mua hàng → Nhập kho\nHệ thống Quản lý Sản phẩm và Kho hàng
+title Luồng Dữ liệu Nghiệp vụ: Yêu cầu cấp phát → Phê duyệt → Xuất kho bàn giao vật tư\nHệ thống Quản lý Kho hàng và Vật tư Nội bộ Tổ chức
 
-actor "NV Mua hàng" as NV_MH #87CEEB
+actor "Đại diện Phòng ban" as PB #87CEEB
 participant "Hệ thống" as HT #F5F5DC
 actor "Quản lý kho" as QLK #87CEEB
-actor "Nhà cung cấp" as NCC #FFE4B5
-actor "NV Kho" as NV_K #87CEEB
+actor "Thủ kho / NV Kho" as NV_K #87CEEB
 participant "Hệ thống\nEmail" as EMAIL #E8F5E9
 
-== Giai đoạn 1: Tạo đơn mua hàng (UC13) ==
+== Giai đoạn 1: Tạo yêu cầu cấp phát (UC13) ==
 
-NV_MH -> HT : Tạo đơn mua hàng\n(chọn NCC, SP, SL, giá)
+PB -> HT : Lập yêu cầu cấp phát vật tư\n(chọn PB, mục đích, VT, SL)
 activate HT
-HT -> HT : Lưu DonMuaHang\n[trạng thái: MỚI TẠO]
-HT -> EMAIL : Gửi thông báo duyệt
+HT -> HT : Lưu YeuCauCapPhat\n[trạng thái: CHO_DUYET]
+HT -> EMAIL : Gửi thông báo phê duyệt
 deactivate HT
-EMAIL -> QLK : Email: Đơn mua mới\ncần phê duyệt
+EMAIL -> QLK : Email: Yêu cầu cấp phát mới\ncần xem xét phê duyệt
 
-== Giai đoạn 2: Duyệt đơn mua (UC14) ==
+== Giai đoạn 2: Phê duyệt yêu cầu (UC14) ==
 
-QLK -> HT : Xem chi tiết &\nPhê duyệt đơn mua
+QLK -> HT : Xem xét định mức, tồn kho &\nPhê duyệt yêu cầu
 activate HT
 HT -> HT : Cập nhật trạng thái\n[ĐÃ DUYỆT]
-HT -> EMAIL : Gửi PO đến NCC
-EMAIL -> NCC : Email: Đơn đặt hàng\n(Purchase Order)
-HT -> EMAIL : Thông báo NV mua hàng
-EMAIL -> NV_MH : Email: Kết quả duyệt\n[Đã phê duyệt]
+HT -> EMAIL : Gửi thông báo kết quả
+EMAIL -> PB : Email: Yêu cầu cấp phát\nđã được phê duyệt
+HT -> EMAIL : Thông báo cho Thủ kho
+EMAIL -> NV_K : Email: Chuẩn bị vật tư\nxuất cấp phát
 deactivate HT
 
-== Giai đoạn 3: Nhận hàng & Nhập kho (UC15 + UC06) ==
+== Giai đoạn 3: Bàn giao vật tư & Xuất kho (UC15 + UC07) ==
 
-NCC --> NV_K : Giao hàng thực tế\n(vận chuyển)
-NV_K -> HT : Nhận hàng +\nTạo phiếu nhập kho
+NV_K -> HT : Lập phiếu xuất kho\ncấp phát vật tư
 activate HT
-HT -> HT : Lưu PhieuNhapKho\n+ MucNhap
-HT -> HT : Cập nhật TonKho\n(tăng số lượng)
-HT -> HT : Cập nhật DonMuaHang\n[ĐÃ NHẬN ĐỦ / ĐANG GIAO]
-HT --> NV_K : Xác nhận nhập kho\nthành công
+HT -> HT : Lưu PhieuXuatKho\n+ MucXuat
+HT -> HT : Cập nhật TonKho\n(giảm số lượng)
+HT -> HT : Cập nhật YeuCauCapPhat\n[HOAN_THANH]
+HT --> NV_K : Xác nhận xuất kho\nthành công
 deactivate HT
+
+NV_K --> PB : Bàn giao vật tư thực tế\n(Ký biên bản giao nhận nội bộ)
 
 @enduml

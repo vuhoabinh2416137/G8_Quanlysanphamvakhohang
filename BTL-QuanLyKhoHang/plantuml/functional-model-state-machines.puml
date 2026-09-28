@@ -9,46 +9,45 @@ skinparam state {
     ArrowColor #283593
 }
 
-title Máy trạng thái các Thực thể Nghiệp vụ Chính\nHệ thống Quản lý Sản phẩm và Kho hàng
+title Máy trạng thái các Thực thể Nghiệp vụ Chính\nHệ thống Quản lý Kho hàng và Vật tư Nội bộ Tổ chức
 
-' ===== Đơn mua hàng =====
-state "Đơn Mua Hàng (DonMuaHang)" as DMH {
-    [*] --> MOI_TAO : NV mua hàng\ntạo đơn
+' ===== Yêu cầu cấp phát =====
+state "Yêu Cầu Cấp Phát (YeuCauCapPhat)" as YCCP {
+    [*] --> MOI_TAO : Đại diện PB\ntạo yêu cầu
     MOI_TAO : Trạng thái: MỚI TẠO
     MOI_TAO : Chờ Quản lý kho duyệt
 
     DA_DUYET : Trạng thái: ĐÃ DUYỆT
-    DA_DUYET : PO gửi đến NCC
+    DA_DUYET : Chuyển thông báo đến Thủ kho
 
     TU_CHOI : Trạng thái: TỪ CHỐI
     TU_CHOI : Kèm lý do từ chối
 
     DA_HUY : Trạng thái: ĐÃ HỦY
-    DA_HUY : NV mua hàng hủy
+    DA_HUY : Người yêu cầu hủy
 
-    DANG_GIAO : Trạng thái: ĐANG GIAO
-    DANG_GIAO : NCC giao một phần
+    DANG_CAP_PHAT : Trạng thái: ĐANG CẤP PHÁT
+    DANG_CAP_PHAT : Thủ kho chuẩn bị xuất kho
 
-    DA_NHAN_DU : Trạng thái: ĐÃ NHẬN ĐỦ
-    DA_NHAN_DU : Hoàn tất đơn hàng
+    HOAN_THANH : Trạng thái: HOÀN THÀNH
+    HOAN_THANH : Ký biên bản bàn giao
 
     MOI_TAO --> DA_DUYET : QLK phê duyệt
     MOI_TAO --> TU_CHOI : QLK từ chối\n(bắt buộc nhập lý do)
-    MOI_TAO --> DA_HUY : NV mua hàng hủy
-    DA_DUYET --> DANG_GIAO : NCC giao\nmột phần
-    DA_DUYET --> DA_NHAN_DU : NCC giao\nđủ 1 lần
-    DANG_GIAO --> DA_NHAN_DU : Nhận đủ\ntoàn bộ
-
+    MOI_TAO --> DA_HUY : Đại diện PB hủy
+    DA_DUYET --> DANG_CAP_PHAT : Thủ kho lập phiếu xuất
+    DANG_CAP_PHAT --> HOAN_THANH : Phòng ban ký nhận
+    
     TU_CHOI --> [*]
     DA_HUY --> [*]
-    DA_NHAN_DU --> [*]
+    HOAN_THANH --> [*]
 }
 
 ' ===== Phiếu xuất kho =====
 state "Phiếu Xuất Kho (PhieuXuatKho)" as PXK {
     [*] --> NHAP_LIEU : NV kho\ntạo phiếu
     NHAP_LIEU : Trạng thái: NHẬP LIỆU
-    NHAP_LIEU : Đang nhập thông tin
+    NHAP_LIEU : Đang nhập chi tiết vật tư
 
     DA_XAC_NHAN_PXK : Trạng thái: ĐÃ XÁC NHẬN
     DA_XAC_NHAN_PXK : Tồn kho đã giảm
@@ -63,17 +62,17 @@ state "Phiếu Xuất Kho (PhieuXuatKho)" as PXK {
     DA_HUY_PXK --> [*]
 }
 
-' ===== Sản phẩm =====
-state "Sản Phẩm (SanPham)" as SP {
-    [*] --> DANG_KD : Thêm SP mới
-    DANG_KD : Trạng thái: ĐANG KINH DOANH
-    DANG_KD : Cho phép giao dịch
+' ===== Vật tư =====
+state "Vật Tư (VatTu)" as VT {
+    [*] --> DANG_SD : Thêm VT mới
+    DANG_SD : Trạng thái: ĐANG SỬ DỤNG
+    DANG_SD : Cho phép cấp phát
 
-    NGUNG_KD : Trạng thái: NGỪNG KINH DOANH
-    NGUNG_KD : Không cho nhập/xuất mới
+    NGUNG_SD : Trạng thái: NGỪNG SỬ DỤNG
+    NGUNG_SD : Không cho xuất/cấp phát mới
 
-    DANG_KD --> NGUNG_KD : QLK ngừng\nkinh doanh
-    NGUNG_KD --> DANG_KD : QLK kích hoạt lại
+    DANG_SD --> NGUNG_SD : QLK ngừng\nsử dụng
+    NGUNG_SD --> DANG_SD : QLK kích hoạt lại
 }
 
 @enduml

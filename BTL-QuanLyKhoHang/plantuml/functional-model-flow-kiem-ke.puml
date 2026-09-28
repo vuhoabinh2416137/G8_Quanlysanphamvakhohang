@@ -5,7 +5,7 @@ skinparam backgroundColor #FEFEFE
 skinparam sequenceArrowThickness 2
 skinparam sequenceMessageAlign center
 
-title Luồng Dữ liệu Nghiệp vụ: Kiểm kê Kho hàng\nHệ thống Quản lý Sản phẩm và Kho hàng
+title Luồng Dữ liệu Nghiệp vụ: Kiểm kê Kho hàng\nHệ thống Quản lý Kho hàng và Vật tư Nội bộ Tổ chức
 
 actor "Quản lý kho" as QLK #87CEEB
 participant "Hệ thống" as HT #F5F5DC
@@ -17,12 +17,12 @@ QLK -> HT : Tạo phiên kiểm kê\n(chọn kho, phạm vi)
 activate HT
 HT -> HT : Chốt số liệu sổ sách\n(Snapshot TonKho)
 HT -> HT : 🔒 Khóa giao dịch\nxuất/nhập
-HT -> NV_K : Gửi danh sách\nkiểm đếm\n(SP + SL hệ thống)
+HT -> NV_K : Gửi danh sách\nkiểm đếm\n(Vật tư + SL hệ thống)
 deactivate HT
 
 == Giai đoạn 2: Kiểm đếm thực tế ==
 
-NV_K -> HT : Nhập số lượng thực tế\ncho từng sản phẩm
+NV_K -> HT : Nhập số lượng thực tế\ncho từng vật tư
 activate HT
 HT -> HT : Tính chênh lệch\n= SL thực tế − SL hệ thống
 HT -> QLK : Hiển thị báo cáo\nchênh lệch (thừa/thiếu)

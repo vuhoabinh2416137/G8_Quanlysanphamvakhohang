@@ -4,22 +4,24 @@ skinparam packageStyle rectangle
 skinparam componentStyle uml2
 skinparam defaultFontName "Arial"
 
-title Sơ đồ Gói (Package Diagram) - Kiến trúc Phân tầng Hệ thống Quản lý Kho hàng
+title Sơ đồ Gói (Package Diagram) - Kiến trúc Phân tầng Hệ thống Quản lý Kho hàng & Vật tư Nội bộ
 
 package "Tầng Giao diện Người dùng (HCI - Human-Computer Interaction)" #FFFDE7 {
     package "com.warehouse.ui.web" {
         class DashboardView
-        class SanPhamView
+        class VatTuView
         class NhapKhoView
         class XuatKhoView
+        class YeuCauCapPhatView
         class KiemKeView
         class BaoCaoView
     }
     
     package "com.warehouse.ui.controller" {
-        class SanPhamController
+        class VatTuController
         class NhapKhoController
         class XuatKhoController
+        class YeuCauCapPhatController
         class KiemKeController
         class AuthController
     }
@@ -27,16 +29,17 @@ package "Tầng Giao diện Người dùng (HCI - Human-Computer Interaction)" #
 
 package "Tầng Miền Nghiệp vụ (PD - Problem Domain)" #E8F5E9 {
     package "com.warehouse.service" {
-        interface SanPhamService
+        interface VatTuService
         interface NhapKhoService
         interface XuatKhoService
+        interface YeuCauCapPhatService
         interface KiemKeService
         interface TonKhoService
         interface AuthService
     }
 
-    package "com.warehouse.domain.product" {
-        class SanPham
+    package "com.warehouse.domain.material" {
+        class VatTu
         class DanhMuc
     }
 
@@ -52,10 +55,10 @@ package "Tầng Miền Nghiệp vụ (PD - Problem Domain)" #E8F5E9 {
         class MucKiemKe
     }
 
-    package "com.warehouse.domain.purchase" {
-        class DonMuaHang
-        class MucMua
-        class NhaCungCap
+    package "com.warehouse.domain.allocation" {
+        class YeuCauCapPhat
+        class ChiTietYeuCau
+        class PhongBan
     }
 
     package "com.warehouse.domain.identity" {
@@ -69,11 +72,12 @@ package "Tầng Miền Nghiệp vụ (PD - Problem Domain)" #E8F5E9 {
 package "Tầng Quản lý Dữ liệu (DM - Data Management)" #E3F2FD {
     package "com.warehouse.dam" {
         interface GenericDAM<T, ID>
-        class SanPhamDAM
+        class VatTuDAM
         class TonKhoDAM
         class PhieuNhapKhoDAM
         class PhieuXuatKhoDAM
-        class DonMuaHangDAM
+        class YeuCauCapPhatDAM
+        class PhongBanDAM
         class PhienKiemKeDAM
         class TaiKhoanDAM
     }
@@ -98,23 +102,36 @@ package "Tầng Hạ tầng & Tích hợp ngoài (PA - Physical Architecture)" #
 package "Tầng Nền tảng (Foundation Layer)" #ECEFF1 {
     package "com.warehouse.foundation.exception" {
         class BusinessException
-        class EntityNotFoundException
-        class OutOfStockException
+        class ResourceNotFoundException
+        class InsufficientStockException
     }
-    
+
     package "com.warehouse.foundation.util" {
         class DateUtils
-        class NumberFormatter
-        class Logger
+        class ValidationUtils
+        class BarcodeGenerator
     }
 }
 
-' Phụ thuộc giữa các tầng (Layer Dependencies)
-"Tầng Giao diện Người dùng (HCI - Human-Computer Interaction)" ..> "Tầng Miền Nghiệp vụ (PD - Problem Domain)" : <<call>>
-"Tầng Miền Nghiệp vụ (PD - Problem Domain)" ..> "Tầng Quản lý Dữ liệu (DM - Data Management)" : <<use>>
-"Tầng Miền Nghiệp vụ (PD - Problem Domain)" ..> "Tầng Hạ tầng & Tích hợp ngoài (PA - Physical Architecture)" : <<delegate>>
-"Tầng Quản lý Dữ liệu (DM - Data Management)" ..> "Tầng Nền tảng (Foundation Layer)" : <<import>>
-"Tầng Miền Nghiệp vụ (PD - Problem Domain)" ..> "Tầng Nền tảng (Foundation Layer)" : <<import>>
-"Tầng Giao diện Người dùng (HCI - Human-Computer Interaction)" ..> "Tầng Nền tảng (Foundation Layer)" : <<import>>
+' Quan hệ phụ thuộc giữa các tầng
+"com.warehouse.ui.web" ..> "com.warehouse.ui.controller" : calls
+"com.warehouse.ui.controller" ..> "com.warehouse.service" : delegates to
+
+"com.warehouse.service" ..> "com.warehouse.domain.material" : uses
+"com.warehouse.service" ..> "com.warehouse.domain.inventory" : uses
+"com.warehouse.service" ..> "com.warehouse.domain.allocation" : uses
+"com.warehouse.service" ..> "com.warehouse.domain.identity" : uses
+
+"com.warehouse.service" ..> "com.warehouse.dam" : uses
+"com.warehouse.service" ..> "com.warehouse.infrastructure.mail" : sends notification
+"com.warehouse.service" ..> "com.warehouse.infrastructure.security" : authenticates
+
+"com.warehouse.dam" ..> "com.warehouse.db" : manages connection
+"com.warehouse.dam" ..> "com.warehouse.domain.inventory" : maps entities
+"com.warehouse.dam" ..> "com.warehouse.domain.material" : maps entities
+"com.warehouse.dam" ..> "com.warehouse.domain.allocation" : maps entities
+
+"com.warehouse.service" ..> "com.warehouse.foundation.exception" : throws
+"com.warehouse.service" ..> "com.warehouse.foundation.util" : uses
 
 @enduml

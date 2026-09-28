@@ -4,11 +4,11 @@ skinparam classAttributeIconSize 0
 skinparam defaultTextAlignment left
 skinparam defaultFontName "Arial"
 
-title Biểu đồ Đối tượng: Thể hiện Cụ thể Phiếu Nhập Kho (Instance Snapshot)
+title Biểu đồ Đối tượng: Phiếu Nhập Kho Tiếp nhận Vật tư Nội bộ (Instance Snapshot)
 
 object "khoHN : Kho" as khoHN {
     maKho = "KHO-HN-01"
-    tenKho = "Kho Tổng Hà Nội"
+    tenKho = "Kho Vật tư Tổng"
     diaChi = "Số 1 Đại Cồ Việt, Hai Bà Trưng, HN"
     dienThoai = "024-3869-1234"
 }
@@ -20,88 +20,77 @@ object "nvLinh : NhanVien" as nvLinh {
     dienThoai = "0988776655"
 }
 
-object "nccSamsung : NhaCungCap" as nccSamsung {
-    maNCC = "NCC-SS-01"
-    tenNCC = "Công ty TNHH Samsung Electronics VN"
-    diaChi = "KCN Yên Phong, Bắc Ninh"
-    email = "contact@samsung.com.vn"
-    trangThai = HOAT_DONG
+object "pbHCTH : PhongBan" as pbHCTH {
+    maPhongBan = "PB-HCTH"
+    tenPhongBan = "Phòng Hành chính - Tổng hợp"
+    diaDiem = "Tầng 2, Tòa nhà A1"
+    trangThai = "HOAT_DONG"
 }
 
-object "po2026_001 : DonMuaHang" as po2026 {
-    maDon = "PO-2026-001"
-    ngayTao = 2026-09-10
-    ngayGiaoDuKien = 2026-09-14
-    tongGiaTri = 750000000.0
-    trangThai = DA_DUYET
-}
-
-object "pnk2026_101 : PhieuNhapKho" as pnk2026 {
+object "pnk2026 : PhieuNhapKho" as pnk2026 {
     maPhieu = "PNK-2026-101"
     ngayNhap = 2026-09-14
-    lyDoNhap = TU_NHA_CUNG_CAP
-    tongGiaTri = 750000000.0
+    lyDoNhap = TIEP_NHAN_PHAN_BO
+    nguonNhap = "Ban Quản lý Cơ sở Vật chất"
     trangThai = DA_XAC_NHAN
-    ghiChu = "Nhập đủ hàng theo PO-2026-001"
+    ghiChu = "Tiếp nhận bàn giao vật tư đợt 1 năm 2026"
 }
 
 object "mn01 : MucNhap" as mn01 {
     soLuong = 20
-    donGiaNhap = 25000000.0
-    thanhTien = 500000000.0
+    viTriKe = "VT-HN-A1-1"
+    ghiChu = "Máy tính mới 100% nguyên niêm phong"
 }
 
 object "mn02 : MucNhap" as mn02 {
     soLuong = 50
-    donGiaNhap = 5000000.0
-    thanhTien = 250000000.0
+    viTriKe = "VT-HN-A1-2"
+    ghiChu = "Chuột quang không dây đóng hộp"
 }
 
-object "spS24 : SanPham" as spS24 {
-    maSP = "SP-SAM-S24U"
-    tenSP = "Samsung Galaxy S24 Ultra 512GB"
-    donViTinh = "Chiếc"
-    giaNhap = 25000000.0
-    nguongTonKho = 5
-    trangThai = DANG_KINH_DOANH
-}
-
-object "spBuds : SanPham" as spBuds {
-    maSP = "SP-SAM-BUDS3"
-    tenSP = "Tai nghe Galaxy Buds 3 Pro"
+object "vtDell : VatTu" as vtDell {
+    maVT = "VT-DELL-OPT"
+    tenVT = "Máy tính để bàn Dell OptiPlex"
     donViTinh = "Bộ"
-    giaNhap = 5000000.0
-    nguongTonKho = 10
-    trangThai = DANG_KINH_DOANH
+    quyCach = "Core i5, 16GB RAM, 512GB SSD"
+    nguongTonKho = 5
+    trangThai = DANG_SU_DUNG
 }
 
-object "tonKhoS24 : TonKho" as tonKhoS24 {
-    soLuong = 35
+object "vtLogi : VatTu" as vtLogi {
+    maVT = "VT-LOGI-M331"
+    tenVT = "Chuột quang không dây Logitech M331"
+    donViTinh = "Chiếc"
+    quyCach = "Silent Wireless 2.4GHz"
+    nguongTonKho = 15
+    trangThai = DANG_SU_DUNG
+}
+
+object "tonKhoDell : TonKho" as tonKhoDell {
+    soLuong = 25
     ngayCapNhat = 2026-09-14
 }
 
-object "tonKhoBuds : TonKho" as tonKhoBuds {
-    soLuong = 80
+object "tonKhoLogi : TonKho" as tonKhoLogi {
+    soLuong = 50
     ngayCapNhat = 2026-09-14
 }
 
 ' Links
-pnk2026 ..> po2026 : theo đơn
+pnk2026 -- pbHCTH : bàn giao từ
 pnk2026 -- khoHN : nhập vào
-pnk2026 -- nvLinh : lập bởi
+pnk2026 -- nvLinh : xác nhận bởi
 pnk2026 *-- mn01
 pnk2026 *-- mn02
 
-mn01 -- spS24 : nhập hàng
-mn02 -- spBuds : nhập hàng
+mn01 -- vtDell : vật tư
+mn02 -- vtLogi : vật tư
 
-po2026 -- nccSamsung : đặt từ
+vtDell -- tonKhoDell
+tonKhoDell -- khoHN
 
-spS24 -- tonKhoS24
-tonKhoS24 -- khoHN
-
-spBuds -- tonKhoBuds
-tonKhoBuds -- khoHN
+vtLogi -- tonKhoLogi
+tonKhoLogi -- khoHN
 @enduml
 
 @startuml object-diagram-phieu-xuat-chuyen-kho
@@ -110,57 +99,75 @@ skinparam classAttributeIconSize 0
 skinparam defaultTextAlignment left
 skinparam defaultFontName "Arial"
 
-title Biểu đồ Đối tượng: Phiếu Xuất Kho Điều chuyển Nội bộ
+title Biểu đồ Đối tượng: Phiếu Xuất Cấp phát Vật tư cho Phòng ban
 
 object "nvLong : NhanVien" as nvLong {
     maNV = "NV003"
     hoTen = "Lê Hoàng Long"
-    chucVu = "Nhân viên kho"
+    chucVu = "Thủ kho / NV kho"
+}
+
+object "pbCNTT : PhongBan" as pbCNTT {
+    maPhongBan = "PB-CNTT"
+    tenPhongBan = "Phòng Công nghệ Thông tin & Kỹ thuật"
+    diaDiem = "Tầng 4, Tòa nhà B1"
 }
 
 object "khoHN : Kho" as khoHN {
     maKho = "KHO-HN-01"
-    tenKho = "Kho Tổng Hà Nội"
+    tenKho = "Kho Vật tư Tổng"
 }
 
-object "khoSG : Kho" as khoSG {
-    maKho = "KHO-SG-01"
-    tenKho = "Kho Chi nhánh TP.HCM"
+object "yccp2026 : YeuCauCapPhat" as yccp2026 {
+    maYeuCau = "YCCP-2026-001"
+    ngayYeuCau = 2026-09-10
+    mucDichSuDung = "Trang bị phòng thực hành tin học"
+    trangThai = DA_DUYET
 }
 
 object "pxk2026_301 : PhieuXuatKho" as pxk2026 {
     maPhieu = "PXK-2026-301"
     ngayXuat = 2026-09-15
-    lyDoXuat = CHUYEN_KHO
-    tongGiaTri = 125000000.0
+    lyDoXuat = CAP_PHAT_NOI_BO
     trangThai = DA_XAC_NHAN
-    ghiChu = "Điều chuyển hàng từ Kho HN sang Kho SG"
+    ghiChu = "Xuất cấp phát theo phiếu yêu cầu YCCP-2026-001 đã duyệt"
 }
 
 object "mx01 : MucXuat" as mx01 {
     soLuongYeuCau = 5
     soLuongThucXuat = 5
-    donGiaXuat = 25000000.0
-    thanhTien = 125000000.0
+    ghiChu = "Bàn giao 5 bộ máy tính đồng bộ Dell"
 }
 
-object "spS24 : SanPham" as spS24 {
-    maSP = "SP-SAM-S24U"
-    tenSP = "Samsung Galaxy S24 Ultra 512GB"
-    giaNhap = 25000000.0
+object "mx02 : MucXuat" as mx02 {
+    soLuongYeuCau = 5
+    soLuongThucXuat = 5
+    ghiChu = "Bàn giao 5 chuột quang Logitech"
+}
+
+object "vtDell : VatTu" as vtDell {
+    maVT = "VT-DELL-OPT"
+    tenVT = "Máy tính để bàn Dell OptiPlex"
+}
+
+object "vtLogi : VatTu" as vtLogi {
+    maVT = "VT-LOGI-M331"
+    tenVT = "Chuột quang không dây Logitech M331"
 }
 
 ' Links
-pxk2026 -- khoHN : xuất từ
-pxk2026 -- nvLong : xuất bởi
+pxk2026 ..> yccp2026 : căn cứ cấp phát
+pxk2026 -- pbCNTT : phòng ban nhận
+pxk2026 -- khoHN : xuất từ kho
+pxk2026 -- nvLong : thủ kho thực hiện
 pxk2026 *-- mx01
-mx01 -- spS24 : mặt hàng
+pxk2026 *-- mx02
+mx01 -- vtDell : vật tư
+mx02 -- vtLogi : vật tư
 
 note right of pxk2026
-    Phiếu xuất kho này dùng cho
-    điều chuyển nội bộ giữa 2 kho.
-    Kho SG sẽ nhận phiếu nhập tương ứng.
+    Phiếu xuất kho nội bộ phục vụ cấp phát vật tư
+    theo yêu cầu đã được Quản lý kho phê duyệt.
+    Không có hóa đơn hay phát sinh mua bán tài chính.
 end note
-
-pxk2026 ..> khoSG : kho đích nhận
 @enduml

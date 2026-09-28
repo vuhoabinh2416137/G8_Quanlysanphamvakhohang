@@ -1,45 +1,42 @@
-@startuml state-don-mua-hang
+@startuml state-yeu-cau-cap-phat
 !theme plain
 skinparam defaultFontName "Arial"
-title Sơ đồ Máy Trạng thái: Vòng đời Đơn Mua Hàng (DonMuaHang)
+title Sơ đồ Máy Trạng thái: Vòng đời Phiếu Yêu Cầu Cấp Phát Vật Tư (YeuCauCapPhat)
 
-[*] --> MOI_TAO : taoDonMua()
+[*] --> MOI_TAO : taoYeuCau()
 
 state MOI_TAO {
-    MOI_TAO : entry / khoiTaoDonMua
-    MOI_TAO : do / choNVMH_ChinhSua
+    MOI_TAO : entry / khoiTaoYeuCau
+    MOI_TAO : do / phongBanChonVatTuVaSoLuong
 }
 
-MOI_TAO --> CHO_DUYET : guiYeuCauDuyet()
-MOI_TAO --> DA_HUY : huyDon()
+MOI_TAO --> CHO_DUYET : guiYeuCauDuyet() [coItNhat1Muc]
+MOI_TAO --> DA_HUY : huyYeuCau()
 
 state CHO_DUYET {
     CHO_DUYET : entry / guiThongBaoDuyetChoQLK
 }
 
-CHO_DUYET --> DA_DUYET : duyetDon() [NganSachDu & KhoConCho] / guiPO_ChoNCC()
-CHO_DUYET --> TU_CHOI : tuChoi(lyDo) / thongBaoTuChoiChoNVMH()
+CHO_DUYET --> DA_DUYET : duyetCapPhat() [TonKhoKhaDung & DungDinhMuc]
+CHO_DUYET --> TU_CHOI : tuChoi(lyDo) / thongBaoTuChoiChoPhongBan()
+CHO_DUYET --> DA_HUY : huyYeuCau()
 
-TU_CHOI --> CHO_DUYET : suaVaGuiLai()
-TU_CHOI --> DA_HUY : dongDon()
+TU_CHOI --> CHO_DUYET : dieuChinhVaGuiLai()
+TU_CHOI --> DA_HUY : dongYeuCau()
 
 state DA_DUYET {
-    DA_DUYET : do / choNCC_XacNhanVaGiaoHang
+    DA_DUYET : entry / thongBaoChoThuKhoVaPhongBan
+    DA_DUYET : do / thuKhoChuanBiVatTu
 }
 
-DA_DUYET --> DANG_GIAO : nccXacNhanGiaoHang()
+DA_DUYET --> DANG_CAP_PHAT : thuKhoXuatKho() / taoPhieuXuat()
 
-state DANG_GIAO {
-    DANG_GIAO : do / theoDoiVanChuyen
+state DANG_CAP_PHAT {
+    DANG_CAP_PHAT : do / kiemDemVaBanGiaoVatTu
 }
 
-DANG_GIAO --> NHAN_MOT_PHAN : nhanHangThucTe() [soLuongNhan < soLuongDat] / taoPhieuNhapKho()
-DANG_GIAO --> DA_NHAN_HANG : nhanDuHang() [soLuongNhan == soLuongDat] / taoPhieuNhapKho()
-
-NHAN_MOT_PHAN --> DA_NHAN_HANG : nhanTiepDotSau() [duSoLuong] / taoPhieuNhapKho()
-NHAN_MOT_PHAN --> HOAN_THANH : chapNhanGiaoThieu()
-
-DA_NHAN_HANG --> HOAN_THANH : doiSoatVaThanhToan() / capNhatSoCai()
+DANG_CAP_PHAT --> HOAN_THANH : kyBienBanBanGiao() / truTonKho()
+DANG_CAP_PHAT --> DA_HUY : suCoGiaoNhanKhongThanh()
 
 HOAN_THANH --> [*]
 DA_HUY --> [*]
@@ -83,32 +80,29 @@ DA_HUY --> [*]
 @startuml state-san-pham
 !theme plain
 skinparam defaultFontName "Arial"
-title Sơ đồ Máy Trạng thái: Vòng đời Sản phẩm (SanPham)
+title Sơ đồ Máy Trạng thái: Vòng đời Vật tư (VatTu)
 
-[*] --> DU_THAO : taoSanPhamMoi()
+[*] --> DU_THAO : taoVatTuMoi()
 
-DU_THAO --> DANG_KINH_DOANH : pheDuyetKinhDoanh()
+DU_THAO --> DANG_SU_DUNG : pheDuyetLuuHanh()
 
-state DANG_KINH_DOANH {
-    SAN_HANG : Sẵn hàng trong kho
-    TON_THAP : Cảnh báo tồn thấp
-    HET_HANG : Hết hàng
+state DANG_SU_DUNG {
+    SAN_HANG : Sẵn sàng cấp phát trong kho
+    TON_THAP : Cảnh báo tồn dưới định mức
+    HET_HANG : Hết vật tư trong kho
 
     [*] --> SAN_HANG : nhapKhoLanDau() [soLuong > nguong]
 
     SAN_HANG --> TON_THAP : xuatKho() [soLuong <= nguong && soLuong > 0] / guiCanhBao()
     TON_THAP --> SAN_HANG : nhapKho() [soLuong > nguong]
-
-    TON_THAP --> HET_HANG : xuatKho() [soLuong == 0] / thongBaoHetHang()
+    TON_THAP --> HET_HANG : xuatKho() [soLuong == 0]
     HET_HANG --> SAN_HANG : nhapKho() [soLuong > nguong]
-    HET_HANG --> TON_THAP : nhapKho() [soLuong <= nguong && soLuong > 0]
 }
 
-DANG_KINH_DOANH --> TAM_NGUNG : tamDungKinhDoanh()
-TAM_NGUNG --> DANG_KINH_DOANH : moLai()
+DANG_SU_DUNG --> TAM_KHOA_KIEM_KE : batDauKiemKe()
+TAM_KHOA_KIEM_KE --> DANG_SU_DUNG : hoanTatKiemKe()
 
-DANG_KINH_DOANH --> NGUNG_KINH_DOANH : khaiTuSanPham() [tonKho == 0]
-TAM_NGUNG --> NGUNG_KINH_DOANH : xacNhanNgung()
-
-NGUNG_KINH_DOANH --> [*]
+DANG_SU_DUNG --> NGUNG_SU_DUNG : ngungCapPhat() [soLuong == 0]
+NGUNG_SU_DUNG --> CHO_THANH_LY : lapBienBanThanhLy()
+CHO_THANH_LY --> [*] : hoanTatThanhLy()
 @enduml
