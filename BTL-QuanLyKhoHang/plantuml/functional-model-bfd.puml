@@ -119,7 +119,7 @@ wbsDiagram {
 **** F3.6.2 Tạo cảnh báo
 **** F3.6.3 Gửi email thông báo
 **** F3.6.4 Hiển thị Dashboard
-**_ F4. Quản lý\nMua hàng
+** F4. Quản lý\nMua hàng
 *** F4.1 Quản lý NCC\n(UC12)
 **** F4.1.1 Thêm NCC mới
 **** F4.1.2 Cập nhật thông tin
@@ -150,7 +150,7 @@ wbsDiagram {
 **** F4.4.4 Ghi nhận chất lượng
 **** F4.4.5 Tạo phiếu nhập tự động
 **** F4.4.6 Cập nhật TT đơn mua
-**_ F5. Quản lý\nNhân viên
+** F5. Quản lý\nNhân viên
 *** F5.1 Quản lý\nnhân viên (UC16)
 **** F5.1.1 Thêm NV mới
 **** F5.1.2 Tạo tài khoản
@@ -158,7 +158,7 @@ wbsDiagram {
 **** F5.1.4 Vô hiệu hóa NV
 **** F5.1.5 Đặt lại mật khẩu
 **** F5.1.6 Liệt kê NV
-**_ F6. Báo cáo\nThống kê
+** F6. Báo cáo\nThống kê
 *** F6.1 Báo cáo\ntồn kho (UC17)
 **** F6.1.1 BC tổng hợp
 **** F6.1.2 BC theo kho
