@@ -4,7 +4,7 @@ skinparam defaultFontName "Arial"
 skinparam backgroundColor #FEFEFE
 skinparam packageStyle rectangle
 
-title Quan hệ giữa các Ca sử dụng\nHệ thống Quản lý Kho hàng và Vật tư Nội bộ Tổ chức
+title Quan hệ giữa 07 Ca sử dụng Cốt lõi\nHệ thống Quản lý Kho hàng và Vật tư Nội bộ Tổ chức
 
 skinparam usecase {
     BackgroundColor<<include_src>> #C8E6C9
@@ -19,39 +19,36 @@ skinparam usecase {
     BackgroundColor<<extend_tgt>> #FFEBEE
     BorderColor<<extend_tgt>> #C62828
 
-    BackgroundColor<<hub>> #E8EAF6
-    BorderColor<<hub>> #283593
+    BackgroundColor<<core>> #E8EAF6
+    BorderColor<<core>> #283593
 }
 
-' ===== Use Cases =====
-usecase "UC15: Bàn giao &\ntiếp nhận VT" as UC15 <<include_src>>
-usecase "UC06: Tạo phiếu\nnhập kho" as UC06 <<include_src>>
-usecase "UC07: Tạo phiếu\nxuất kho" as UC07 <<include_src>>
-usecase "UC13: Tạo yêu cầu\ncấp phát vật tư" as UC13 <<include_src>>
+' ===== 07 Use Cases Cốt lõi =====
+usecase "UC01: Quản trị Người dùng\n& Phân quyền RBAC" as UC01 <<core>>
+usecase "UC02: Quản lý Danh mục\n& Hồ sơ Vật tư, Thiết bị" as UC02 <<core>>
+usecase "UC03: Lập & Theo dõi Yêu cầu\nCấp phát Vật tư" as UC03 <<extend_tgt>>
+usecase "UC04: Thẩm định & Phê duyệt\nYêu cầu Cấp phát" as UC04 <<extend_src>>
+usecase "UC05: Quản lý Nhập kho\n& Điều chuyển Vật tư" as UC05 <<core>>
+usecase "UC06: Quản lý Xuất kho\n& Bàn giao Cấp phát" as UC06 <<include_src>>
+usecase "UC07: Kiểm kê Kho hàng\n& Báo cáo Tồn kho Tổng hợp" as UC07 <<core>>
 
-usecase "UC10: Xem\ntồn kho" as UC10 <<hub>>
-usecase "UC12: Quản lý\nphòng ban" as UC12 <<include_tgt>>
+' ===== Quan hệ Nghiệp vụ =====
+' UC04 mở rộng luồng xử lý của UC03 khi có yêu cầu cần duyệt
+UC04 ..> UC03 : <<extend>>\n[Khi có phiếu yêu cầu mới\ncần thẩm định & duyệt]
 
-usecase "UC11: Cảnh báo\ntồn kho thấp" as UC11 <<extend_tgt>>
-usecase "UC08: Chuyển kho" as UC08 <<extend_tgt>>
+' UC06 bắt buộc bao gồm phiếu đã được duyệt từ UC04
+UC06 ..> UC04 : <<include>>\n[Căn cứ phiếu yêu cầu\nđã được phê duyệt hợp lệ]
 
-' ===== Include Relationships =====
-UC15 ..> UC07 : <<include>>\n"Bàn giao kèm\ntạo phiếu xuất"
+' UC03, UC05, UC06 tham chiếu danh mục UC02
+UC03 ..> UC02 : <<kế thừa dữ liệu>>\n[Tra cứu mã, quy cách & định mức]
+UC05 ..> UC02 : <<kế thừa dữ liệu>>\n[Gán mã & phân loại vật tư nhập]
+UC06 ..> UC02 : <<kế thừa dữ liệu>>\n[Đối soát mã & thông tin vật tư xuất]
 
-UC06 ..> UC10 : <<include>>\n"Cập nhật & hiển thị\ntồn kho sau nhập"
+' UC05, UC06 biến động số liệu phục vụ kiểm kê & báo cáo UC07
+UC07 ..> UC05 : <<tổng hợp dữ liệu>>\n[Số liệu nhập & điều chuyển]
+UC07 ..> UC06 : <<tổng hợp dữ liệu>>\n[Số liệu xuất cấp phát]
 
-UC07 ..> UC10 : <<include>>\n"Kiểm tra tồn kho\ntrước khi xuất"
-
-UC13 ..> UC12 : <<include>>\n"Chọn phòng ban\nkhi tạo yêu cầu"
-
-' ===== Extend Relationships =====
-UC11 ..> UC10 : <<extend>>\n[tồn kho < ngưỡng]
-
-UC08 ..> UC07 : <<extend>>\n[xuất chuyển\ngiữa các kho]
-
-' ===== Layout =====
-UC15 -[hidden]down- UC07
-UC06 -[hidden]down- UC10
-UC13 -[hidden]right- UC15
+' UC01 phân quyền cho toàn bộ hệ thống
+UC01 .[hidden]down. UC02
 
 @enduml

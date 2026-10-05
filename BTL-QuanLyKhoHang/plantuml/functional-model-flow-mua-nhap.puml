@@ -15,36 +15,36 @@ actor "Quản lý kho" as QLK #87CEEB
 actor "Thủ kho / NV Kho" as NV_K #87CEEB
 participant "Hệ thống\nEmail" as EMAIL #E8F5E9
 
-== Giai đoạn 1: Tạo yêu cầu cấp phát (UC13) ==
+== Giai đoạn 1: Lập & Theo dõi Yêu cầu Cấp phát (UC03 - TV2) ==
 
-PB -> HT : Lập yêu cầu cấp phát vật tư\n(chọn PB, mục đích, VT, SL)
+PB -> HT : Lập yêu cầu cấp phát vật tư\n(chọn PB, mục đích, danh mục VT, SL)
 activate HT
-HT -> HT : Lưu YeuCauCapPhat\n[trạng thái: CHO_DUYET]
+HT -> HT : Lưu YeuCauCapPhat + ChiTietYeuCau\n[trạng thái: CHO_DUYET]
 HT -> EMAIL : Gửi thông báo phê duyệt
 deactivate HT
 EMAIL -> QLK : Email: Yêu cầu cấp phát mới\ncần xem xét phê duyệt
 
-== Giai đoạn 2: Phê duyệt yêu cầu (UC14) ==
+== Giai đoạn 2: Thẩm định & Phê duyệt Yêu cầu (UC04 - TV3) ==
 
-QLK -> HT : Xem xét định mức, tồn kho &\nPhê duyệt yêu cầu
+QLK -> HT : Xem xét định mức, tồn kho khả dụng &\nPhê duyệt yêu cầu
 activate HT
-HT -> HT : Cập nhật trạng thái\n[ĐÃ DUYỆT]
-HT -> EMAIL : Gửi thông báo kết quả
+HT -> HT : Cập nhật trạng thái\n[ĐÃ DUYỆT / DANG_CAP_PHAT]
+HT -> EMAIL : Gửi thông báo kết quả duyệt
 EMAIL -> PB : Email: Yêu cầu cấp phát\nđã được phê duyệt
-HT -> EMAIL : Thông báo cho Thủ kho
+HT -> EMAIL : Thông báo cho Thủ kho chuẩn bị hàng
 EMAIL -> NV_K : Email: Chuẩn bị vật tư\nxuất cấp phát
 deactivate HT
 
-== Giai đoạn 3: Bàn giao vật tư & Xuất kho (UC15 + UC07) ==
+== Giai đoạn 3: Quản lý Xuất kho & Bàn giao Cấp phát (UC06 - TV6) ==
 
-NV_K -> HT : Lập phiếu xuất kho\ncấp phát vật tư
+NV_K -> HT : Lập phiếu xuất kho cấp phát\n(căn cứ phiếu yêu cầu đã duyệt)
 activate HT
-HT -> HT : Lưu PhieuXuatKho\n+ MucXuat
-HT -> HT : Cập nhật TonKho\n(giảm số lượng)
-HT -> HT : Cập nhật YeuCauCapPhat\n[HOAN_THANH]
-HT --> NV_K : Xác nhận xuất kho\nthành công
+HT -> HT : Lưu PhieuXuatKho + MucXuat
+HT -> HT : Cập nhật TonKho (giảm số lượng tồn)
+HT -> HT : Cập nhật YeuCauCapPhat [HOAN_THANH]
+HT --> NV_K : Xác nhận xuất kho thành công
 deactivate HT
 
-NV_K --> PB : Bàn giao vật tư thực tế\n(Ký biên bản giao nhận nội bộ)
+NV_K --> PB : Bàn giao vật tư thực tế\n(Ký biên bản giao nhận nội bộ 2 bên)
 
 @enduml

@@ -3,7 +3,7 @@
 skinparam defaultFontName "Arial"
 skinparam backgroundColor #FEFEFE
 
-title Ma trận Phân quyền theo Vai trò (RBAC)\nHệ thống Quản lý Kho hàng và Vật tư Nội bộ Tổ chức
+title Ma trận Phân quyền theo Vai trò (RBAC) cho 07 Ca sử dụng Cốt lõi\nHệ thống Quản lý Kho hàng và Vật tư Nội bộ Tổ chức
 
 skinparam map {
     BackgroundColor #F8F9FA
@@ -11,80 +11,44 @@ skinparam map {
     BorderColor #2F4F4F
 }
 
-map "ADMIN" as admin {
-    Quản lý nhân viên => ✅
-    Phân quyền => ✅
-    Quản lý vật tư => ✅
-    Quản lý danh mục => ✅
-    Tìm kiếm vật tư => ✅
-    Tạo phiếu nhập kho => ❌
-    Tạo phiếu xuất kho => ❌
-    Chuyển kho nội bộ => ❌
-    Kiểm kê kho => ❌
-    Xem tồn kho => ✅
-    Quản lý phòng ban => ✅
-    Tạo yêu cầu cấp phát => ❌
-    Duyệt yêu cầu cấp phát => ❌
-    Bàn giao vật tư => ❌
-    Báo cáo tồn kho => ✅
-    Báo cáo cấp phát PB => ✅
+map "QUẢN TRỊ VIÊN (ADMIN)\n[Phụ trách: TV1 - Vũ Hòa Bình]" as admin {
+    UC01: Quản trị Người dùng & RBAC => ✅ Toàn quyền
+    UC02: Quản lý Danh mục Vật tư => 👁️ Xem/Tra cứu
+    UC03: Lập Yêu cầu Cấp phát => ❌ Không tham gia
+    UC04: Thẩm định & Duyệt Yêu cầu => ❌ Không tham gia
+    UC05: Quản lý Nhập kho & Điều chuyển => ❌ Không tham gia
+    UC06: Quản lý Xuất kho & Bàn giao => ❌ Không tham gia
+    UC07: Kiểm kê & Báo cáo Tồn kho => 👁️ Xem Báo cáo
 }
 
-map "QUẢN LÝ KHO" as qlk {
-    Quản lý nhân viên => ❌
-    Phân quyền => ❌
-    Quản lý vật tư => ✅
-    Quản lý danh mục => ✅
-    Tìm kiếm vật tư => ✅
-    Tạo phiếu nhập kho => ❌
-    Tạo phiếu xuất kho => ❌
-    Chuyển kho nội bộ => ✅
-    Kiểm kê kho => ✅
-    Xem tồn kho => ✅
-    Quản lý phòng ban => ✅
-    Tạo yêu cầu cấp phát => ❌
-    Duyệt yêu cầu cấp phát => ✅
-    Bàn giao vật tư => ❌
-    Báo cáo tồn kho => ✅
-    Báo cáo cấp phát PB => ✅
+map "QUẢN LÝ KHO (WAREHOUSE MGR)\n[Phụ trách: TV3 & TV4 & TV7]" as qlk {
+    UC01: Quản trị Người dùng & RBAC => ❌ Không có quyền
+    UC02: Quản lý Danh mục Vật tư => ✅ Quản lý danh mục
+    UC03: Lập Yêu cầu Cấp phát => ❌ Không tham gia
+    UC04: Thẩm định & Duyệt Yêu cầu => ✅ Thẩm định & Phê duyệt
+    UC05: Quản lý Nhập kho & Điều chuyển => 👁️ Giám sát & Duyệt ĐC
+    UC06: Quản lý Xuất kho & Bàn giao => 👁️ Giám sát cấp phát
+    UC07: Kiểm kê & Báo cáo Tồn kho => ✅ Chủ trì kiểm kê & BC
 }
 
-map "ĐẠI DIỆN PHÒNG BAN" as pb {
-    Quản lý nhân viên => ❌
-    Phân quyền => ❌
-    Quản lý vật tư => ❌
-    Quản lý danh mục => ❌
-    Tìm kiếm vật tư => ✅
-    Tạo phiếu nhập kho => ❌
-    Tạo phiếu xuất kho => ❌
-    Chuyển kho nội bộ => ❌
-    Kiểm kê kho => ❌
-    Xem tồn kho => ❌
-    Quản lý phòng ban => ❌
-    Tạo yêu cầu cấp phát => ✅
-    Duyệt yêu cầu cấp phát => ❌
-    Bàn giao vật tư (ký nhận) => ✅
-    Báo cáo tồn kho => ❌
-    Báo cáo cấp phát PB => ❌
+map "ĐẠI DIỆN PHÒNG BAN (DEPT STAFF)\n[Phụ trách: TV2 - Lý Công Hiếu]" as pb {
+    UC01: Quản trị Người dùng & RBAC => ❌ Không có quyền
+    UC02: Quản lý Danh mục Vật tư => 👁️ Tra cứu danh mục VT
+    UC03: Lập Yêu cầu Cấp phát => ✅ Tạo & Theo dõi YC
+    UC04: Thẩm định & Duyệt Yêu cầu => ❌ Không có quyền
+    UC05: Quản lý Nhập kho & Điều chuyển => ❌ Không có quyền
+    UC06: Quản lý Xuất kho & Bàn giao => ✍️ Ký nhận bàn giao
+    UC07: Kiểm kê & Báo cáo Tồn kho => ❌ Không có quyền
 }
 
-map "NHÂN VIÊN KHO" as nvk {
-    Quản lý nhân viên => ❌
-    Phân quyền => ❌
-    Quản lý vật tư => ❌
-    Quản lý danh mục => ❌
-    Tìm kiếm vật tư => ✅
-    Tạo phiếu nhập kho => ✅
-    Tạo phiếu xuất kho => ✅
-    Chuyển kho nội bộ => ❌
-    Kiểm kê kho => ✅
-    Xem tồn kho => ✅
-    Quản lý phòng ban => ❌
-    Tạo yêu cầu cấp phát => ❌
-    Duyệt yêu cầu cấp phát => ❌
-    Bàn giao vật tư (xuất giao) => ✅
-    Báo cáo tồn kho => ❌
-    Báo cáo cấp phát PB => ❌
+map "THỦ KHO / NV KHO (STAFF)\n[Phụ trách: TV5 & TV6]" as nvk {
+    UC01: Quản trị Người dùng & RBAC => ❌ Không có quyền
+    UC02: Quản lý Danh mục Vật tư => 👁️ Tra cứu thông tin VT
+    UC03: Lập Yêu cầu Cấp phát => ❌ Không tham gia
+    UC04: Thẩm định & Duyệt Yêu cầu => ❌ Không tham gia
+    UC05: Quản lý Nhập kho & Điều chuyển => ✅ Lập phiếu & Vận hành
+    UC06: Quản lý Xuất kho & Bàn giao => ✅ Xuất kho & Bàn giao
+    UC07: Kiểm kê & Báo cáo Tồn kho => 📝 Kiểm đếm thực tế
 }
 
 admin -[hidden]right- qlk

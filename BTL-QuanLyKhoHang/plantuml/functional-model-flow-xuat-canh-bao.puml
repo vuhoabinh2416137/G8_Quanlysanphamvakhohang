@@ -5,36 +5,36 @@ skinparam backgroundColor #FEFEFE
 skinparam sequenceArrowThickness 2
 skinparam sequenceMessageAlign center
 
-title Luồng Dữ liệu Nghiệp vụ: Xuất kho → Cảnh báo tồn thấp\nHệ thống Quản lý Kho hàng và Vật tư Nội bộ Tổ chức
+title Luồng Dữ liệu Nghiệp vụ: Xuất kho → Cảnh báo tồn kho an toàn (Nằm trong UC06 - TV6)\nHệ thống Quản lý Kho hàng và Vật tư Nội bộ Tổ chức
 
-actor "NV Kho" as NV_K #87CEEB
+actor "NV Kho / Thủ kho" as NV_K #87CEEB
 participant "Hệ thống" as HT #F5F5DC
 actor "Quản lý kho" as QLK #87CEEB
 participant "Hệ thống\nEmail" as EMAIL #E8F5E9
 
-NV_K -> HT : Tạo phiếu xuất kho\n(chọn kho, vật tư, SL)
+NV_K -> HT : Thực hiện xuất kho cấp phát (UC06)\n(chọn kho, vật tư, SL cần xuất)
 activate HT
 
-HT -> HT : Kiểm tra tồn kho\nkhả dụng
+HT -> HT : Kiểm tra tồn kho khả dụng
 
 alt Tồn kho đủ (SL xuất ≤ Tồn kho)
 
-    HT -> HT : Lưu PhieuXuatKho\n+ MucXuat
-    HT -> HT : Cập nhật TonKho\n(giảm số lượng)
+    HT -> HT : Lưu PhieuXuatKho + MucXuat
+    HT -> HT : Cập nhật TonKho (giảm số lượng tồn)
 
-    HT -> HT : Kiểm tra ngưỡng\ntồn kho an toàn
+    HT -> HT : Kiểm tra ngưỡng tồn kho an toàn (Min)
 
-    alt TonKho < nguongTonKho (Cảnh báo - UC11)
-        HT -> HT : Tạo bản ghi\ncảnh báo
-        HT -> EMAIL : Gửi email cảnh báo\ntồn kho thấp
-        EMAIL -> QLK : ⚠️ Email: Cảnh báo\nvật tư dưới định mức\n(Vật tư, Kho, Tồn hiện tại)
+    alt TonKho < nguongTonKho (Kích hoạt cảnh báo tự động)
+        HT -> HT : Tạo bản ghi CanhBaoTonKho
+        HT -> EMAIL : Gửi email cảnh báo tồn kho thấp
+        EMAIL -> QLK : ⚠️ Email: Cảnh báo vật tư dưới định mức\n(Mã VT, Kho, Tồn hiện tại < Ngưỡng Min)
     end
 
-    HT --> NV_K : ✅ Xác nhận xuất kho\nthành công
+    HT --> NV_K : ✅ Xác nhận xuất kho thành công
 
 else Tồn kho KHÔNG đủ (SL xuất > Tồn kho)
 
-    HT --> NV_K : ❌ Thông báo:\n"Tồn kho không đủ.\nHiện có: X"
+    HT --> NV_K : ❌ Thông báo lỗi:\n"Tồn kho khả dụng không đủ.\nHiện có: X, Yêu cầu xuất: Y"
 
 end
 

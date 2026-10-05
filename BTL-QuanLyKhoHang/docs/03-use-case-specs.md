@@ -1,202 +1,201 @@
-# 03 - Đặc tả Chi tiết Ca sử dụng (Use Case Specifications)
+# 03 - Đặc tả Chi tiết 07 Ca sử dụng Cốt lõi (Use Case Specifications)
+
+> **Quy định của Giảng viên**: **Không tính ca sử dụng Đăng nhập/Đăng xuất**. Hệ thống có đúng **07 Ca sử dụng nghiệp vụ cốt lõi**, phân công cân bằng **1 Thành viên = 1 Ca sử dụng trọn gói (Owner)**.
 
 ---
 
-## UC06: Tạo Phiếu Nhập Kho Nội Bộ
+## Danh Mục Tổng Thể 07 Ca Sử Dụng & Phân Công Thành Viên
+
+| Mã UC | Tên Ca Sử Dụng | Phân hệ BFD | Tác nhân chính | Phân loại | Điểm UUCW | Thành viên phụ trách (Owner) |
+|:---:|:---|:---|:---|:---:|:---:|:---|
+| **UC01** | **Quản trị Người dùng & Phân quyền RBAC** | F1. Quản trị & Bảo mật | Quản trị viên (Admin) | Average (6 trans.) | 10 | **Vũ Hòa Bình** *(TV1)* |
+| **UC02** | **Quản lý Danh mục & Hồ sơ Vật tư, Thiết bị** | F2. Danh mục & Vật tư | Quản lý kho | Complex (8 trans.) | 15 | **Nguyễn Trung Ngân** *(TV4)* |
+| **UC03** | **Lập & Theo dõi Yêu cầu Cấp phát Vật tư** | F3. Yêu cầu & Cấp phát | Đại diện Phòng ban | Complex (9 trans.) | 15 | **Lý Công Hiếu** *(TV2)* |
+| **UC04** | **Thẩm định & Phê duyệt Yêu cầu Cấp phát** | F3. Yêu cầu & Cấp phát | Quản lý kho | Average (6 trans.) | 10 | **Phạm Duy Hiếu** *(TV3)* |
+| **UC05** | **Quản lý Nhập kho & Điều chuyển Vật tư** | F4. Vận hành Kho vận | Thủ kho / NV Kho | Complex (10 trans.)| 15 | **Hoàng Trọng Đức Anh** *(TV5)* |
+| **UC06** | **Quản lý Xuất kho & Bàn giao Cấp phát** | F4. Vận hành Kho vận | Thủ kho / NV Kho | Complex (10 trans.)| 15 | **Đỗ Duy Đức** *(TV6)* |
+| **UC07** | **Kiểm kê Kho hàng & Báo cáo Thống kê** | F5. Kiểm kê & Báo cáo | Quản lý kho | Complex (12 trans.)| 15 | **Thành viên 7** *(TV7)* |
+
+---
+
+## UC01: Quản Trị Người Dùng & Phân Quyền RBAC
 
 ### Thông tin tổng quan
-
 | Mục | Nội dung |
-|-----|---------|
-| **Tên ca sử dụng** | Tạo Phiếu Nhập Kho Nội Bộ |
-| **ID** | UC06 |
-| **Tác nhân chính** | Nhân viên kho (Warehouse Staff) |
-| **Các bên liên quan** | Quản lý kho (kiểm tra, giám sát), Phòng ban / Đơn vị bàn giao vật tư |
-| **Mô tả** | Nhân viên kho tạo phiếu nhập kho khi tiếp nhận vật tư bàn giao từ cấp trên, hoàn nhập thu hồi từ các phòng ban, nhận hàng điều chuyển từ kho khác hoặc nhập cân đối sau kiểm kê |
-| **Loại** | Complex (>7 transactions) |
-| **Tiền điều kiện** | - Nhân viên kho đã đăng nhập thành công vào hệ thống<br>- Vật tư và biên bản bàn giao đã được chuyển đến kho |
-| **Hậu điều kiện** | - Phiếu nhập kho được lưu vào hệ thống ở trạng thái `DA_XAC_NHAN`<br>- Tồn kho vật tư tương ứng được tự động cập nhật (tăng số lượng)<br>- Ghi nhật ký giao dịch kho |
+|:---|:---|
+| **Tên ca sử dụng** | Quản Trị Người Dùng & Phân Quyền RBAC |
+| **Mã UC** | UC01 |
+| **Tác nhân chính** | Quản trị viên (Admin) |
+| **Người phụ trách (Owner)** | **Vũ Hòa Bình (TV1)** |
+| **Mô tả** | Quản trị viên quản lý danh mục nhân viên cơ quan, cấp phát tài khoản hệ thống, gán/thu hồi vai trò theo mô hình RBAC và cấu hình phân quyền truy cập chức năng |
+| **Độ phức tạp** | Average (6 transactions) — 10 UUCW |
+| **Tiền điều kiện** | Quản trị viên đã đăng nhập thành công với quyền `ROLE_ADMIN` |
+| **Hậu điều kiện** | Hồ sơ nhân sự, tài khoản và ma trận quyền hạn được lưu vào CSDL; ghi nhật ký kiểm toán (Audit Log) |
 
 ### Luồng sự kiện chính (Main Flow)
-
-| Bước | Tác nhân | Hệ thống |
-|------|---------|---------|
-| 1 | NV kho chọn chức năng "Tạo phiếu nhập kho" | |
-| 2 | | Hệ thống hiển thị biểu mẫu tạo phiếu nhập với mã phiếu tự sinh, ngày giờ hiện tại |
-| 3 | NV kho chọn kho tiếp nhận từ danh sách kho quản lý | |
-| 4 | | Hệ thống hiển thị thông tin kho và vị trí lưu trữ khả dụng |
-| 5 | NV kho chọn lý do nhập kho (`TIEP_NHAN_PHAN_BO`, `THU_HOI_PHONG_BAN`, `CHUYEN_KHO_DEN`, `CAN_DOI_KIEM_KE`) | |
-| 6 | NV kho chọn phòng ban/đơn vị bàn giao (nếu là hoàn nhập) hoặc nguồn giao | |
-| 7 | | Hệ thống hiển thị danh mục vật tư hiện hành của tổ chức |
-| 8 | NV kho thêm từng mục vật tư vào phiếu: chọn mã vật tư, nhập số lượng thực nhận, chỉ định vị trí kệ/tầng | |
-| 9 | | Hệ thống kiểm tra tính hợp lệ dữ liệu (số lượng `> 0`, vật tư đang ở trạng thái `DANG_SU_DUNG`) |
-| 10 | NV kho lặp lại bước 8-9 cho đến khi nhập xong tất cả các mục vật tư | |
-| 11 | NV kho nhập ghi chú (nếu có) và xác nhận hoàn tất phiếu nhập | |
-| 12 | | Hệ thống lưu phiếu nhập kho vào CSDL |
-| 13 | | Hệ thống cập nhật tăng số lượng tồn kho (`TonKho += soLuongThucNhan`) |
-| 14 | | Hệ thống ghi log kiểm toán giao dịch (Audit Log) |
-| 15 | | Hệ thống hiển thị thông báo tạo phiếu nhập kho thành công và cung cấp tùy chọn in phiếu |
-
-### Luồng thay thế (Alternative Flows)
-
-**A1: Không tìm thấy vật tư trong danh mục (Bước 8)**
-- 8a. NV kho tìm kiếm mã vật tư nhưng không có trong danh mục.
-- 8b. Hệ thống hiển thị thông báo "Vật tư chưa có trong danh mục tổ chức".
-- 8c. NV kho thông báo cho Quản lý kho để tạo mới danh mục vật tư (UC03).
-- Quay lại bước 8.
-
-**A2: Hủy bỏ thao tác lập phiếu (Bước bất kỳ trước bước 11)**
-- NV kho nhấn nút "Hủy".
-- Hệ thống yêu cầu xác nhận hủy bỏ, không lưu dữ liệu tạm, quay về màn hình danh sách phiếu nhập.
+1. Admin truy cập phân hệ "Quản trị người dùng & Phân quyền".
+2. Hệ thống hiển thị danh sách nhân viên, tài khoản liên kết và vai trò tương ứng.
+3. Admin chọn thao tác: Thêm nhân viên mới, Cấp tài khoản, hoặc Cập nhật vai trò.
+4. Khi gán vai trò: Admin chọn tài khoản và gán một hoặc nhiều vai trò (`ROLE_ADMIN`, `ROLE_WAREHOUSE_MGR`, `ROLE_DEPT_STAFF`, `ROLE_WAREHOUSE_STAFF`).
+5. Hệ thống kiểm tra hợp lệ dữ liệu (định dạng email, trùng lặp mã nhân viên/CCCD).
+6. Admin xác nhận lưu thay đổi phân quyền.
+7. Hệ thống cập nhật bảng `taikhoan`, `vaitro_taikhoan`, sinh mã hash mật khẩu (bcrypt).
+8. Hệ thống ghi nhật ký kiểm toán (`AuditLog`) và gửi email thông báo thông tin tài khoản cho nhân viên.
 
 ---
 
-## UC07: Tạo Phiếu Xuất Kho Nội Bộ
+## UC02: Quản Lý Danh Mục & Hồ Sơ Vật Tư, Thiết Bị
 
 ### Thông tin tổng quan
-
 | Mục | Nội dung |
-|-----|---------|
-| **Tên ca sử dụng** | Tạo Phiếu Xuất Kho Nội Bộ |
-| **ID** | UC07 |
-| **Tác nhân chính** | Nhân viên kho (Warehouse Staff) |
-| **Các bên liên quan** | Quản lý kho (giám sát), Đại diện phòng ban nhận vật tư cấp phát |
-| **Mô tả** | Nhân viên kho tạo phiếu xuất kho để cấp phát vật tư cho các phòng ban theo phiếu yêu cầu đã duyệt, điều chuyển sang kho khác, hoặc xuất thanh lý/tiêu hủy vật tư hỏng |
-| **Loại** | Complex |
-| **Tiền điều kiện** | - Nhân viên kho đã đăng nhập<br>- Vật tư cần xuất có sẵn và đủ số lượng khả dụng trong kho |
-| **Hậu điều kiện** | - Phiếu xuất kho được lưu vào hệ thống<br>- Tồn kho được cập nhật (giảm số lượng)<br>- Kích hoạt cảnh báo tự động nếu tồn kho chạm hoặc giảm dưới ngưỡng an toàn (UC11) |
-
-### Luồng sự kiện chính (Main Flow)
-
-| Bước | Tác nhân | Hệ thống |
-|------|---------|---------|
-| 1 | NV kho chọn chức năng "Tạo phiếu xuất kho" | |
-| 2 | | Hệ thống hiển thị biểu mẫu xuất kho với mã phiếu tự sinh |
-| 3 | NV kho chọn kho xuất vật tư | |
-| 4 | NV kho chọn lý do xuất (`CAP_PHAT_NOI_BO`, `CHUYEN_KHO`, `THANH_LY_HUY`, `CAN_DOI_KIEM_KE`) | |
-| 5 | NV kho chọn phòng ban tiếp nhận (hoặc chọn phiếu yêu cầu cấp phát liên quan nếu là xuất cấp phát) | |
-| 6 | | Nếu xuất theo yêu cầu cấp phát, hệ thống tự động điền danh sách vật tư và số lượng đã duyệt |
-| 7 | NV kho kiểm tra hoặc thêm từng mục vật tư cần xuất: mã vật tư, số lượng thực xuất | |
-| 8 | | Hệ thống kiểm tra số lượng tồn kho khả dụng (`soLuongXuat <= TonKho.soLuong`) |
-| 9 | NV kho lặp lại bước 7-8 cho đến khi hoàn thành | |
-| 10 | NV kho nhập ghi chú và xác nhận xuất kho | |
-| 11 | | Hệ thống lưu phiếu xuất kho vào CSDL |
-| 12 | | Hệ thống cập nhật giảm số lượng tồn kho |
-| 13 | | Hệ thống kiểm tra ngưỡng an toàn: nếu tồn kho `< nguongTonKho` → kích hoạt UC11 (Cảnh báo tồn kho thấp) |
-| 14 | | Hệ thống hiển thị xác nhận thành công và hỗ trợ in phiếu bàn giao |
-
-### Luồng thay thế (Alternative Flows)
-
-**A1: Tồn kho không đủ (Bước 8)**
-- 8a. Hệ thống phát hiện số lượng yêu cầu xuất vượt quá tồn kho khả dụng tại kho xuất.
-- 8b. Hệ thống thông báo lỗi: "Tồn kho không đủ để xuất. Số lượng tồn khả dụng hiện tại: X".
-- 8c. NV kho điều chỉnh lại số lượng xuất thực tế hoặc đề xuất điều chuyển từ kho khác.
-- Quay lại bước 7.
-
-**A2: Vật tư đang bị tạm khóa kiểm kê (Bước 8)**
-- 8a. Vật tư thuộc danh mục kho đang có phiên kiểm kê chưa đóng (`DANG_THUC_HIEN`).
-- 8b. Hệ thống hiển thị thông báo "Vật tư đang bị tạm khóa giao dịch do đang trong phiên kiểm kê".
-- 8c. NV kho không thể xuất vật tư này cho đến khi phiên kiểm kê hoàn tất.
-
----
-
-## UC13: Tạo Yêu Cầu Cấp Phát Vật Tư
-
-### Thông tin tổng quan
-
-| Mục | Nội dung |
-|-----|---------|
-| **Tên ca sử dụng** | Tạo Yêu Cầu Cấp Phát Vật Tư |
-| **ID** | UC13 |
-| **Tác nhân chính** | Đại diện Phòng ban (Department Staff) |
-| **Các bên liên quan** | Quản lý kho (thẩm định, phê duyệt) |
-| **Mô tả** | Cán bộ đại diện phòng ban lập phiếu đề nghị cấp phát vật tư, trang thiết bị phục vụ công tác chuyên môn của đơn vị |
-| **Loại** | Complex |
-| **Tiền điều kiện** | - Đại diện phòng ban đã đăng nhập vào hệ thống<br>- Tài khoản được liên kết với một phòng ban hợp lệ |
-| **Hậu điều kiện** | - Phiếu yêu cầu cấp phát được lưu với trạng thái `CHO_DUYET`<br>- Hệ thống gửi thông báo đến Quản lý kho |
-
-### Luồng sự kiện chính (Main Flow)
-
-| Bước | Tác nhân | Hệ thống |
-|------|---------|---------|
-| 1 | Đại diện PB chọn "Tạo yêu cầu cấp phát" | |
-| 2 | | Hệ thống hiển thị biểu mẫu yêu cầu, tự động sinh mã yêu cầu (`YC-YYYYMMDD-XXX`) và hiển thị thông tin phòng ban |
-| 3 | Đại diện PB nhập mục đích sử dụng (trang bị mới, thay thế hư hỏng, phục vụ đề tài/dự án) | |
-| 4 | Đại diện PB thêm từng mục vật tư: chọn vật tư từ danh mục, nhập số lượng yêu cầu | |
-| 5 | | Hệ thống kiểm tra quy chuẩn định mức của phòng ban (nếu có cấu hình) |
-| 6 | Đại diện PB lặp lại bước 4-5 cho các vật tư khác | |
-| 7 | Đại diện PB nhập ngày cần tiếp nhận dự kiến và ghi chú chi tiết | |
-| 8 | Đại diện PB xác nhận gửi phiếu yêu cầu | |
-| 9 | | Hệ thống lưu phiếu yêu cầu cấp phát với trạng thái `CHO_DUYET` |
-| 10 | | Hệ thống gửi thông báo và email đến Quản lý kho để xem xét phê duyệt |
-| 11 | | Hệ thống hiển thị thông báo gửi yêu cầu thành công |
-
----
-
-## UC14: Duyệt Yêu Cầu Cấp Phát Vật Tư
-
-### Thông tin tổng quan
-
-| Mục | Nội dung |
-|-----|---------|
-| **Tên ca sử dụng** | Duyệt Yêu Cầu Cấp Phát Vật Tư |
-| **ID** | UC14 |
+|:---|:---|
+| **Tên ca sử dụng** | Quản Lý Danh Mục & Hồ Sơ Vật Tư, Thiết Bị |
+| **Mã UC** | UC02 |
 | **Tác nhân chính** | Quản lý kho (Warehouse Manager) |
-| **Mô tả** | Quản lý kho xem xét, thẩm định tính hợp lý về định mức và kiểm tra tồn kho khả dụng để phê duyệt hoặc từ chối yêu cầu cấp phát của phòng ban |
-| **Loại** | Average |
-| **Tiền điều kiện** | - Có phiếu yêu cầu cấp phát đang ở trạng thái `CHO_DUYET`<br>- Quản lý kho đã đăng nhập |
-| **Hậu điều kiện** | - Phiếu yêu cầu chuyển sang trạng thái `DA_DUYET` hoặc `TU_CHOI`<br>- Hệ thống gửi email thông báo kết quả cho phòng ban |
+| **Người phụ trách (Owner)** | **Nguyễn Trung Ngân (TV4)** |
+| **Mô tả** | Quản lý kho tạo mới và quản trị cây danh mục phân cấp (nhóm/loại), hồ sơ thông số kỹ thuật, đơn vị tính, ngưỡng định mức tồn an toàn tối thiểu và bộ lọc tìm kiếm tra cứu |
+| **Độ phức tạp** | Complex (8 transactions) — 15 UUCW |
+| **Tiền điều kiện** | Quản lý kho đã đăng nhập với quyền `ROLE_WAREHOUSE_MGR` |
+| **Hậu điều kiện** | Thông tin danh mục và vật tư lưu vào CSDL; thiết lập sẵn ngưỡng cảnh báo tồn cho từng kho |
 
 ### Luồng sự kiện chính (Main Flow)
-
-| Bước | Tác nhân | Hệ thống |
-|------|---------|---------|
-| 1 | Quản lý kho mở danh sách "Yêu cầu cấp phát chờ duyệt" | |
-| 2 | | Hệ thống hiển thị danh sách các phiếu yêu cầu `CHO_DUYET`, sắp xếp theo độ ưu tiên và thời gian |
-| 3 | Quản lý kho chọn 1 phiếu yêu cầu để xem chi tiết | |
-| 4 | | Hệ thống hiển thị chi tiết phòng ban yêu cầu, mục đích, danh sách vật tư, số lượng yêu cầu, tồn kho khả dụng tương ứng |
-| 5 | Quản lý kho xác nhận số lượng duyệt cấp phát cho từng mục (cho phép duyệt đủ hoặc duyệt một phần) | |
-| 6 | Quản lý kho chọn "Phê duyệt" | |
-| 7 | | Hệ thống cập nhật trạng thái phiếu thành `DA_DUYET`, ghi nhận người duyệt và thời điểm duyệt |
-| 8 | | Hệ thống gửi thông báo kết quả qua email cho Đại diện phòng ban và gửi lệnh xuất kho cho Thủ kho |
-
-### Luồng thay thế (Alternative Flows)
-
-**A1: Từ chối yêu cầu cấp phát (Bước 6)**
-- 6a. Quản lý kho chọn "Từ chối".
-- 6b. Hệ thống yêu cầu Quản lý kho bắt buộc nhập lý do từ chối (vượt định mức, không đúng mục đích sử dụng, kho hết hàng).
-- 6c. Hệ thống cập nhật trạng thái thành `TU_CHOI` kèm nội dung lý do.
-- 6d. Gửi email thông báo từ chối về Đại diện phòng ban.
+1. Quản lý kho mở giao diện "Quản lý Danh mục & Vật tư".
+2. Hệ thống hiển thị cây danh mục phân cấp và lưới dữ liệu danh sách vật tư hiện hành.
+3. Quản lý kho chọn thêm mới hoặc chỉnh sửa hồ sơ vật tư: nhập mã vật tư (duy nhất), tên, quy cách kỹ thuật, ĐVT, nhóm danh mục cha.
+4. Quản lý kho cấu hình ngưỡng tồn an toàn tối thiểu (`NguongToiThieu >= 0`) phục vụ cảnh báo tự động.
+5. Hệ thống kiểm tra ràng buộc nghiệp vụ (BR04: Mã duy nhất, BR11: Không tạo vòng lặp danh mục).
+6. Quản lý kho xác nhận lưu thông tin.
+7. Hệ thống lưu vào bảng `danhmucvattu`, `vattu`, cập nhật cấu trúc tìm kiếm chỉ mục (Index).
+8. Hệ thống thông báo cập nhật danh mục thành công.
 
 ---
 
-## UC09: Kiểm Kê Kho Hàng
+## UC03: Lập & Theo Dõi Yêu Cầu Cấp Phát Vật Tư
 
 ### Thông tin tổng quan
-
 | Mục | Nội dung |
-|-----|---------|
-| **Tên ca sử dụng** | Kiểm Kê Kho Hàng |
-| **ID** | UC09 |
-| **Tác nhân chính** | Quản lý kho, Nhân viên kho |
-| **Mô tả** | Tổ chức đợt kiểm kê thực tế vật tư trong kho, so khớp số lượng thực tế với số liệu sổ sách trên hệ thống và tự động tạo phiếu điều chỉnh cân đối kho |
-| **Loại** | Complex |
-| **Tiền điều kiện** | - Quản lý kho đã lên kế hoạch kiểm kê<br>- Nhân viên kho đã đăng nhập |
-| **Hậu điều kiện** | - Phiếu kiểm kê được hoàn tất và lưu trữ<br>- Tồn kho được điều chỉnh khớp đúng với thực tế (nếu có chênh lệch)<br>- Tự động sinh phiếu điều chỉnh tăng/giảm |
+|:---|:---|
+| **Tên ca sử dụng** | Lập & Theo Dõi Yêu Cầu Cấp Phát Vật Tư |
+| **Mã UC** | UC03 |
+| **Tác nhân chính** | Đại diện Phòng ban (Department Staff) |
+| **Người phụ trách (Owner)** | **Lý Công Hiếu (TV2)** |
+| **Mô tả** | Cán bộ đại diện phòng ban tạo phiếu đề nghị cấp phát vật tư/thiết bị theo nhu cầu công tác, đối chiếu định mức kỳ và theo dõi tiến độ phê duyệt |
+| **Độ phức tạp** | Complex (9 transactions) — 15 UUCW |
+| **Tiền điều kiện** | Cán bộ phòng ban đã đăng nhập; tài khoản gắn với phòng ban hợp lệ |
+| **Hậu điều kiện** | Phiếu yêu cầu lưu ở trạng thái `CHO_DUYET`; gửi thông báo cho Quản lý kho |
 
 ### Luồng sự kiện chính (Main Flow)
+1. Đại diện phòng ban chọn "Tạo phiếu yêu cầu cấp phát vật tư".
+2. Hệ thống hiển thị biểu mẫu yêu cầu với mã phiếu tự sinh (`YC-YYYYMMDD-XXX`), ngày tạo và thông tin phòng ban.
+3. Đại diện phòng ban nhập mục đích sử dụng (trang bị mới, sửa chữa, định kỳ) và ngày cần nhận.
+4. Đại diện phòng ban thêm các dòng vật tư: chọn vật tư từ danh mục, nhập số lượng yêu cầu (`> 0`).
+5. Hệ thống tự động kiểm tra định mức kỳ còn lại của phòng ban đối với từng loại vật tư.
+6. Hệ thống hiển thị cảnh báo nếu số lượng yêu cầu vượt hạn mức định mức.
+7. Đại diện phòng ban xác nhận gửi phiếu yêu cầu.
+8. Hệ thống lưu vào `yeucaucapphat` và `chitietyeucau` với trạng thái `CHO_DUYET`.
+9. Hệ thống gửi email thông báo và hiển thị thông báo Dashboard cho Quản lý kho.
 
-| Bước | Tác nhân | Hệ thống |
-|------|---------|---------|
-| 1 | Quản lý kho chọn "Tạo phiên kiểm kê" | |
-| 2 | | Hệ thống khởi tạo phiên kiểm kê, tự sinh mã phiên (`PKK-YYYYMMDD-XXX`) |
-| 3 | Quản lý kho chọn kho kiểm kê và phạm vi (toàn bộ kho hoặc theo nhóm vật tư) | |
-| 4 | | Hệ thống chốt số liệu tồn sổ sách (Stock Snapshot) và tạm khóa xuất/nhập đối với phạm vi kiểm kê |
-| 5 | | Hệ thống sinh danh sách kiểm đếm (Count sheet) |
-| 6 | NV kho tiến hành đếm thực tế và nhập số lượng thực tế kiểm đếm vào hệ thống | |
-| 7 | | Hệ thống so sánh số lượng thực tế và số lượng sổ sách, tính toán chênh lệch (thừa/thiếu) |
-| 8 | Quản lý kho xem xét báo cáo chênh lệch, yêu cầu kiểm tra lại nếu cần và nhập lý do giải trình | |
-| 9 | Quản lý kho xác nhận phê duyệt kết quả kiểm kê | |
-| 10 | | Hệ thống tự động tạo phiếu nhập điều chỉnh (nếu thừa) hoặc phiếu xuất điều chỉnh (nếu thiếu) |
-| 11 | | Hệ thống cập nhật số lượng tồn kho chính thức theo số liệu thực tế |
-| 12 | | Hệ thống mở khóa giao dịch xuất/nhập và lưu biên bản kiểm kê hoàn tất |
+---
+
+## UC04: Thẩm Định & Phê Duyệt Yêu Cầu Cấp Phát
+
+### Thông tin tổng quan
+| Mục | Nội dung |
+|:---|:---|
+| **Tên ca sử dụng** | Thẩm Định & Phê Duyệt Yêu Cầu Cấp Phát |
+| **Mã UC** | UC04 |
+| **Tác nhân chính** | Quản lý kho (Warehouse Manager) |
+| **Người phụ trách (Owner)** | **Phạm Duy Hiếu (TV3)** |
+| **Mô tả** | Quản lý kho thẩm định tính hợp lý về định mức sử dụng, đối soát tồn kho khả dụng để phê duyệt toàn phần / một phần hoặc từ chối yêu cầu cấp phát của phòng ban |
+| **Độ phức tạp** | Average (6 transactions) — 10 UUCW |
+| **Tiền điều kiện** | Có phiếu yêu cầu cấp phát đang ở trạng thái `CHO_DUYET` |
+| **Hậu điều kiện** | Phiếu yêu cầu chuyển sang `DA_DUYET` hoặc `TU_CHOI`; thông báo email gửi đi; sinh lệnh xuất kho |
+
+### Luồng sự kiện chính (Main Flow)
+1. Quản lý kho mở danh sách "Yêu cầu cấp phát chờ duyệt".
+2. Hệ thống hiển thị danh sách các phiếu `CHO_DUYET`, sắp xếp theo thời gian và mức độ ưu tiên.
+3. Quản lý kho chọn 1 phiếu yêu cầu để xem xét thẩm định.
+4. Hệ thống hiển thị chi tiết: phòng ban đề xuất, mục đích sử dụng, số lượng yêu cầu, tồn kho khả dụng thực tế.
+5. Quản lý kho xác nhận số lượng duyệt cấp phát cho từng mục (cho phép duyệt đủ hoặc duyệt một phần).
+6. Quản lý kho bấm "Phê duyệt" (hoặc "Từ chối" kèm lý do bắt buộc).
+7. Hệ thống cập nhật trạng thái phiếu thành `DA_DUYET`, lưu vết thời gian và người duyệt vào `lichsuduyet`.
+8. Hệ thống gửi email thông báo kết quả cho phòng ban và tự động gửi lệnh xuất kho cấp phát đến Dashboard của Thủ kho.
+
+---
+
+## UC05: Quản Lý Nhập Kho & Điều Chuyển Vật Tư
+
+### Thông tin tổng quan
+| Mục | Nội dung |
+|:---|:---|
+| **Tên ca sử dụng** | Quản Lý Nhập Kho & Điều Chuyển Vật Tư |
+| **Mã UC** | UC05 |
+| **Tác nhân chính** | Thủ kho / Nhân viên kho (Warehouse Staff) |
+| **Người phụ trách (Owner)** | **Hoàng Trọng Đức Anh (TV5)** |
+| **Mô tả** | Thủ kho tiếp nhận vật tư phân bổ từ cấp trên, thu hồi hoàn nhập từ phòng ban, hoặc điều chuyển giữa các kho nội bộ; kiểm đếm thực tế, chỉ định vị trí kệ và ghi tăng tồn kho |
+| **Độ phức tạp** | Complex (10 transactions) — 15 UUCW |
+| **Tiền điều kiện** | Thủ kho đã đăng nhập; có vật tư thực tế và biên bản bàn giao/lệnh điều chuyển |
+| **Hậu điều kiện** | Phiếu nhập kho lưu trạng thái `DA_XAC_NHAN`; tồn kho tăng nguyên tử; cập nhật lịch sử thẻ kho |
+
+### Luồng sự kiện chính (Main Flow)
+1. Thủ kho chọn "Tạo phiếu nhập kho nội bộ" (hoặc tiếp nhận lệnh điều chuyển kho).
+2. Hệ thống sinh mã phiếu (`PNK-YYYYMMDD-XXX`), gán thời điểm hiện tại và thủ kho tiếp nhận.
+3. Thủ kho chọn kho nhận, lý do nhập (`PHAN_BO_CAP_TREN`, `HOAN_NHAP_PHONG_BAN`, `CHUYEN_KHO_DEN`).
+4. Thủ kho thêm từng mục vật tư: chọn mã VT, nhập số lượng thực nhận, chỉ định vị trí Dãy Kệ - Tầng - Ô.
+5. Hệ thống kiểm tra tính hợp lệ dữ liệu (số lượng `> 0`, vật tư ở trạng thái lưu hành).
+6. Trường hợp điều chuyển: Hệ thống tự động đối chiếu số lượng xuất từ kho nguồn và số lượng nhập tại kho đích.
+7. Thủ kho xác nhận lưu và ký biên bản tiếp nhận vật tư.
+8. Hệ thống thực hiện Transaction ACID: Lưu `phieunhapkho`, `mucnhapkho`, tăng `TonKho += soLuongThucNhan`.
+9. Hệ thống cập nhật thẻ kho (Stock Card) và hiển thị thông báo thành công.
+
+---
+
+## UC06: Quản Lý Xuất Kho & Bàn Giao Cấp Phát
+
+### Thông tin tổng quan
+| Mục | Nội dung |
+|:---|:---|
+| **Tên ca sử dụng** | Quản Lý Xuất Kho & Bàn Giao Cấp Phát |
+| **Mã UC** | UC06 |
+| **Tác nhân chính** | Thủ kho / Nhân viên kho (Warehouse Staff) |
+| **Người phụ trách (Owner)** | **Đỗ Duy Đức (TV6)** |
+| **Mô tả** | Thủ kho lập phiếu xuất kho căn cứ theo yêu cầu đã duyệt, kiểm tra chống xuất âm và khóa kiểm kê, bàn giao hiện vật, ký biên bản 2 bên, trừ tồn kho và phát cảnh báo tồn thấp |
+| **Độ phức tạp** | Complex (10 transactions) — 15 UUCW |
+| **Tiền điều kiện** | Có lệnh yêu cầu cấp phát `DA_DUYET` (hoặc lệnh xuất điều chuyển); tồn kho khả dụng đủ |
+| **Hậu điều kiện** | Phiếu xuất kho lưu trữ; tồn kho giảm nguyên tử; yêu cầu cấp phát chuyển `HOAN_THANH`; cảnh báo nếu tồn thấp |
+
+### Luồng sự kiện chính (Main Flow)
+1. Thủ kho mở danh sách lệnh xuất cấp phát, chọn phiếu yêu cầu đã duyệt (`DA_DUYET`).
+2. Hệ thống kế thừa toàn bộ thông tin: phòng ban nhận, danh mục vật tư và số lượng được duyệt cấp phát.
+3. Hệ thống kiểm tra số lượng tồn kho khả dụng (`soLuongXuat <= TonKho.soLuong`) và kiểm tra vật tư có bị khóa kiểm kê không.
+4. Thủ kho xuất kho hàng thực tế tại các vị trí kệ kho được chỉ định.
+5. Cán bộ phòng ban nhận hàng kiểm đếm quy cách thực tế và hai bên tiến hành ký nhận biên bản bàn giao.
+6. Thủ kho xác nhận hoàn tất xuất kho trên hệ thống.
+7. Hệ thống lưu `phieuxuatkho`, `mucxuatkho`, cập nhật giảm `TonKho -= soLuongXuat`, chuyển trạng thái yêu cầu sang `HOAN_THANH`.
+8. Hệ thống kiểm tra ngưỡng an toàn: Nếu `TonKho <= NguongToiThieu` $\rightarrow$ Tự động kích hoạt thông báo cảnh báo đỏ trên Dashboard và gửi email cảnh báo đến Quản lý kho.
+
+---
+
+## UC07: Kiểm Kê Kho Hàng & Báo Cáo Thống Kê Tổng Hợp
+
+### Thông tin tổng quan
+| Mục | Nội dung |
+|:---|:---|
+| **Tên ca sử dụng** | Kiểm Kê Kho Hàng & Báo Cáo Thống Kê Tổng Hợp |
+| **Mã UC** | UC07 |
+| **Tác nhân chính** | Quản lý kho (Warehouse Manager) |
+| **Người phụ trách (Owner)** | **Thành viên 7 (TV7)** |
+| **Mô tả** | Tổ chức đợt kiểm kê hiện vật định kỳ/đột xuất, chốt số liệu sổ sách, tạm khóa giao dịch, tính toán sai lệch thực tế, giải trình lý do và tự sinh phiếu cân bằng kho; đồng thời kết xuất báo cáo XNT và tình hình cấp phát |
+| **Độ phức tạp** | Complex (12 transactions) — 15 UUCW |
+| **Tiền điều kiện** | Quản lý kho lên kế hoạch kiểm kê; các thủ kho đã sẵn sàng kiểm đếm |
+| **Hậu điều kiện** | Tồn kho được điều chỉnh khớp thực tế; biên bản kiểm kê và các báo cáo thống kê kỳ được kết xuất lưu trữ |
+
+### Luồng sự kiện chính (Main Flow)
+1. Quản lý kho khởi tạo đợt kiểm kê: chọn kho kiểm kê, thời điểm bắt đầu và thành phần hội đồng.
+2. Hệ thống chụp ảnh chốt tồn sổ sách (Stock Snapshot) và tạm khóa xuất/nhập phạm vi kiểm kê.
+3. Nhân viên kho kiểm đếm hiện vật thực tế tại từng ô/kệ và nhập số lượng đếm thực tế vào hệ thống.
+4. Hệ thống tính toán đối soát sai lệch: `ChenhLech = SL_ThucTe - SL_SoSach` (Thừa/Thiếu/Khớp).
+5. Quản lý kho yêu cầu giải trình nguyên nhân đối với các dòng vật tư phát sinh chênh lệch.
+6. Quản lý kho phê duyệt kết quả kiểm kê.
+7. Hệ thống tự động sinh phiếu điều chỉnh cân bằng: phiếu nhập cân đối (nếu thừa) hoặc phiếu xuất cân đối (nếu thiếu), cập nhật tồn kho chính thức theo số thực tế và mở khóa giao dịch.
+8. Quản lý kho kết xuất bộ Báo cáo Thống kê kỳ: Báo cáo Kiểm kê sai lệch, Báo cáo Cân đối Xuất - Nhập - Tồn toàn cơ quan, Báo cáo Thống kê Cấp phát theo từng Phòng ban ra định dạng Excel/PDF.

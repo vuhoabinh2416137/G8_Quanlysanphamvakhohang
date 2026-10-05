@@ -1,78 +1,57 @@
-# 02 - Biểu đồ Ca sử dụng Tổng quan (Use Case Diagram)
+# 02 - Biểu đồ Ca sử dụng Tổng quan (07 Ca sử dụng Nghiệp vụ Cốt lõi)
 
-## Danh sách các Tác nhân (Actors)
-
-| Tác nhân | Loại | Trọng số UCP | Mô tả |
-|----------|------|-------------|-------|
-| Quản trị viên (Admin) | Complex | 3 | Quản trị toàn bộ hệ thống: quản lý tài khoản, phân quyền vai trò (RBAC), sao lưu dữ liệu |
-| Quản lý kho (Warehouse Manager) | Complex | 3 | Quản lý danh mục vật tư, phê duyệt yêu cầu cấp phát, điều phối chuyển kho, kiểm kê, báo cáo |
-| Đại diện Phòng ban (Department Staff) | Complex | 3 | Cán bộ đại diện phòng ban lập yêu cầu cấp phát vật tư, theo dõi tiến độ và ký nhận bàn giao |
-| Nhân viên kho / Thủ kho (Warehouse Staff) | Complex | 3 | Tiếp nhận vật tư nhập kho, xuất kho cấp phát, bàn giao tài sản và thực hiện kiểm đếm thực tế |
-| Hệ thống email (SMTP Service) | Simple | 1 | Dịch vụ gửi email thông báo kết quả duyệt cấp phát và gửi cảnh báo tồn kho tự động |
-
-**Tổng UAW (Unadjusted Actor Weight) = 4 × 3 + 1 × 1 = 12 + 1 = 13**
+> **Quy chuẩn đề tài**: Theo quy định của giảng viên hướng dẫn, **không tính ca sử dụng Đăng nhập/Đăng xuất** (xem là cơ chế kỹ thuật nền tảng của hệ thống). Hệ thống bao gồm tối đa **07 Ca sử dụng nghiệp vụ cốt lõi**, phân công cân bằng **1 thành viên = 1 Ca sử dụng trọn gói (Owner)**.
 
 ---
 
-## Danh sách các Ca sử dụng
+## 1. Danh sách các Tác nhân (Actors)
 
-| ID | Tên ca sử dụng | Tác nhân chính | Nhóm chức năng | Phân loại | Trọng số |
-|----|----------------|----------------|----------------|-----------|---------|
-| UC01 | Đăng nhập / Đăng xuất | Tất cả | Xác thực | Simple (1-3 trans.) | 5 |
-| UC02 | Phân quyền người dùng | Admin | Xác thực | Average (4-7 trans.) | 10 |
-| UC03 | Quản lý vật tư, thiết bị | Quản lý kho | Vật tư | Average | 10 |
-| UC04 | Quản lý danh mục vật tư | Quản lý kho | Vật tư | Simple | 5 |
-| UC05 | Tìm kiếm & tra cứu vật tư | Tất cả | Vật tư | Simple | 5 |
-| UC06 | Tạo phiếu nhập kho nội bộ | NV Kho | Vận hành kho | Complex (>7 trans.) | 15 |
-| UC07 | Tạo phiếu xuất kho nội bộ | NV Kho | Vận hành kho | Complex | 15 |
-| UC08 | Chuyển kho nội bộ | Quản lý kho | Vận hành kho | Average | 10 |
-| UC09 | Kiểm kê kho hàng | Quản lý kho, NV Kho | Vận hành kho | Complex | 15 |
-| UC10 | Xem tồn kho & vị trí lưu | Quản lý kho, NV Kho | Vận hành kho | Average | 10 |
-| UC11 | Cảnh báo tồn kho dưới ngưỡng | Hệ thống (sự kiện trạng thái) | Vận hành kho | Simple | 5 |
-| UC12 | Quản lý phòng ban / đơn vị | Quản lý kho, Admin | Yêu cầu & Cấp phát | Average | 10 |
-| UC13 | Tạo yêu cầu cấp phát vật tư | Đại diện Phòng ban | Yêu cầu & Cấp phát | Complex | 15 |
-| UC14 | Duyệt yêu cầu cấp phát | Quản lý kho | Yêu cầu & Cấp phát | Average | 10 |
-| UC15 | Bàn giao & tiếp nhận vật tư | NV Kho, Đại diện Phòng ban | Yêu cầu & Cấp phát | Complex | 15 |
-| UC16 | Quản lý nhân viên | Admin | Nhân sự | Average | 10 |
-| UC17 | Xem báo cáo tồn kho | Quản lý kho | Báo cáo | Average | 10 |
-| UC18 | Báo cáo X-N-T & cấp phát PB | Admin, Quản lý kho | Báo cáo | Average | 10 |
+| Tác nhân | Loại | Trọng số UCP | Vai trò & Trách nhiệm chính trong hệ thống |
+|:---|:---:|:---:|:---|
+| **Quản trị viên (Admin)** | Complex | 3 | Quản trị tài khoản, gán/thu hồi vai trò RBAC, cấu hình hệ thống và giám sát nhật ký an toàn |
+| **Quản lý kho (Warehouse Manager)** | Complex | 3 | Quản lý danh mục vật tư, thẩm định duyệt cấp phát, điều chuyển, mở đợt kiểm kê và xem báo cáo |
+| **Đại diện Phòng ban (Department Staff)**| Complex | 3 | Lập phiếu yêu cầu cấp phát vật tư/thiết bị theo định mức của đơn vị, theo dõi tiến độ và ký nhận |
+| **Thủ kho / NV Kho (Warehouse Staff)** | Complex | 3 | Tiếp nhận phân bổ nhập kho, xuất kho bàn giao hiện vật, thực hiện kiểm đếm thực tế |
+| **Dịch vụ Email (SMTP Gateway)** | Simple | 1 | Hệ thống ngoài nhận thông báo tự động phê duyệt yêu cầu và cảnh báo vật tư thiếu hụt |
 
-**Tổng UUCW (Unadjusted Use Case Weight) = 4 × 5 + 9 × 10 + 5 × 15 = 20 + 90 + 75 = 185**
+$$\mathbf{UAW = 4 \times 3 + 1 \times 1 = 12 + 1 = 13}$$
 
 ---
 
-## Các mối quan hệ giữa các Ca sử dụng
+## 2. Danh sách 07 Ca sử dụng Cốt lõi & Phân công Thành viên
 
-### Quan hệ Include (Bao gồm)
-| Ca sử dụng gốc | Ca sử dụng được bao gồm | Lý do nghiệp vụ |
-|----------------|-------------------------|-----------------|
-| UC06 (Tạo phiếu nhập kho) | UC10 (Xem tồn kho) | Sau khi nhập kho, dữ liệu tồn kho được tự động cập nhật và hiển thị |
-| UC07 (Tạo phiếu xuất kho) | UC10 (Xem tồn kho) | Trước khi xuất kho, hệ thống bắt buộc kiểm tra tồn kho khả dụng để chống xuất âm |
-| UC15 (Bàn giao & tiếp nhận vật tư) | UC07 (Tạo phiếu xuất kho) | Bàn giao vật tư cấp phát cho phòng ban luôn đi kèm thủ tục tạo phiếu xuất kho |
-| UC13 (Tạo yêu cầu cấp phát) | UC12 (Quản lý phòng ban) | Cần chọn phòng ban/đơn vị hợp lệ trực thuộc tổ chức khi tạo phiếu yêu cầu |
+| Mã UC | Tên Ca sử dụng | Tác nhân chính | Phân hệ nghiệp vụ | Số GD | Phân loại | UUCW | Thành viên phụ trách chính (Owner) |
+|:---:|:---|:---|:---|:---:|:---:|:---:|:---|
+| **UC01** | **Quản trị Người dùng & Phân quyền RBAC** | Quản trị viên (Admin) | Quản trị & Bảo mật | 6 | Average | 10 | **Vũ Hòa Bình** *(TV1 - Lead PM)* |
+| **UC02** | **Quản lý Danh mục & Hồ sơ Vật tư, Thiết bị** | Quản lý kho | Danh mục & Vật tư | 8 | Complex | 15 | **Nguyễn Trung Ngân** *(TV4 - DB Lead)* |
+| **UC03** | **Lập & Theo dõi Yêu cầu Cấp phát Vật tư** | Đại diện Phòng ban | Yêu cầu & Cấp phát | 9 | Complex | 15 | **Lý Công Hiếu** *(TV2 - Lead BA 1)* |
+| **UC04** | **Thẩm định & Phê duyệt Yêu cầu Cấp phát** | Quản lý kho | Yêu cầu & Cấp phát | 6 | Average | 10 | **Phạm Duy Hiếu** *(TV3 - Lead BA 2)* |
+| **UC05** | **Quản lý Nhập kho & Điều chuyển Vật tư** | Thủ kho / NV Kho | Vận hành Kho vận | 10 | Complex | 15 | **Hoàng Trọng Đức Anh** *(TV5 - Architect)* |
+| **UC06** | **Quản lý Xuất kho & Bàn giao Cấp phát** | Thủ kho / NV Kho | Vận hành Kho vận | 10 | Complex | 15 | **Đỗ Duy Đức** *(TV6 - UI Specialist)* |
+| **UC07** | **Kiểm kê Kho hàng & Báo cáo Thống kê** | Quản lý kho | Kiểm kê & Báo cáo | 12 | Complex | 15 | **Thành viên 7** *(TV7 - QA Lead)* |
 
-### Quan hệ Extend (Mở rộng)
-| Ca sử dụng gốc | Ca sử dụng mở rộng | Điều kiện kích hoạt |
-|----------------|---------------------|---------------------|
-| UC10 (Xem tồn kho) | UC11 (Cảnh báo tồn kho thấp) | Kích hoạt khi số lượng tồn kho giảm xuống dưới ngưỡng an toàn |
-| UC07 (Tạo phiếu xuất kho) | UC08 (Chuyển kho nội bộ) | Mở rộng khi mục đích xuất là điều chuyển hàng hóa sang chi nhánh kho khác |
+### Tổng hợp Trọng số Ca sử dụng Chưa hiệu chỉnh (UUCW):
+- **Số ca sử dụng Average**: 2 ca (UC01, UC04) $\rightarrow 2 \times 10 = 20\ \text{điểm}$
+- **Số ca sử dụng Complex**: 5 ca (UC02, UC03, UC05, UC06, UC07) $\rightarrow 5 \times 15 = 75\ \text{điểm}$
+
+$$\mathbf{UUCW = 20 + 75 = 95\ \text{điểm}}$$
 
 ---
 
-## Sơ đồ Ca sử dụng Tổng quan
+## 3. Mối quan hệ giữa các Ca sử dụng
+
+### 3.1 Quan hệ Include (Bao gồm)
+- **`UC06` (Quản lý Xuất kho & Bàn giao Cấp phát) $\xrightarrow{\ll include\gg}$ `UC04` (Thẩm định & Phê duyệt Yêu cầu Cấp phát)**:
+  *Lý do nghiệp vụ*: Thủ kho chỉ được phép lập phiếu xuất kho cấp phát khi đã có căn cứ từ một phiếu yêu cầu cấp phát ở trạng thái `DA_DUYET`.
+
+### 3.2 Quan hệ Extend (Mở rộng)
+- **`UC04` (Thẩm định & Phê duyệt Yêu cầu Cấp phát) $\xleftarrow{\ll extend\gg}$ `UC03` (Lập & Theo dõi Yêu cầu Cấp phát Vật tư)**:
+  *Điểm mở rộng*: Kích hoạt quy trình thẩm định khi phòng ban xác nhận gửi phiếu yêu cầu ở trạng thái `CHO_DUYET`.
+
+---
+
+## 4. Sơ đồ Ca sử dụng Tổng quan
 
 ![Biểu đồ Ca sử dụng Tổng quan](../diagrams/use-case-diagram.png)
 
 File mã nguồn PlantUML: [use-case-diagram.puml](../plantuml/use-case-diagram.puml)
-
----
-
-## Phân loại sự kiện nghiệp vụ
-
-| Sự kiện kích hoạt | Loại sự kiện | Ca sử dụng tương ứng |
-|-------------------|--------------|---------------------|
-| Đơn vị cấp trên bàn giao hoặc phòng ban hoàn nhập vật tư | Sự kiện ngoại | UC06 |
-| Phòng ban gửi yêu cầu cấp phát vật tư | Sự kiện ngoại | UC13, UC14 |
-| Nhân viên kho lập phiếu xuất/nhập kho nội bộ | Sự kiện ngoại | UC06, UC07, UC15 |
-| Định kỳ cuối tháng / quý: tạo báo cáo thống kê | Sự kiện thời gian | UC17, UC18 |
-| Số lượng vật tư giảm dưới ngưỡng định mức an toàn | Sự kiện trạng thái | UC11 |

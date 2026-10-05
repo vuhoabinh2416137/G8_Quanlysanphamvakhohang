@@ -12,116 +12,84 @@ skinparam actor {
 }
 skinparam defaultFontName "Arial"
 
-title Biểu đồ Ca sử dụng Tổng quan\nHệ thống Quản lý Kho hàng và Vật tư Nội bộ Tổ chức
+title Biểu đồ 07 Ca sử dụng Cốt lõi (1 Thành viên = 1 Ca sử dụng)\nHệ thống Quản lý Kho hàng và Vật tư Nội bộ Tổ chức
 
 ' ===== ACTORS =====
 actor "Quản trị viên\n(Admin)" as Admin
 actor "Quản lý kho\n(Warehouse Manager)" as WM
 actor "Đại diện Phòng ban\n(Department Staff)" as DS
-actor "Nhân viên kho\n(Warehouse Staff)" as WS
+actor "Thủ kho / NV Kho\n(Warehouse Staff)" as WS
+actor "Dịch vụ Email\n(SMTP Gateway)" as EmailSys <<System>>
 
-actor "Hệ thống\nemail" as EmailSys <<System>>
-
-' ===== Generalization giữa các tác nhân =====
+' ===== Generalization =====
 Admin --|> WM : <<kế thừa quản trị>>
 
 ' ===== SYSTEM BOUNDARY =====
-rectangle "Hệ thống Quản lý Kho hàng và Vật tư Nội bộ" {
+rectangle "Hệ thống Quản lý Kho hàng & Vật tư Nội bộ" {
 
-    ' --- Nhóm 1: Xác thực & Phân quyền ---
-    package "Xác thực & Phân quyền" {
-        usecase "UC01: Đăng nhập /\nĐăng xuất" as UC01
-        usecase "UC02: Phân quyền\nngười dùng" as UC02
+    ' --- F1. Quản trị hệ thống ---
+    package "Phân hệ Quản trị & Bảo mật" {
+        usecase "UC01: Quản trị Người dùng\n& Phân quyền RBAC\n(TV1: Vũ Hòa Bình)" as UC01
     }
 
-    ' --- Nhóm 2: Quản lý Vật tư ---
-    package "Quản lý Vật tư" {
-        usecase "UC03: Quản lý\nvật tư, thiết bị" as UC03
-        usecase "UC04: Quản lý danh mục\nvật tư" as UC04
-        usecase "UC05: Tìm kiếm\nvật tư" as UC05
+    ' --- F2. Quản lý Danh mục Vật tư ---
+    package "Phân hệ Danh mục & Vật tư" {
+        usecase "UC02: Quản lý Danh mục\n& Hồ sơ Vật tư, Thiết bị\n(TV4: Nguyễn Trung Ngân)" as UC02
     }
 
-    ' --- Nhóm 3: Quản lý Vận hành Kho ---
-    package "Quản lý Vận hành Kho" {
-        usecase "UC06: Tạo phiếu\nnhập kho" as UC06
-        usecase "UC07: Tạo phiếu\nxuất kho" as UC07
-        usecase "UC08: Chuyển kho\nnội bộ" as UC08
-        usecase "UC09: Kiểm kê kho" as UC09
-        usecase "UC10: Xem tồn kho" as UC10
-        usecase "UC11: Cảnh báo\ntồn kho thấp" as UC11
+    ' --- F3. Yêu cầu & Cấp phát ---
+    package "Phân hệ Yêu cầu & Cấp phát Phòng ban" {
+        usecase "UC03: Lập & Theo dõi Yêu cầu\nCấp phát Vật tư\n(TV2: Lý Công Hiếu)" as UC03
+        usecase "UC04: Thẩm định & Phê duyệt\nYêu cầu Cấp phát\n(TV3: Phạm Duy Hiếu)" as UC04
     }
 
-    ' --- Nhóm 4: Quản lý Yêu cầu & Cấp phát ---
-    package "Quản lý Yêu cầu & Cấp phát" {
-        usecase "UC12: Quản lý\nphòng ban / đơn vị" as UC12
-        usecase "UC13: Tạo yêu cầu\ncấp phát vật tư" as UC13
-        usecase "UC14: Duyệt yêu cầu\ncấp phát" as UC14
-        usecase "UC15: Bàn giao &\ntiếp nhận vật tư" as UC15
+    ' --- F4. Vận hành Kho vận ---
+    package "Phân hệ Vận hành Kho vận Nội bộ" {
+        usecase "UC05: Quản lý Nhập kho\n& Điều chuyển Vật tư\n(TV5: Hoàng Trọng Đức Anh)" as UC05
+        usecase "UC06: Quản lý Xuất kho\n& Bàn giao Cấp phát\n(TV6: Đỗ Duy Đức)" as UC06
     }
 
-    ' --- Nhóm 5: Quản lý Nhân sự ---
-    package "Quản lý Nhân sự" {
-        usecase "UC16: Quản lý\nnhân viên" as UC16
-    }
-
-    ' --- Nhóm 6: Báo cáo Thống kê ---
-    package "Báo cáo Thống kê" {
-        usecase "UC17: Xem báo cáo\ntồn kho" as UC17
-        usecase "UC18: Báo cáo X-N-T\n& cấp phát PB" as UC18
+    ' --- F5. Kiểm kê & Báo cáo ---
+    package "Phân hệ Kiểm kê & Báo cáo Thống kê" {
+        usecase "UC07: Kiểm kê Kho hàng\n& Báo cáo Tồn kho Tổng hợp\n(TV7: QA Lead)" as UC07
     }
 }
 
 ' ===== ASSOCIATIONS =====
-' --- UC01: Tất cả đăng nhập ---
+' UC01: Admin
 Admin -- UC01
-WM -- UC01
-DS -- UC01
-WS -- UC01
 
-' --- UC02: Phân quyền ---
-Admin -- UC02
+' UC02: Quản lý kho
+WM -- UC02
 
-' --- Quản lý vật tư ---
-WM -- UC03
+' UC03: Đại diện phòng ban
+DS -- UC03
+
+' UC04: Quản lý kho thẩm định duyệt
 WM -- UC04
-WM -- UC05
-DS -- UC05
+UC04 ..> EmailSys : <<gửi email thông báo>>
+
+' UC05: Thủ kho nhập kho & điều chuyển
 WS -- UC05
+WM -- UC05
 
-' --- Quản lý kho ---
+' UC06: Thủ kho xuất kho & bàn giao
 WS -- UC06
-WS -- UC07
-WM -- UC08
-WM -- UC09
-WS -- UC09
-WM -- UC10
-WS -- UC10
-UC11 -- EmailSys
+DS -- UC06 : <<ký nhận bàn giao>>
+UC06 ..> EmailSys : <<cảnh báo tồn kho thấp>>
 
-' --- Quản lý yêu cầu & cấp phát ---
-WM -- UC12
-DS -- UC12
-DS -- UC13
-WM -- UC14
-WS -- UC15
-DS -- UC15
+' UC07: Quản lý kho kiểm kê & báo cáo
+WM -- UC07
+WS -- UC07 : <<kiểm đếm thực tế>>
 
-' --- Quản lý nhân viên ---
-Admin -- UC16
+' ===== USE CASE RELATIONSHIPS =====
+UC04 ..> UC03 : <<extend>> (khi có yêu cầu chờ duyệt)
+UC06 ..> UC04 : <<include>> (căn cứ phiếu yêu cầu đã duyệt)
 
-' --- Báo cáo ---
-WM -- UC17
-Admin -- UC18
-
-' ===== RELATIONSHIPS =====
-' Include relationships
-UC06 ..> UC10 : <<include>>
-UC07 ..> UC10 : <<include>>
-UC15 ..> UC07 : <<include>>
-UC13 ..> UC12 : <<include>>
-
-' Extend relationships
-UC11 ..> UC10 : <<extend>>\n[tồn kho < ngưỡng]
-UC08 ..> UC07 : <<extend>>\n[chuyển giữa các kho]
+note bottom of UC01
+  * Lưu ý: Không tính ca sử dụng Đăng nhập/Đăng xuất
+  * Hệ thống gồm đúng 07 Ca sử dụng nghiệp vụ cốt lõi
+  * Phân bổ cân bằng 1-1 cho 07 thành viên trong nhóm
+end note
 
 @enduml

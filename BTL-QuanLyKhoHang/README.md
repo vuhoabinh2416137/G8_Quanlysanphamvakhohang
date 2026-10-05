@@ -27,8 +27,8 @@ Dự án áp dụng toàn diện phương pháp **Phân tích và Thiết kế H
 | 13 | Thiết kế lưu trữ | Thiết kế Cơ sở Dữ liệu & DDL SQL | [13-database-design.md](./docs/13-database-design.md) | [database-design.puml](./plantuml/database-design.puml) | [database-design.png](./diagrams/database-design.png) |
 | 14 | Thiết kế lưu trữ | Thiết kế các Lớp DAM / DAO | [14-dam-classes.md](./docs/14-dam-classes.md) | [dam-classes.puml](./plantuml/dam-classes.puml) | [dam-classes.png](./diagrams/dam-classes.png) |
 | 15 | Thiết kế giao diện | Thiết kế Giao diện Người dùng (UI/UX) | [15-ui-design.md](./docs/15-ui-design.md) | - | Wireframe Dashboard Kho, Nhập kho nội bộ, Xuất kho cấp phát phòng ban |
-| 16 | Ước lượng dự án | Ước lượng Chi phí Dự án theo UCP | [16-ucp-estimation.md](./docs/16-ucp-estimation.md) | - | UAW=13, UUCW=185, TCF=1.015, EF=0.755 $\rightarrow$ 151.73 UCP $\approx$ 3,035 giờ |
-| 17 | Phân tích chức năng | Mô hình Chức năng Chi tiết (BFD, CRUD, Luồng NV) | [17-functional-model.md](./docs/17-functional-model.md) | [functional-model-*.puml](./plantuml/) | BFD 3 cấp, Ma trận CRUD 18×17, 41 Business Rules, Luồng cấp phát |
+| 16 | Ước lượng dự án | Ước lượng Chi phí Dự án theo UCP | [16-ucp-estimation.md](./docs/16-ucp-estimation.md) | - | UAW=13, UUCW=95, TCF=1.015, EF=0.755 $\rightarrow$ 82.76 UCP $\approx$ 1,655 giờ (07 UC cốt lõi, cân bằng 1:1 cho 7 TV) |
+| 17 | Phân tích chức năng | Mô hình Chức năng Chi tiết (BFD, CRUD, Luồng NV) | [17-functional-model.md](./docs/17-functional-model.md) | [functional-model-*.puml](./plantuml/) | BFD 3 cấp theo 7 UC, Ma trận CRUD 7 UC × 18 Bảng, 41 Business Rules, Luồng cấp phát |
 | 18 | Thuyết trình & Bảo vệ | Kịch bản & Bản trình bày Mô hình Chức năng | [18-functional-model-presentation.md](./docs/18-functional-model-presentation.md) | - | Kịch bản thuyết trình từng phần, tóm tắt 1 trang, Q&A phản biện |
 
 ---
