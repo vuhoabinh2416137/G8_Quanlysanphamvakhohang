@@ -1,12 +1,142 @@
+@startuml ssd-quan-tri-nguoi-dung
+!theme plain
+autonumber
+skinparam responseMessageBelowArrow true
+skinparam defaultFontName "Arial"
+
+title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC01: Quản trị Người dùng & Phân quyền RBAC
+
+actor "Quản trị viên (Admin)" as Admin
+participant ":Hệ thống" as Sys
+
+Admin -> Sys: truyCapQuanTriNguoiDung()
+activate Sys
+Sys --> Admin: hienThiDanhSachNhanVienVaTaiKhoan(dsNhanVien, dsTaiKhoan)
+deactivate Sys
+
+Admin -> Sys: yeuCauCapTaiKhoan(maNV, tenDangNhap, dsVaiTro)
+activate Sys
+Sys --> Admin: xacNhanThongTinVaKiemTraHopLe()
+deactivate Sys
+
+Admin -> Sys: xacNhanLuuPhanQuyen(maNV, dsVaiTro)
+activate Sys
+alt Hợp lệ (Không trùng email/CCCD/Username)
+    Sys --> Admin: thongBaoCapTaiKhoanThanhCong(matKhauTam, ghiAuditLog)
+else Trùng lặp hoặc lỗi dữ liệu
+    Sys --> Admin: thongBaoLoi(lyDo)
+end
+deactivate Sys
+@enduml
+
+@startuml ssd-danh-muc-vat-tu
+!theme plain
+autonumber
+skinparam responseMessageBelowArrow true
+skinparam defaultFontName "Arial"
+
+title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC02: Quản lý Danh mục & Hồ sơ Vật tư, Thiết bị
+
+actor "Quản lý kho" as QLK
+participant ":Hệ thống" as Sys
+
+QLK -> Sys: moGiaoDienDanhMucVatTu()
+activate Sys
+Sys --> QLK: hienThiCayDanhMucVaDanhSachVatTu(cayDanhMuc, dsVatTu)
+deactivate Sys
+
+QLK -> Sys: themMoiVatTu(maVT, tenVT, donViTinh, quyCach, maDanhMucCha, nguongMin, nguongMax)
+activate Sys
+alt Dữ liệu hợp lệ (Mã duy nhất, ngưỡng Min >= 0)
+    Sys --> QLK: thongBaoLuuThanhCong(maVT, capNhatIndexTimKiem)
+else Vi phạm quy tắc (Trùng mã VT hoặc vòng lặp danh mục)
+    Sys --> QLK: thongBaoLoi(thongDiepLoi)
+end
+deactivate Sys
+@enduml
+
+@startuml ssd-yeu-cau-cap-phat
+!theme plain
+autonumber
+skinparam responseMessageBelowArrow true
+skinparam defaultFontName "Arial"
+
+title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC03: Lập & Theo dõi Yêu cầu Cấp phát Vật tư
+
+actor "Đại diện Phòng ban" as DSPB
+participant ":Hệ thống" as Sys
+
+DSPB -> Sys: moFormTaoYeuCau()
+activate Sys
+Sys --> DSPB: hienThiThongTinPhongBanVaDanhMucVT(maPB, dsVatTu, dinhMucKy)
+deactivate Sys
+
+DSPB -> Sys: nhapThongTinYeuCau(mucDichSuDung, ngayCanDung)
+activate Sys
+Sys --> DSPB: xacNhanThongTinChung()
+deactivate Sys
+
+loop Với mỗi vật tư đề xuất cấp phát
+    DSPB -> Sys: themMatHangYeuCau(maVT, soLuong)
+    activate Sys
+    alt Số lượng hợp lệ (soLuong > 0 và trong định mức)
+        Sys --> DSPB: ghiNhanMucYeuCau(dsMucHienTai)
+    else Vượt hạn mức hoặc số lượng <= 0
+        Sys --> DSPB: canhBaoVuotDinhMuc(soLuongDinhMucConLai)
+    end
+    deactivate Sys
+end
+
+DSPB -> Sys: guiYeuCauCapPhat(ghiChu)
+activate Sys
+Sys --> DSPB: thongBaoThanhCong(maYeuCau, trangThai = "CHO_DUYET")
+Sys -> Sys: guiThongBaoDuyetChoQuanLyKho()
+deactivate Sys
+@enduml
+
+@startuml ssd-tham-dinh-duyet
+!theme plain
+autonumber
+skinparam responseMessageBelowArrow true
+skinparam defaultFontName "Arial"
+
+title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC04: Thẩm định & Phê duyệt Yêu cầu Cấp phát
+
+actor "Quản lý kho" as QLK
+participant ":Hệ thống" as Sys
+
+QLK -> Sys: moDanhSachYeuCauChoDuyet()
+activate Sys
+Sys --> QLK: hienThiDanhSachChoDuyet(dsPhieuChoDuyet)
+deactivate Sys
+
+QLK -> Sys: xemChiTietThamDinh(maYeuCau)
+activate Sys
+Sys --> QLK: hienThiThongTinVaTonKhoKhaDung(chiTietYeuCau, tonKhaDungMoiMuc)
+deactivate Sys
+
+alt Đồng ý duyệt (Toàn phần hoặc một phần)
+    QLK -> Sys: xacNhanPheDuyet(maYeuCau, dsSoLuongDuyet)
+    activate Sys
+    Sys --> QLK: thongBaoDuyetThanhCong(trangThai = "DA_DUYET", phatLenhXuatKho)
+    Sys -> Sys: guiEmailThongBaoChoPhongBanVaThuKho()
+else Từ chối yêu cầu
+    QLK -> Sys: xacNhanTuChoi(maYeuCau, lyDoTuChoi)
+    Sys --> QLK: thongBaoTuChoiThanhCong(trangThai = "TU_CHOI")
+    Sys -> Sys: guiEmailTuChoiKemLyDo()
+    deactivate Sys
+end
+@enduml
+
 @startuml ssd-nhap-kho
 !theme plain
 autonumber
 skinparam responseMessageBelowArrow true
 skinparam defaultFontName "Arial"
 
-title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC06: Tạo Phiếu Nhập Kho Nội bộ
+title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC05: Quản lý Nhập kho & Điều chuyển Vật tư
 
-actor "Nhân viên kho" as NV
+actor "Thủ kho / NV Kho" as NV
 participant ":Hệ thống" as Sys
 
 NV -> Sys: yeuCauTaoPhieuNhap()
@@ -28,8 +158,8 @@ end
 
 NV -> Sys: xacNhanHoanTatPhieuNhap(ghiChu)
 activate Sys
-alt Hợp lệ
-    Sys --> NV: thongBaoThanhCong(maPhieuNhap, tangTonKho)
+alt Hợp lệ (Giao dịch ACID thành công)
+    Sys --> NV: thongBaoThanhCong(maPhieuNhap, tangTonKho, ghiTheKho)
 else Lỗi dữ liệu
     Sys --> NV: thongBaoLoi(lyDo)
 end
@@ -42,81 +172,31 @@ autonumber
 skinparam responseMessageBelowArrow true
 skinparam defaultFontName "Arial"
 
-title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC07: Tạo Phiếu Xuất Kho Nội bộ
+title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC06: Quản lý Xuất kho & Bàn giao Cấp phát
 
-actor "Nhân viên kho" as NV
+actor "Thủ kho / NV Kho" as NV
 participant ":Hệ thống" as Sys
 
-NV -> Sys: yeuCauTaoPhieuXuat()
+NV -> Sys: tiepNhanLenhXuatKho(maYeuCauDaDuyet)
 activate Sys
-Sys --> NV: hienThiFormXuatKho(danhSachKho, danhSachLyDoXuat, dsPhongBan)
+Sys --> NV: hienThiThongTinXuat(phongBanNhan, dsVatTuCanXuat, tonKhoKhaDung)
 deactivate Sys
 
-NV -> Sys: chonKhoVaLyDoXuat(maKho, lyDoXuat, maPhongBanNhan)
+NV -> Sys: kiemTraVaSoanHang(maYeuCau, dsViTriKe)
 activate Sys
-Sys --> NV: hienThiDanhSachVatTuTrongKho(dsVatTu, tonKhoKhaDung)
-deactivate Sys
-
-loop Với mỗi vật tư xuất cấp phát / chuyển kho
-    NV -> Sys: themMucXuat(maVT, soLuongXuat)
-    activate Sys
-    alt Tồn kho đủ
-        Sys --> NV: xacNhanThemMucXuat(dsMucXuatHienTai)
-    else Tồn kho không đủ
-        Sys --> NV: thongBaoLoiTonKhoKhongDu(soLuongConLai)
-    end
+alt Tồn kho khả dụng đủ và không bị khóa kiểm kê
+    Sys --> NV: inPhieuXuatKhoVaBienBanBanGiao(maPXK)
+else Tồn kho không đủ (chống xuất âm) hoặc bị khóa
+    Sys --> NV: thongBaoLoiXuatKho(lyDo)
     deactivate Sys
 end
 
-NV -> Sys: xacNhanXuatKho(ghiChu)
+NV -> Sys: xacNhanBanGiaoHoanTat(maPXK, chuKyBenNhan)
 activate Sys
-alt Hợp lệ
-    Sys --> NV: inPhieuXuatKho(maPXK, giamTonKho)
-    opt Tồn kho chạm ngưỡng cảnh báo
-        Sys -> Sys: guiCanhBaoTonKhoThap()
-    end
-else Lỗi
-    Sys --> NV: thongBaoLoi(lyDo)
+Sys --> NV: capNhatGiamTonKho(trangThaiYeuCau = "HOAN_THANH")
+opt Tồn kho chạm hoặc dưới ngưỡng an toàn tối thiểu
+    Sys -> Sys: phatCanhBaoDoDashboardVaGuiEmail()
 end
-deactivate Sys
-@enduml
-
-@startuml ssd-yeu-cau-cap-phat
-!theme plain
-autonumber
-skinparam responseMessageBelowArrow true
-skinparam defaultFontName "Arial"
-
-title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC13: Tạo Yêu Cầu Cấp Phát Vật Tư
-
-actor "Đại diện Phòng ban" as DSPB
-participant ":Hệ thống" as Sys
-
-DSPB -> Sys: moFormTaoYeuCau()
-activate Sys
-Sys --> DSPB: hienThiThongTinPhongBanVaDanhMucVT(maPB, dsVatTu)
-deactivate Sys
-
-DSPB -> Sys: nhapThongTinYeuCau(mucDichSuDung, ngayCanDung)
-activate Sys
-Sys --> DSPB: xacNhanThongTinChung()
-deactivate Sys
-
-loop Với mỗi vật tư đề xuất cấp phát
-    DSPB -> Sys: themMatHangYeuCau(maVT, soLuong)
-    activate Sys
-    alt Số lượng hợp lệ
-        Sys --> DSPB: ghiNhanMucYeuCau(dsMucHienTai)
-    else Số lượng <= 0
-        Sys --> DSPB: baoLoiSoLuongKhongHopLe()
-    end
-    deactivate Sys
-end
-
-DSPB -> Sys: guiYeuCauCapPhat(ghiChu)
-activate Sys
-Sys --> DSPB: thongBaoThanhCong(maYeuCau, trangThai = "CHO_DUYET")
-Sys -> Sys: guiThongBaoDuyetChoQuanLyKho()
 deactivate Sys
 @enduml
 
@@ -126,18 +206,18 @@ autonumber
 skinparam responseMessageBelowArrow true
 skinparam defaultFontName "Arial"
 
-title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC09: Kiểm Kê Kho
+title Sơ đồ Tuần tự Mức Hệ thống (SSD) - UC07: Kiểm kê Kho hàng & Báo cáo Thống kê
 
 actor "Quản lý / Thủ kho" as NV
 participant ":Hệ thống" as Sys
 
 NV -> Sys: taoPhienKiemKe(maKho, phamVi)
 activate Sys
-Sys --> NV: xacNhanKhoaGiaoDichVaInCountSheet(maPhien, danhSachSP)
+Sys --> NV: chotSoDuSoSachVaInCountSheet(maPhien, snapshotTonKho, khoaGiaoDich)
 deactivate Sys
 
 loop Kiểm đếm thực tế từng mặt hàng
-    NV -> Sys: nhapSoLuongKiemDem(maPhien, maSP, soLuongThucTe)
+    NV -> Sys: nhapSoLuongKiemDem(maPhien, maVT, soLuongThucTe)
     activate Sys
     Sys --> NV: capNhatKetQuaKiemDem()
     deactivate Sys
@@ -148,8 +228,8 @@ activate Sys
 Sys --> NV: hienThiBaoCaoChenhLech(dsThuaThieu, tyLeLech)
 deactivate Sys
 
-NV -> Sys: xacNhanDieuChinhKho(maPhien, lyDoGiaiTrinh)
+NV -> Sys: xacNhanPheDuyetVaDieuChinh(maPhien, lyDoGiaiTrinh)
 activate Sys
-Sys --> NV: hoanTatKiemKe(tuDongTaoPhieuDieuChinh, moKhoaGiaoDich)
+Sys --> NV: hoanTatKiemKe(tuDongSinhPhieuCanBang, moKhoaGiaoDich, xuatBaoCaoXNT)
 deactivate Sys
 @enduml

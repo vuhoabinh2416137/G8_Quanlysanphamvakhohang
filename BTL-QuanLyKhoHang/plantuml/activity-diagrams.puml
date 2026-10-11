@@ -1,15 +1,15 @@
 @startuml activity-nhap-kho
 !theme plain
 skinparam defaultFontName "Arial"
-title Biểu đồ Hoạt động: Quy trình Nhập kho Vật tư Nội bộ (UC06)
+title Biểu đồ Hoạt động: Quy trình Nhập kho & Điều chuyển Vật tư (UC05)
 
 |Đơn vị giao / Phòng ban|
 start
-:Bàn giao vật tư đến kho theo kế hoạch\nhoặc hoàn nhập từ phòng ban;
+:Bàn giao vật tư đến kho theo kế hoạch\nhoặc hoàn nhập từ phòng ban / điều chuyển;
 
 |Nhân viên kho|
 :Tiếp nhận vật tư và biên bản bàn giao;
-:Tra cứu danh mục vật tư trên hệ thống;
+:Tra cứu danh mục vật tư trên hệ thống (UC02);
 
 |Hệ thống|
 :Hiển thị thông tin quy cách và danh mục vật tư;
@@ -49,7 +49,7 @@ fork
 fork again
     :Cập nhật trạng thái phiếu nhập [DA_XAC_NHAN];
 fork again
-    :Ghi log lịch sử giao dịch kho;
+    :Ghi log lịch sử giao dịch thẻ kho (Stock Card);
 end fork
 
 :Xuất phiếu nhập kho điện tử;
@@ -62,69 +62,72 @@ stop
 @startuml activity-xuat-kho
 !theme plain
 skinparam defaultFontName "Arial"
-title Biểu đồ Hoạt động: Quy trình Xuất kho Nội bộ (UC07)
+title Biểu đồ Hoạt động: Quy trình Xuất kho & Bàn giao Cấp phát (UC06)
 
 |Nhân viên kho|
 start
-:Nhận yêu cầu xuất kho (cấp phát phòng ban / chuyển kho / thanh lý hủy / điều chỉnh);
+:Tiếp nhận lệnh xuất kho (căn cứ phiếu yêu cầu đã duyệt UC04 / lệnh chuyển kho);
 :Mở giao diện "Tạo phiếu xuất kho";
 
 |Hệ thống|
-:Hiển thị form lập phiếu xuất;
+:Hiển thị form lập phiếu xuất theo căn cứ đã duyệt;
 
 |Nhân viên kho|
-:Chọn kho xuất, lý do xuất và phòng ban nhận / kho đích;
+:Kiểm tra kho xuất, phòng ban nhận và danh sách vật tư;
 repeat
     :Chọn vật tư cần xuất;
-    :Nhập số lượng xuất;
+    :Nhập số lượng xuất thực tế;
     |Hệ thống|
-    :Kiểm tra số lượng tồn khả dụng;
-    if (Tồn khả dụng đủ?) then (Đủ)
+    :Kiểm tra số lượng tồn khả dụng và khóa kiểm kê;
+    if (Tồn khả dụng đủ và không bị khóa?) then (Đủ điều kiện)
         :Thêm mục xuất vào phiếu;
-    else (Không đủ)
-        :Thông báo tồn kho không đủ;
+    else (Không đủ hoặc bị khóa)
+        :Thông báo lỗi (chống xuất âm / vật tư đang kiểm kê);
         |Nhân viên kho|
-        :Điều chỉnh giảm số lượng hoặc chuyển kho khác;
+        :Điều chỉnh giảm số lượng hoặc kiểm tra lại kho;
     endif
     |Nhân viên kho|
 repeat while (Còn vật tư tiếp theo?) is (Có)
 -> Hết;
 
 |Nhân viên kho|
-:Nhập ghi chú và xác nhận phiếu xuất;
+:Nhập ghi chú và in phiếu xuất kho;
+:Bàn giao vật tư cho cán bộ phòng ban nhận;
+:Hai bên ký xác nhận biên bản bàn giao;
+:Xác nhận hoàn tất xuất kho trên hệ thống;
 
 |Hệ thống|
-:Lưu phiếu xuất kho vào CSDL;
+:Lưu phiếu xuất kho và biên bản bàn giao vào CSDL;
 fork
-    :Giảm số lượng tồn kho vật lý;
+    :Giảm số lượng tồn kho vật lý (TonKho -= soLuongXuat);
 fork again
-    :Ghi log lịch sử giao dịch kho;
+    :Cập nhật trạng thái phiếu yêu cầu sang [HOAN_THANH];
 fork again
-    if (Tồn kho sau xuất < Ngưỡng an toàn?) then (Cảnh báo)
-        :Gửi cảnh báo tồn kho thấp đến Quản lý kho;
+    :Ghi log thẻ kho (Stock Card);
+fork again
+    if (Tồn kho sau xuất <= Ngưỡng an toàn tối thiểu?) then (Cảnh báo)
+        :Kích hoạt cảnh báo tồn kho thấp trên Dashboard & Email;
     else (An toàn)
     endif
 end fork
 
-:Xuất phiếu xuất kho điện tử;
-|Nhân viên kho|
-:In phiếu xuất kho và tiến hành bàn giao vật tư;
+:Xuất phiếu xuất kho điện tử hoàn tất;
 stop
 @enduml
 
 @startuml activity-kiem-ke-kho
 !theme plain
 skinparam defaultFontName "Arial"
-title Biểu đồ Hoạt động: Quy trình Kiểm kê Kho hàng Nội bộ (UC09)
+title Biểu đồ Hoạt động: Quy trình Kiểm kê Kho hàng & Báo cáo Thống kê (UC07)
 
 |Quản lý kho|
 start
 :Lên kế hoạch kiểm kê định kỳ / đột xuất;
 :Chọn kho kiểm kê và phạm vi (Toàn bộ / Theo danh mục / Vị trí);
-:Tạo "Phiếu kiểm kê kho" trên hệ thống;
+:Tạo "Phiên kiểm kê kho" trên hệ thống;
 
 |Hệ thống|
-:Chốt số liệu sổ sách tại thời điểm lập phiếu (Snapshot tồn kho);
+:Chốt số liệu sổ sách tại thời điểm lập phiếu (Stock Snapshot);
 :Khóa tạm thời các giao dịch nhập/xuất đối với vật tư kiểm kê;
 :Tạo danh sách kiểm đếm (Count sheet) không hiển thị số lượng sổ sách;
 
@@ -160,24 +163,26 @@ fork
 fork again
     :Tự động tạo Phiếu điều chỉnh giảm (nếu thiếu/hỏng);
 fork again
-    :Cập nhật lại số lượng tồn kho chính thức;
+    :Cập nhật lại số lượng tồn kho chính thức theo số thực tế;
 fork again
     :Mở khóa giao dịch nhập/xuất kho;
+fork again
+    :Kết xuất bộ Báo cáo Xuất - Nhập - Tồn (XNT) định dạng Excel/PDF;
 end fork
 
-:Lưu trữ lịch sử và xuất biên bản kiểm kê;
+:Lưu trữ lịch sử và xuất biên bản kiểm kê hoàn tất;
 stop
 @enduml
 
 @startuml activity-yeu-cau-cap-phat
 !theme plain
 skinparam defaultFontName "Arial"
-title Biểu đồ Hoạt động: Quy trình Yêu cầu & Cấp phát Vật tư Nội bộ (UC13 + UC14)
+title Biểu đồ Hoạt động: Quy trình Lập & Phê duyệt Yêu cầu Cấp phát Vật tư (UC03 + UC04)
 
 |Đại diện Phòng ban|
 start
 :Phát sinh nhu cầu sử dụng vật tư / thiết bị cho công tác;
-:Mở chức năng "Tạo phiếu yêu cầu cấp phát";
+:Mở chức năng "Tạo phiếu yêu cầu cấp phát" (UC03);
 
 |Hệ thống|
 :Khởi tạo form yêu cầu với mã số tự sinh;
@@ -186,10 +191,14 @@ start
 |Đại diện Phòng ban|
 :Nhập mục đích sử dụng (trang bị mới, sửa chữa, định kỳ);
 repeat
-    :Chọn vật tư từ danh mục của tổ chức;
+    :Chọn vật tư từ danh mục của tổ chức (UC02);
     :Nhập số lượng cần cấp phát;
     |Hệ thống|
-    :Kiểm tra quy chuẩn định mức phòng ban;
+    :Kiểm tra quy chuẩn hạn mức kỳ của phòng ban;
+    if (Vượt hạn mức phòng ban?) then (Vượt)
+        :Hiển thị cảnh báo số lượng vượt hạn mức;
+    else (Hợp lệ)
+    endif
     |Đại diện Phòng ban|
 repeat while (Thêm vật tư khác?) is (Có)
 -> Hết;
@@ -198,18 +207,19 @@ repeat while (Thêm vật tư khác?) is (Có)
 :Gửi yêu cầu lên hệ thống với trạng thái "CHO_DUYET";
 
 |Quản lý kho|
-:Nhận thông báo có yêu cầu cấp phát mới cần duyệt;
-:Mở chi tiết yêu cầu để xem xét;
-:Kiểm tra định mức phòng ban và tồn kho khả dụng;
+:Nhận thông báo có yêu cầu cấp phát mới cần duyệt (UC04);
+:Mở chi tiết yêu cầu để xem xét thẩm định;
+:Đối soát định mức phòng ban và tồn kho khả dụng thực tế;
 
 if (Phê duyệt cấp phát?) then (Đồng ý duyệt)
-    :Xác nhận số lượng duyệt cấp phát;
+    :Xác nhận số lượng duyệt cấp phát (toàn phần hoặc một phần);
     :Nhấn "Phê duyệt";
     |Hệ thống|
     :Cập nhật trạng thái yêu cầu thành "DA_DUYET";
-    :Tự động gửi email thông báo cho Phòng ban và Nhân viên kho;
+    :Tự động gửi email thông báo kết quả cho Phòng ban;
+    :Chuyển lệnh xuất kho sang Dashboard của Nhân viên kho (UC06);
     |Nhân viên kho|
-    :Nhận thông báo, chuẩn bị xuất kho bàn giao vật tư;
+    :Nhận lệnh xuất, chuẩn bị vật tư bàn giao;
 else (Từ chối)
     |Quản lý kho|
     :Nhập lý do từ chối (vượt định mức, kho hết hàng dự phòng);

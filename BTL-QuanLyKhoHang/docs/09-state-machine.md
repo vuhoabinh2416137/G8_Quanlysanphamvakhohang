@@ -52,7 +52,7 @@ Trạng thái nghiệp vụ của vật tư gắn liền với vòng đời sử
 - `DU_THAO`: Vừa khởi tạo mã danh mục vật tư mới, chưa đưa vào danh mục cấp phát.
 - `DANG_SU_DUNG`: Trạng thái hoạt động chính, gồm các trạng thái con:
   - `SanHang`: Số lượng tồn kho khả dụng `> nguongTonKho`.
-  - `TonThap`: Khi xuất kho làm số lượng tồn `<= nguongTonKho`, hệ thống tự động phát cảnh báo (UC11).
+  - `TonThap`: Khi xuất kho làm số lượng tồn `<= nguongTonKho`, hệ thống tự động phát cảnh báo tồn an toàn (trong UC06).
   - `HetHang`: Số lượng tồn = 0 (tạm thời không thể xuất cấp phát).
 - `TAM_KHOA_KIEM_KE`: Tạm khóa các giao dịch xuất/nhập khi đang nằm trong phạm vi đợt kiểm kê.
 - `NGUNG_SU_DUNG`: Không cho phép lập yêu cầu cấp phát mới (chỉ thực hiện khi số lượng tồn = 0 hoặc chuyển sang diện thanh lý).

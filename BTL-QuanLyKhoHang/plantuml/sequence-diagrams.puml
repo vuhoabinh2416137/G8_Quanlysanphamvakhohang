@@ -4,9 +4,9 @@ autonumber
 skinparam responseMessageBelowArrow true
 skinparam defaultFontName "Arial"
 
-title Sơ đồ Tuần tự Thiết kế: Tạo Phiếu Nhập Kho Nội bộ (UC06)
+title Sơ đồ Tuần tự Thiết kế: Quản lý Nhập kho & Điều chuyển Vật tư (UC05)
 
-actor "Nhân viên kho" as NV
+actor "Thủ kho / NV Kho" as NV
 boundary "NhapKhoUI" as UI
 control "NhapKhoController" as Ctrl
 participant "NhapKhoService" as Service
@@ -27,7 +27,7 @@ activate Service
 
 Service -> PNK**: create(maPhieu, ngayNhap, lyDoNhap, maKho, maPhongBanGiao)
 
-loop voi moi muc vat tu trong dto.danhSachMucHang
+loop Với mỗi mục vật tư trong dto.danhSachMucHang
     Service -> PNK: themMucNhap(maVT, soLuong, viTriKe)
     activate PNK
     PNK -> MN**: create(maVT, soLuong, viTriKe)
@@ -39,8 +39,8 @@ activate PNDAO
 PNDAO --> Service: ketQuaLuu (true)
 deactivate PNDAO
 
-' Cập nhật tồn kho
-loop voi moi muc vat tu trong pnk.danhSachMucNhap
+' Cập nhật tồn kho nguyên tử
+loop Với mỗi mục vật tư trong pnk.danhSachMucNhap
     Service -> TKKService: congTonKho(pnk.maKho, mn.maVT, mn.soLuong)
     activate TKKService
     TKKService -> TKDAO: timTonKho(maKho, maVT)
@@ -75,9 +75,9 @@ autonumber
 skinparam responseMessageBelowArrow true
 skinparam defaultFontName "Arial"
 
-title Sơ đồ Tuần tự Thiết kế: Tạo Phiếu Xuất Kho Nội bộ (UC07)
+title Sơ đồ Tuần tự Thiết kế: Quản lý Xuất kho & Bàn giao Cấp phát (UC06)
 
-actor "Nhân viên kho" as NV
+actor "Thủ kho / NV Kho" as NV
 boundary "XuatKhoUI" as UI
 control "XuatKhoController" as Ctrl
 participant "XuatKhoService" as Service
@@ -98,7 +98,7 @@ activate Service
 
 Service -> PXK**: create(maPhieu, ngayXuat, lyDoXuat, maKho, maPhongBanNhan, maYeuCau)
 
-loop voi moi vat tu trong dto.danhSachMucXuat
+loop Với mỗi vật tư trong dto.danhSachMucXuat
     Service -> TKService: kiemTraTonKhaDung(dto.maKho, mx.maVT, mx.soLuong)
     activate TKService
     TKService --> Service: duTon (true)
@@ -115,11 +115,11 @@ activate PXDAO
 PXDAO --> Service: true
 deactivate PXDAO
 
-' Trừ tồn kho
-loop voi moi muc xuat
+' Trừ tồn kho & Cảnh báo an toàn
+loop Với mỗi mục xuất
     Service -> TKService: truTonKho(pxk.maKho, mx.maVT, mx.soLuong)
     activate TKService
-    opt Canh bao ton kho thap
+    opt Cảnh báo tồn kho thấp
         TKService -> NotifService: guiCanhBaoTonThap(maVT)
         activate NotifService
         NotifService --> TKService: sent
@@ -145,7 +145,7 @@ autonumber
 skinparam responseMessageBelowArrow true
 skinparam defaultFontName "Arial"
 
-title Sơ đồ Tuần tự Thiết kế: Phê duyệt Kết quả Kiểm kê (UC09)
+title Sơ đồ Tuần tự Thiết kế: Kiểm kê Kho hàng & Báo cáo Thống kê (UC07)
 
 actor "Quản lý kho" as QLK
 boundary "KiemKeUI" as UI
@@ -171,7 +171,7 @@ activate KKDAO
 KKDAO --> Service: pkk
 deactivate KKDAO
 
-loop voi moi muc kiem ke trong pkk.danhSachMucKiemKe
+loop Với mỗi mục kiểm kê trong pkk.danhSachMucKiemKe
     Service -> PKK: capNhatGiaiTrinh(mkk.maSP, giaiTrinh)
     activate PKK
     PKK -> MKK: tinhChenhLech()
@@ -180,7 +180,7 @@ loop voi moi muc kiem ke trong pkk.danhSachMucKiemKe
     deactivate MKK
     deactivate PKK
     
-    alt chenhLech > 0 (Thừa vật tư -> Tạo phiếu nhập điều chỉnh)
+    alt chenhLech > 0 (Thừa vật tư -> Tự sinh phiếu nhập điều chỉnh)
         Service -> PNDAO: taoPhieuNhapDieuChinh(pkk.maKho, mkk.maSP, chenhLech)
         activate PNDAO
         PNDAO --> Service: true
@@ -189,7 +189,7 @@ loop voi moi muc kiem ke trong pkk.danhSachMucKiemKe
         activate TKService
         TKService --> Service: ok
         deactivate TKService
-    else chenhLech < 0 (Thiếu vật tư -> Tạo phiếu xuất điều chỉnh)
+    else chenhLech < 0 (Thiếu vật tư -> Tự sinh phiếu xuất điều chỉnh)
         Service -> PXDAO: taoPhieuXuatDieuChinh(pkk.maKho, mkk.maSP, abs(chenhLech))
         activate PXDAO
         PXDAO --> Service: true
@@ -201,21 +201,17 @@ loop voi moi muc kiem ke trong pkk.danhSachMucKiemKe
     end
 end
 
-Service -> PKK: hoanTatPhienKiemKe()
-activate PKK
-deactivate PKK
-
-Service -> KKDAO: update(pkk)
+Service -> KKDAO: updateTrangThai(maPhien, "HOAN_THANH")
 activate KKDAO
-KKDAO --> Service: true
+KKDAO --> Service: ok
 deactivate KKDAO
 
-Service --> Ctrl: ketQuaResponseDTO
+Service --> Ctrl: ketQuaDuyetDTO
 deactivate Service
 
-Ctrl --> UI: hienThiThanhCong("Đã hoàn tất điều chỉnh kho")
+Ctrl --> UI: hienThiKetQua("Phê duyệt và cân bằng kho hoàn tất!")
 deactivate Ctrl
 
-UI --> QLK: thongBao("Cập nhật kho thành công!")
+UI --> QLK: thongBao("Cân đối kho thành công!")
 deactivate UI
 @enduml
